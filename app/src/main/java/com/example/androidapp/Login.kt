@@ -1,44 +1,112 @@
 package com.example.androidapp
 
 import android.content.Intent
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.widget.Button
-import android.widget.EditText;
+import androidx.activity.ComponentActivity
+import androidx.activity.compose.setContent
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material.icons.*;
+import androidx.compose.material.icons.filled.Lock
+import androidx.compose.material.icons.filled.Person
+import androidx.compose.material3.Button
+import androidx.compose.material3.Icon
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
+import com.example.androidapp.ui.theme.AndroidAppTheme
 import java.util.regex.Pattern
 
-class Login : AppCompatActivity() {
+const val LOGIN_BUTTON_TEXT: String = "LOGIN"
+const val SIGN_UP_BUTTON_TEXT: String = "SIGN UP"
+const val PASSWORD_TEXT: String = "PASSWORD"
+val EMAIL_ADDRESS_PATTERN: Pattern =
+    Pattern.compile("[a-zA-Z0-9\\+\\.\\_\\%\\-\\+]{1,256}\\@[a-zA-Z0-9][a-zA-Z0-9\\-]{0,64}(\\.[a-zA-Z0-9][a-zA-Z0-9\\-]{0,25})+")
 
-    val EMAIL_ADDRESS_PATTERN: Pattern = Pattern.compile(
-        "[a-zA-Z0-9\\+\\.\\_\\%\\-\\+]{1,256}\\@[a-zA-Z0-9][a-zA-Z0-9\\-]{0,64}(\\.[a-zA-Z0-9][a-zA-Z0-9\\-]{0,25})+"
-    )
-
-    private fun isValidString(str: String): Boolean{
-        return EMAIL_ADDRESS_PATTERN.matcher(str).matches()
-    }
-    
+class Login : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_login)
-
-        val buttonClickLogin = findViewById<Button>(R.id.loginButton)
-        buttonClickLogin.setOnClickListener {
-            val loginText = findViewById<EditText>(R.id.login)
-            val loginValue = loginText.text.toString()
-            val passwordText = findViewById<EditText>(R.id.password)
-            val passwordValue = passwordText.text.toString()
-            if(passwordValue != "" && loginValue != ""){
-                if(isValidString(loginValue)) {
-                    val intent = Intent(this, AllNotes::class.java)
-                    startActivity(intent)
-                }
+        setContent {
+            AndroidAppTheme {
+                LoginScreen()
             }
         }
+    }
+}
 
-        val buttonClickSignUp = findViewById<Button>(R.id.signUpButton)
-        buttonClickSignUp.setOnClickListener {
-            val intent = Intent(this, SignUp::class.java)
-            startActivity(intent)
+@Composable
+fun LoginScreen() {
+    val context = LocalContext.current
+
+    // Define variables to hold the input values
+    var loginValue by remember { mutableStateOf("") }
+    var passwordValue by remember { mutableStateOf("") }
+
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(16.dp),
+        verticalArrangement = Arrangement.spacedBy(16.dp),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        OutlinedTextField(
+            value = loginValue,
+            onValueChange = { loginValue = it },
+            label = { Text(LOGIN_BUTTON_TEXT) },
+            leadingIcon = { Icon(imageVector = Icons.Default.Person, contentDescription = null) },
+            keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Email)
+        )
+        OutlinedTextField(
+            value = passwordValue,
+            onValueChange = { passwordValue = it },
+            label = { Text(PASSWORD_TEXT) },
+            leadingIcon = { Icon(imageVector = Icons.Default.Lock, contentDescription = null) },
+            keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Password)
+        )
+        Button(
+            onClick = {
+                if (passwordValue.isNotEmpty() && loginValue.isNotEmpty() && isValidString(
+                        loginValue
+                    )
+                ) {
+                    // Add logic for successful login
+                    val intent = Intent(context, AllNotes::class.java)
+                    context.startActivity(intent)
+                }
+            }
+        ) {
+            Text(LOGIN_BUTTON_TEXT)
         }
+        Button(
+            onClick = {
+                // Add logic for button click
+                val intent = Intent(context, SignUp::class.java)
+                context.startActivity(intent)
+            }
+        ) {
+            Text(SIGN_UP_BUTTON_TEXT)
+        }
+    }
+}
+
+private fun isValidString(str: String): Boolean {
+    return EMAIL_ADDRESS_PATTERN.matcher(str).matches()
+}
+
+@Preview(showBackground = true)
+@Composable
+fun LoginScreenPreview() {
+    AndroidAppTheme {
+        LoginScreen()
     }
 }

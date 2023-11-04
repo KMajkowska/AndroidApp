@@ -14,20 +14,31 @@
         tools:targetApi="31">
         <activity
             android:name=".MainActivity"
-            android:exported="false"
+            android:exported="true"
             android:label="@string/title_activity_main"
-            android:theme="@style/Theme.AndroidApp" />
-            <!-- <intent-filter>
+            android:theme="@style/Theme.AndroidApp">
+            <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter> -->
+            </intent-filter>
+        </activity>
         <activity
-            android:name=".SignUp"
+            android:name=".navigablescreen.NavigableScreen"
+            android:exported="false" />
+        <activity
+            android:name=".navigablescreen.AllNotes"
+            android:exported="false" />
+        <activity
+            android:name=".navigablescreen.SettingsScreen"
             android:exported="false" />
         <activity
             android:name=".Login"
-            android:exported="true">
-        </activity>
+            android:exported="false"
+            android:label="@string/title_activity_login"
+            android:theme="@style/Theme.AndroidApp" />
+        <activity
+            android:name=".SignUp"
+            android:exported="false" />
         <activity
             android:name=".CreateNote"
             android:exported="false" />
