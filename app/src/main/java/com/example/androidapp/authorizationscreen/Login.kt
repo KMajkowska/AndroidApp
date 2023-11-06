@@ -1,4 +1,4 @@
-package com.example.androidapp
+package com.example.androidapp.authorizationscreen
 
 import android.content.Intent
 import android.os.Bundle
@@ -24,6 +24,8 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.example.androidapp.AllNotes
+import com.example.androidapp.SignUp
 import com.example.androidapp.ui.theme.AndroidAppTheme
 import java.util.regex.Pattern
 
