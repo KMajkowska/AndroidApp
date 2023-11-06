@@ -1,7 +1,5 @@
 package com.example.androidapp.navigablescreen
 
-import android.annotation.SuppressLint
-import android.content.Context
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -19,10 +17,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
 import com.example.androidapp.ui.theme.AndroidAppTheme
 
-@SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
 fun CustomBottomNavigation() {
     /*
@@ -30,34 +26,40 @@ fun CustomBottomNavigation() {
      but doing this that way makes sure that the ordering
      on the navigation bar is correct
      */
-    val screens: List<NavigableScreen> = listOf(AllNotes(), CreateNoteScreen(), SettingsScreen())
+    val screens: List<NavigableScreen> = listOf(
+        AllNotes(),
+        CalendarScreen(),
+        DaysScreen(),
+        SettingsScreen()
+    )
     var selectedScreen by remember { mutableStateOf(screens.first()) }
 
     Scaffold(bottomBar = {
         NavigationBar {
             screens.forEach { screen ->
-                NavigationBarItem(icon = {
-                    Icon(
-                        imageVector = screen.screenIcon(),
-                        contentDescription = screen.screenName
-                    )
-                },
+                NavigationBarItem(
+                    icon = {
+                        Icon(
+                            imageVector = screen.screenIcon(),
+                            contentDescription = screen.screenName,
+                        )
+                    },
                     label = { Text(screen.screenName) },
                     selected = screen == selectedScreen,
                     onClick = { selectedScreen = screen },
-                    modifier = Modifier.padding(16.dp)
                 )
             }
         }
-    }, content = {
+    }, content = { padding ->
         Column(
-            modifier = Modifier.fillMaxSize(),
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(padding),
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
-            selectedScreen.View()
+            selectedScreen.ViewWithBackground()
         }
-
     })
 }
 

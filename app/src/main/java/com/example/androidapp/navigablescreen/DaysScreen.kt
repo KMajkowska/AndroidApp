@@ -6,10 +6,10 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.vector.ImageVector
 
-class CreateNoteScreen : NavigableScreen() {
+class DaysScreen : NavigableScreen() {
 
     override val screenName: String
-        get() = "Create note"
+        get() = "Days"
 
     override fun screenIcon(): ImageVector {
         return Icons.Default.Create

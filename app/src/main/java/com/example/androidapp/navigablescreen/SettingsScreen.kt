@@ -1,9 +1,7 @@
 package com.example.androidapp.navigablescreen
 
 import android.annotation.SuppressLint
-import android.content.Context
-import android.widget.Toast
-import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -11,19 +9,18 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
+import androidx.compose.material3.Divider
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
@@ -32,18 +29,23 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
-import org.intellij.lang.annotations.Language
+import com.example.androidapp.settings.FontSizeEnum
+import com.example.androidapp.settings.LanguageEnum
+import com.example.androidapp.settings.NoteSortOptionEnum
+import com.example.androidapp.settings.StyleModeEnum
+import com.example.androidapp.settings.SupportedFontEnum
 
 // All these will be a language based enum (a map of enums maybe)
-val languages = listOf("English", "Polski")
-val modes = listOf("Light mode", "Dark mode", "Device mode")
-val fonts = listOf("Arial", "Comic Sans")
-val fontSizes = listOf("Medium", "Small", "Big")
+val languages = LanguageEnum.values()
+val modes = StyleModeEnum.values()
+val fonts = SupportedFontEnum.values()
+val fontSizes = FontSizeEnum.values()
+val sortOptions = NoteSortOptionEnum.values()
 
-class SettingsScreen() : NavigableScreen() {
+class SettingsScreen : NavigableScreen() {
     override val screenName: String
         get() = "Settings"
 
@@ -51,143 +53,190 @@ class SettingsScreen() : NavigableScreen() {
         return Icons.Default.Settings
     }
 
-    @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
+    // TODO: Add actual states of the application, make selecting actually call functions
     @Composable
     override fun View() {
-        val context = LocalContext.current
+        val selectedLanguage = remember { mutableStateOf(languages.first()) }
+        val notificationsEnabled = remember { mutableStateOf(true) }
+        val selectedMode = remember { mutableStateOf(modes.first()) }
+        val selectedFont = remember { mutableStateOf(fonts.first()) }
+        val selectedFontSize = remember { mutableStateOf(fontSizes.first()) }
+        val unicornModeEnabled = remember { mutableStateOf(false) }
+        val selectedSortOption = remember { mutableStateOf(sortOptions.first()) }
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(8.dp)
+        ) {
+            DropDown(
+                dropdownName = "Language",
+                allOptions = languages,
+                selectedValueModifierFunction = selectedLanguage
+            )
 
-        var selectedLanguage by remember { mutableStateOf(languages.first()) }
-        var notificationsEnabled by remember { mutableStateOf(true) }
-        var selectedMode by remember { mutableStateOf(modes.first()) }
-        var selectedFont by remember { mutableStateOf(fonts.first()) }
-        var selectedFontSize by remember { mutableStateOf(fontSizes.first()) }
-        var unicornModeEnabled by remember { mutableStateOf(false) }
-        var selectedSortOption by remember { mutableStateOf("Date Created") }
+            HorizontalDivider()
+            Toggle(toggleOption = notificationsEnabled, text = "Notifications")
 
-        var showDialog by remember { mutableStateOf(false) }
+            HorizontalDivider()
+            DropDown(
+                dropdownName = "Modes",
+                allOptions = modes,
+                selectedValueModifierFunction = selectedMode
+            )
 
-        Scaffold(content = {
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(16.dp)
-            ) {
-                // Language Dropdown
-                DropDown(
-                    dropdownName = "Language",
-                    allOptions = languages,
-                    selectedValueModifierFunction = { l -> selectedLanguage = l }
-                )
+            HorizontalDivider()
+            DropDown(
+                dropdownName = "Font",
+                allOptions = fonts,
+                selectedValueModifierFunction = selectedFont
+            )
 
-                // Notifications Toggle
-                HorizontalDivider()
-                Column {
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        modifier = Modifier.fillMaxWidth()
-                    ) {
-                        Text(text = "Notifications")
-                        Switch(
-                            checked = notificationsEnabled,
-                            onCheckedChange = { notificationsEnabled = it })
-                    }
-                }
+            HorizontalDivider()
+            DropDown(
+                dropdownName = "Font size",
+                allOptions = fontSizes,
+                selectedValueModifierFunction = selectedFontSize
+            )
 
-                // Mode Dropdown
-                HorizontalDivider()
-                DropDown(
-                    dropdownName = "Modes",
-                    allOptions = modes,
-                    selectedValueModifierFunction = { m -> selectedMode = m }
-                )
+            HorizontalDivider()
+            DropDown(
+                dropdownName = "Sort option",
+                allOptions = sortOptions,
+                selectedValueModifierFunction = selectedSortOption
+            )
 
-                // Add more settings options here...
+            HorizontalDivider()
+            Toggle(toggleOption = unicornModeEnabled, text = "Unicorn mode")
 
-                // Dialog buttons
-                HorizontalDivider()
-                Column {
-                    Button(onClick = { showDialog = true }) {
-                        Text("Backup")
-                    }
+            HorizontalDivider()
+            Dialog(text = "Backup", functionCall = { })
 
-                    Spacer(modifier = Modifier.height(8.dp))
+            HorizontalDivider()
+            Dialog(text = "Sign out", functionCall = { })
 
-                    Button(onClick = { showDialog = true }) {
-                        Text("Sign Out")
-                    }
-
-                    Spacer(modifier = Modifier.height(8.dp))
-
-                    Button(onClick = { showDialog = true }) {
-                        Text("Delete Account")
-                    }
-                }
-            }
-        })
-
-        // Dialog to be shown on button click
-        if (showDialog) {
-            AlertDialog(onDismissRequest = { showDialog = false },
-                title = { Text("Confirmation") },
-                text = { Text("Are you sure you want to perform this action?") },
-                confirmButton = {
-                    Button(onClick = {
-                        showDialog = false
-                        // Handle button click action here
-                        Toast.makeText(context, "Action performed", Toast.LENGTH_SHORT)
-                            .show()
-                    }) {
-                        Text("OK")
-                    }
-                },
-                dismissButton = {
-                    Button(onClick = { showDialog = false }) {
-                        Text("Cancel")
-                    }
-                })
+            HorizontalDivider()
+            Dialog(text = "Delete account", functionCall = { })
         }
-
     }
 }
 
 @Composable
 fun HorizontalDivider() {
-    Spacer(modifier = Modifier.height(16.dp))
+    Spacer(modifier = Modifier.height(8.dp))
+    Divider(modifier = Modifier.fillMaxWidth())
+    Spacer(modifier = Modifier.height(8.dp))
+}
+
+@Composable
+fun Dialog(
+    text: String,
+    functionCall: () -> Unit
+) {
+    val showDialog = remember { mutableStateOf(false) }
+
+    if (showDialog.value) {
+        AlertDialog(
+            onDismissRequest = {
+                showDialog.value = false
+            },
+            title = {
+                Text(text)
+            },
+            confirmButton = {
+                Button(
+                    onClick = {
+                        // Handle confirmation logic here
+                        functionCall()
+                        showDialog.value = false
+                    }
+                ) {
+                    Text("Confirm")
+                }
+            },
+            dismissButton = {
+                Button(
+                    onClick = {
+                        showDialog.value = false
+                    }
+                ) {
+                    Text("Cancel")
+                }
+            }
+        )
+    }
+
+    Button(
+        onClick = {
+            showDialog.value = true
+        }
+    ) {
+        Text(text)
+    }
+}
+
+@Composable
+fun Toggle(
+    toggleOption: MutableState<Boolean>,
+    text: String
+) {
+    Column {
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Text(text = text)
+            Switch(
+                checked = toggleOption.value,
+                onCheckedChange = { toggleOption.value = it })
+        }
+    }
 }
 
 @Composable
 fun <T> DropDown(
     dropdownName: String,
-    allOptions: List<T>,
-    selectedValueModifierFunction: (T) -> Unit
+    allOptions: Array<T>,
+    selectedValueModifierFunction: MutableState<T>
 ) {
     // Language Dropdown
-    Column {
-
-        Box {
+    Column(
+        verticalArrangement = Arrangement.Center, // Align children vertically at the center
+        horizontalAlignment = Alignment.Start, // Align children horizontally at the center
+        modifier = Modifier.fillMaxWidth() // Fill the available width
+    ) {
+        Row(
+            verticalAlignment = Alignment.CenterVertically, // Align children vertically at the center
+            horizontalArrangement = Arrangement.spacedBy(4.dp) // Add spacing between children
+        ) {
             var expanded by remember { mutableStateOf(false) }
             Text(text = dropdownName)
-            IconButton(onClick = { expanded = true }) {
-                Icon(
-                    Icons.Default.MoreVert,
-                    contentDescription = "Localized description"
-                )
-            }
-            DropdownMenu(
-                expanded = expanded,
-                onDismissRequest = { expanded = false }
-            ) {
-                allOptions.forEach { option ->
-                    DropdownMenuItem(
-                        text = { Text(option.toString()) },
-                        onClick = {
-                            selectedValueModifierFunction(option)
-                            expanded = false
-                        }
+            Column {
+                TextButton(onClick = { expanded = true }) {
+                    Text(
+                        text = selectedValueModifierFunction.value.toString(),
+                        color = Color.Black
                     )
+                    Icon(
+                        Icons.Default.MoreVert,
+                        contentDescription = "Localized description"
+                    )
+                }
+
+                DropdownMenu(
+                    expanded = expanded,
+                    onDismissRequest = { expanded = false }
+                ) {
+                    allOptions.forEach { option ->
+                        DropdownMenuItem(
+                            text = { Text(option.toString()) },
+                            onClick = {
+                                selectedValueModifierFunction.value = option
+                                expanded = false
+                            }
+                        )
+                    }
                 }
             }
         }
     }
-
 }

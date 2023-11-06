@@ -1,4 +1,7 @@
 package com.example.androidapp.settings
 
-enum class FontSize {
+enum class FontSizeEnum {
+    NORMAL,
+    SMALL,
+    BIG
 }

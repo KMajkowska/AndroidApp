@@ -21,6 +21,14 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
 class AllNotes : NavigableScreen() {
+
+    override val screenName: String
+        get() = "All notes"
+
+    override fun screenIcon(): ImageVector {
+        return Icons.Default.AddCircle
+    }
+
     @Composable
     override fun View() {
         Column(
@@ -52,10 +60,4 @@ class AllNotes : NavigableScreen() {
         }
     }
 
-    override val screenName: String
-        get() = "All notes"
-
-    override fun screenIcon(): ImageVector {
-        return Icons.Default.AddCircle
-    }
 }

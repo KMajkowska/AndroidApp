@@ -1,6 +1,6 @@
 package com.example.androidapp.settings
 
-enum class SupportedFont {
+enum class SupportedFontEnum {
     ARIAL,
     ROBOTO
 }

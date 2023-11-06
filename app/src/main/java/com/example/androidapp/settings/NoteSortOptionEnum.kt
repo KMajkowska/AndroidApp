@@ -1,6 +1,6 @@
 package com.example.androidapp.settings
 
-enum class NoteSortOption {
+enum class NoteSortOptionEnum {
     ASCENDING,
     DESCENDING
 }
