@@ -7,12 +7,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.vector.ImageVector
 
 class CreateNoteScreen : NavigableScreen() {
-    @Composable
-    override fun View() {
-        Text(
-            text = "Hello world!"
-        )
-    }
 
     override val screenName: String
         get() = "Create note"
@@ -20,4 +14,10 @@ class CreateNoteScreen : NavigableScreen() {
     override fun screenIcon(): ImageVector {
         return Icons.Default.Create
     }
+
+    @Composable
+    override fun View() {
+        Text(text = screenName)
+    }
+
 }
