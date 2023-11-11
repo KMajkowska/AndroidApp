@@ -1,41 +1,35 @@
 package com.example.androidapp
 
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
+import com.example.androidapp.database.AppDatabase
+import com.example.androidapp.database.entity.NoteEntity
+import com.example.androidapp.database.repository.NoteRepository
+import com.example.androidapp.database.viewmodel.NoteViewModel
+import com.example.androidapp.database.viewmodel.NoteViewModelFactory
 import com.example.androidapp.navigablescreen.CustomBottomNavigation
 import com.example.androidapp.ui.theme.AndroidAppTheme
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 
 class MainActivity : ComponentActivity() {
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        Log.e("PreDB", "AAAAAAAAAAAAAAAAAAAAAAAAAAAAA")
+
+        val noteViewModel = NoteViewModelFactory(NoteRepository(AppDatabase.getDatabase(this).noteDao())).create(NoteViewModel::class.java)
+        val notez = NoteEntity(0, "tytul", "AAAA")
+        noteViewModel.insert(notez)
+        Log.e("PreDB", "Note: ${notez.content}")
+
         setContent {
             AndroidAppTheme {
                 CustomBottomNavigation()
             }
         }
-    }
-}
-
-@Composable
-fun Greeting(name: String, modifier: Modifier = Modifier) {
-    Text(
-        text = "Hello $name!",
-        modifier = modifier
-    )
-}
-
-@Preview(showBackground = true)
-@Composable
-fun GreetingPreview() {
-    AndroidAppTheme {
-        Greeting("Android")
     }
 }
