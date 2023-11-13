@@ -43,7 +43,7 @@ class AllNotes(private val mDayViewModel: DayViewModel) : NavigableScreen() {
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Text(
-                text = "AllNotes!",
+                text = "AllNotes!$days",
                 style = TextStyle(fontSize = 24.sp)
             )
 

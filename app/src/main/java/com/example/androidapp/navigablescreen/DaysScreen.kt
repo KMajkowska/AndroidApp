@@ -51,7 +51,7 @@ class DaysScreen(private val mDayViewModel: DayViewModel) : NavigableScreen() {
 
     @Composable
     override fun View() {
-        //mDayViewModel.addDay(DayEntity())
+        //mDayViewModel.insertDayEntity(DayEntity())
         LazyColumn(
             modifier = Modifier
                 .padding(8.dp)

@@ -6,7 +6,7 @@ import androidx.room.Index
 import androidx.room.PrimaryKey
 import java.time.LocalDate
 
-@Entity(tableName = "day_data", indices = [Index(value = ["dayId"], unique = true)])
+@Entity(tableName = "day_data", indices = [Index(value = ["date"], unique = true)])
 data class DayEntity (
     @PrimaryKey(autoGenerate = true)
     val dayId: Long = 0,

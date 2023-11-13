@@ -14,18 +14,18 @@ import com.example.androidapp.database.model.TodoEntity
     version = 1,
     exportSchema = false
 )
-abstract class DatabaseConnection : RoomDatabase() {
+abstract class MyDatabaseConnection : RoomDatabase() {
     abstract fun myDao(): MyDao
 
     companion object {
         @Volatile
-        private var INSTANCE: DatabaseConnection? = null
+        private var INSTANCE: MyDatabaseConnection? = null
 
-        fun getDatabase(context: Context): DatabaseConnection {
+        fun getDatabase(context: Context): MyDatabaseConnection {
             return INSTANCE ?: synchronized(this) {
                 val instance = Room.databaseBuilder(
                     context.applicationContext,
-                    DatabaseConnection::class.java,
+                    MyDatabaseConnection::class.java,
                     "uniqrn_db"
                 ).build()
                 INSTANCE = instance

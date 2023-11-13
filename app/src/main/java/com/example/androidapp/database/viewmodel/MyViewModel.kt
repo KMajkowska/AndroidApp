@@ -1,14 +1,12 @@
 package com.example.androidapp.database.viewmodel
 
 import android.app.Application
-import androidx.compose.runtime.Composable
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
-import androidx.lifecycle.viewmodel.compose.viewModel
-import com.example.androidapp.database.DatabaseConnection
+import com.example.androidapp.database.MyDatabaseConnection
 import com.example.androidapp.database.dao.MyDao
 import com.example.androidapp.database.model.DayEntity
 import com.example.androidapp.database.model.DayWithEvents
@@ -23,7 +21,7 @@ import kotlinx.coroutines.launch
 
 class DayViewModel(application: Application) : AndroidViewModel(application) {
 
-    private val myDao: MyDao = DatabaseConnection.getDatabase(application).myDao()
+    private val myDao: MyDao = MyDatabaseConnection.getDatabase(application).myDao()
     private val repository: MyRepository = MyRepository(myDao)
 
     val allDayEntities: LiveData<List<DayEntity>> = repository.allDayEntities
