@@ -15,6 +15,7 @@ import com.example.androidapp.Dialog
 import com.example.androidapp.DropDown
 import com.example.androidapp.HorizontalDivider
 import com.example.androidapp.Toggle
+import com.example.androidapp.database.viewmodel.DayViewModel
 import com.example.androidapp.settings.FontSizeEnum
 import com.example.androidapp.settings.LanguageEnum
 import com.example.androidapp.settings.NoteSortOptionEnum
@@ -28,7 +29,7 @@ val fonts = SupportedFontEnum.values()
 val fontSizes = FontSizeEnum.values()
 val sortOptions = NoteSortOptionEnum.values()
 
-class SettingsScreen : NavigableScreen() {
+class SettingsScreen: NavigableScreen() {
     override val screenName: String
         get() = "Settings"
 

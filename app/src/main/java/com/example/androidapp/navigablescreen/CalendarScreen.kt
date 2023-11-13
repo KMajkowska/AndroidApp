@@ -5,8 +5,9 @@ import androidx.compose.material.icons.filled.ShoppingCart
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.vector.ImageVector
+import com.example.androidapp.database.viewmodel.DayViewModel
 
-class CalendarScreen : NavigableScreen() {
+class CalendarScreen(private val mDayViewModel: DayViewModel) : NavigableScreen() {
 
     override val screenName: String
         get() = "Calendar"
