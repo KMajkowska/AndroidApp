@@ -4,9 +4,13 @@ import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material.icons.*;
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Email
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Visibility
@@ -30,36 +34,32 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.example.androidapp.MainActivity
 import com.example.androidapp.ui.theme.AndroidAppTheme
-import java.util.regex.Pattern
 
-const val LOGIN_BUTTON_TEXT: String = "LOGIN"
-const val SIGN_UP_BUTTON_TEXT: String = "SIGN UP"
-const val PASSWORD_TEXT: String = "PASSWORD"
-const val FORGET_PASSWORD_TEXT : String = "FORGOT PASSWORD?"
-val EMAIL_ADDRESS_PATTERN: Pattern =
-    Pattern.compile("[a-zA-Z0-9\\+\\.\\_\\%\\-\\+]{1,256}\\@[a-zA-Z0-9][a-zA-Z0-9\\-]{0,64}(\\.[a-zA-Z0-9][a-zA-Z0-9\\-]{0,25})+")
+const val USERNAME_TEXT: String = "USERNAME"
+const val RETYPE_PASSWORD_TEXT : String = "RETYPE PASSWORD"
 
-class Login : ComponentActivity() {
+class SignUp : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
             AndroidAppTheme {
-                LoginScreen()
+                SignUpScreen()
             }
         }
     }
 }
 
 @Composable
-fun LoginScreen() {
+fun SignUpScreen() {
     val context = LocalContext.current
 
-    // Define variables to hold the input values
     var loginValue by remember { mutableStateOf("") }
+    var usernameValue by remember { mutableStateOf("") }
     var passwordValue by remember { mutableStateOf("") }
+    var repeatedPasswordValue by remember { mutableStateOf("") }
     var isPasswordVisible by rememberSaveable { mutableStateOf(false) }
+    var isRepeatedPasswordVisible by rememberSaveable { mutableStateOf(false) }
 
     Column(
         modifier = Modifier
@@ -72,8 +72,15 @@ fun LoginScreen() {
             value = loginValue,
             onValueChange = { loginValue = it },
             label = { Text(LOGIN_BUTTON_TEXT) },
-            leadingIcon = { Icon(imageVector = Icons.Default.Person, contentDescription = null) },
+            leadingIcon = { Icon(imageVector = Icons.Default.Email, contentDescription = null) },
             keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Email)
+        )
+        OutlinedTextField(
+            value = usernameValue,
+            onValueChange = { usernameValue = it },
+            label = { Text(USERNAME_TEXT) },
+            leadingIcon = { Icon(imageVector = Icons.Default.Person, contentDescription = null) },
+            keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Text)
         )
         OutlinedTextField(
             value = passwordValue,
@@ -96,38 +103,38 @@ fun LoginScreen() {
                 }
             }
         )
-        //after connecting to database, user will log by username so isValidString wont be necessary
+        OutlinedTextField(
+            value = repeatedPasswordValue,
+            onValueChange = { repeatedPasswordValue = it },
+            label = { Text(RETYPE_PASSWORD_TEXT) },
+            leadingIcon = { Icon(imageVector = Icons.Default.Lock, contentDescription = null) },
+            placeholder = { Text("Password") },
+            visualTransformation = if (isRepeatedPasswordVisible) VisualTransformation.None else PasswordVisualTransformation(),
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
+            trailingIcon = {
+                val image = if (isRepeatedPasswordVisible)
+                    Icons.Filled.Visibility
+                else Icons.Filled.VisibilityOff
+
+                val description = if (isRepeatedPasswordVisible) "Hide password" else "Show password"
+
+                IconButton(onClick = {isRepeatedPasswordVisible = !isRepeatedPasswordVisible}){
+                    Icon(imageVector  = image, description)
+                }
+            }
+        )
         Button(
             onClick = {
-                if (passwordValue.isNotEmpty() && loginValue.isNotEmpty() && isValidString(
+                if (passwordValue.isNotEmpty() && passwordValue.equals(repeatedPasswordValue) && loginValue.isNotEmpty() && isValidString(
                         loginValue
                     )
                 ) {
-                    // Add logic for successful login
-                    val intent = Intent(context, MainActivity::class.java)
+                    val intent = Intent(context, Login::class.java)
                     context.startActivity(intent)
                 }
             }
         ) {
-            Text(LOGIN_BUTTON_TEXT)
-        }
-        Button(
-            onClick = {
-                // Add logic for button click
-                val intent = Intent(context, SignUp::class.java)
-                context.startActivity(intent)
-            }
-        ) {
             Text(SIGN_UP_BUTTON_TEXT)
-        }
-        Button(
-            onClick = {
-                // Add logic for button click
-                val intent = Intent(context, SignUp::class.java)
-                context.startActivity(intent)
-            }
-        ) {
-            Text(FORGET_PASSWORD_TEXT)
         }
     }
 }
@@ -138,8 +145,8 @@ private fun isValidString(str: String): Boolean {
 
 @Preview(showBackground = true)
 @Composable
-fun LoginScreenPreview() {
+fun SignUpScreenPreview() {
     AndroidAppTheme {
-        LoginScreen()
+        SignUpScreen()
     }
 }

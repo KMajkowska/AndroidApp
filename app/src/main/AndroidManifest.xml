@@ -37,13 +37,19 @@
             android:label="@string/title_activity_login"
             android:theme="@style/Theme.AndroidApp" />
         <activity
-            android:name=".SignUp"
+            android:name=".authorizationscreen.SignUp"
+            android:exported="false"/>
+        <activity
+            android:name=".authorizationscreen.RestorePassword"
             android:exported="false" />
         <activity
-            android:name=".CreateNote"
+            android:name=".navigablescreen.CreateNote"
             android:exported="false" />
         <activity
-            android:name=".AllNotes"
+            android:name=".navigablescreen.DaysScreen"
+            android:exported="false" />
+        <activity
+            android:name=".navigablescreen.CalendarScreen"
             android:exported="false" />
     </application>
 
