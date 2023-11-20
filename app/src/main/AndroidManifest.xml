@@ -17,10 +17,10 @@
             android:exported="true"
             android:label="@string/title_activity_main"
             android:theme="@style/Theme.AndroidApp">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
+<!--            <intent-filter>-->
+<!--                <action android:name="android.intent.action.MAIN" />-->
+<!--                <category android:name="android.intent.category.LAUNCHER" />-->
+<!--            </intent-filter>-->
         </activity>
         <activity
             android:name=".navigablescreen.NavigableScreen"
@@ -33,9 +33,14 @@
             android:exported="false" />
         <activity
             android:name=".authorizationscreen.Login"
-            android:exported="false"
+            android:exported="true"
             android:label="@string/title_activity_login"
-            android:theme="@style/Theme.AndroidApp" />
+            android:theme="@style/Theme.AndroidApp">
+        <intent-filter>
+            <action android:name="android.intent.action.MAIN" />
+            <category android:name="android.intent.category.LAUNCHER" />
+        </intent-filter>
+        </activity>
         <activity
             android:name=".authorizationscreen.SignUp"
             android:exported="false"/>
