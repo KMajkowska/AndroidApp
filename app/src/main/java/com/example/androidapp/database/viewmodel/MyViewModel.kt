@@ -16,55 +16,61 @@ import com.example.androidapp.database.model.TodoEntity
 import com.example.androidapp.database.repository.MyRepository
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withContext
+import java.time.LocalDate
 
 class DayViewModel(application: Application) : AndroidViewModel(application) {
 
     private val myDao: MyDao = MyDatabaseConnection.getDatabase(application).myDao()
     private val repository: MyRepository = MyRepository(myDao)
 
-    val allDayEntities: LiveData<List<DayEntity>> = repository.allDayEntities
+    val allDayEntitiesSortedByDate: LiveData<List<DayEntity>> = repository.allDayEntitiesSortedByDate
     val allTodoEntities: LiveData<List<TodoEntity>> = repository.allTodoEntities
     val allEventEntities: LiveData<List<EventEntity>> = repository.allEventEntities
 
-    fun insertDayEntity(dayEntity: DayEntity) {
+    fun saveDayEntity(dayEntity: DayEntity) {
         viewModelScope.launch(Dispatchers.IO) {
-            repository.insertDayEntity(dayEntity)
+            repository.saveDayEntity(dayEntity)
         }
     }
 
-    fun insertTodoEntity(todoEntity: TodoEntity) {
+    fun saveTodoEntity(todoEntity: TodoEntity) {
         viewModelScope.launch(Dispatchers.IO) {
-            repository.insertTodoEntity(todoEntity)
+            repository.saveTodoEntity(todoEntity)
         }
     }
 
-    fun insertEventEntity(eventEntity: EventEntity) {
+    fun saveEventEntity(eventEntity: EventEntity) {
         viewModelScope.launch(Dispatchers.IO) {
-            repository.insertEventEntity(eventEntity)
+            repository.saveEventEntity(eventEntity)
         }
     }
 
-    suspend fun getDayByDate(date: String): DayEntity {
-        val deferred: Deferred<DayEntity> = viewModelScope.async(Dispatchers.IO) {
-            repository.getDayByDate(date)!!
+    fun getDayByDate(date: LocalDate): DayEntity? {
+        return runBlocking {
+            withContext(Dispatchers.IO) {
+                repository.getDayByDate(date)
+            }
         }
-        return deferred.await()
+    }
+    fun getEventsByDayId(dayId: Long): DayWithEvents? {
+        return runBlocking {
+            withContext(Dispatchers.IO) {
+                repository.getEventsByDayId(dayId)
+            }
+        }
     }
 
-    suspend fun getEventsByDayId(dayId: Long): DayWithEvents {
-        val deferred: Deferred<DayWithEvents> = viewModelScope.async(Dispatchers.IO) {
-            myDao.getEventsByDayId(dayId)
+    fun getTodosByDayId(dayId: Long): DayWithTodos? {
+        return runBlocking {
+            withContext(Dispatchers.IO) {
+                repository.getTodosByDayId(dayId)
+            }
         }
-        return deferred.await()
-    }
-
-    suspend fun getTodosByDayId(dayId: Long): DayWithTodos {
-        val deferred: Deferred<DayWithTodos> = viewModelScope.async(Dispatchers.IO) {
-            myDao.getTodosByDayId(dayId)
-        }
-        return deferred.await()
     }
 }
 

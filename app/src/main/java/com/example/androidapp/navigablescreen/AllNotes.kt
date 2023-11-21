@@ -36,7 +36,7 @@ class AllNotes(private val mDayViewModel: DayViewModel) : NavigableScreen() {
 
     @Composable
     override fun View() {
-        val days = mDayViewModel.allDayEntities.observeAsState(initial = listOf()).value
+        val days = mDayViewModel.allDayEntitiesSortedByDate.observeAsState(initial = listOf()).value
         val context = LocalContext.current
 
         Column(

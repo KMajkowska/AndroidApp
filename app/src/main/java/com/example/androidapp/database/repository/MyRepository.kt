@@ -7,28 +7,29 @@ import com.example.androidapp.database.model.DayWithEvents
 import com.example.androidapp.database.model.DayWithTodos
 import com.example.androidapp.database.model.EventEntity
 import com.example.androidapp.database.model.TodoEntity
+import java.time.LocalDate
 
 class MyRepository(private val myDao: MyDao) {
 
-    val allDayEntities: LiveData<List<DayEntity>> = myDao.getAllDayEntities()
+    val allDayEntitiesSortedByDate: LiveData<List<DayEntity>> = myDao.getAllDayEntitiesSortedByDate()
 
     val allTodoEntities: LiveData<List<TodoEntity>> = myDao.getAllTodoEntities();
 
     val allEventEntities: LiveData<List<EventEntity>> = myDao.getAllEventEntities()
 
-    suspend fun insertDayEntity(newDayEntity: DayEntity) {
-        myDao.insertDayEntity(newDayEntity)
+    suspend fun saveDayEntity(newDayEntity: DayEntity) {
+        myDao.saveDayEntity(newDayEntity)
     }
 
-    suspend fun insertTodoEntity(newTodoEntity: TodoEntity) {
-        myDao.insertTodoEntity(newTodoEntity)
+    suspend fun saveTodoEntity(newTodoEntity: TodoEntity) {
+        myDao.saveTodoEntity(newTodoEntity)
     }
 
-    suspend fun insertEventEntity(newEventEntity: EventEntity) {
-        myDao.insertEventEntity(newEventEntity)
+    suspend fun saveEventEntity(newEventEntity: EventEntity) {
+        myDao.saveEventEntity(newEventEntity)
     }
 
-    fun getDayByDate(date: String): DayEntity? {
+    fun getDayByDate(date: LocalDate): DayEntity? {
         return myDao.getDayByDate(date)
     }
 

@@ -11,6 +11,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CalendarMonth
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
@@ -37,8 +38,6 @@ class CalendarScreen(private val mDayViewModel: DayViewModel) : NavigableScreen(
 
     @Composable
     override fun View() {
-
-        val navController = rememberNavController()
 
         val events = mapOf(
             LocalDate.now().minusYears(1) to listOf("Event A", "Event B"),

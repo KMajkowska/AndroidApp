@@ -61,7 +61,6 @@ class CreateNote : ComponentActivity(){
         }
     }
 
-
     @Composable
     fun View() {
         var titleValue by remember { mutableStateOf("") }
@@ -77,7 +76,7 @@ class CreateNote : ComponentActivity(){
         ) {
             Row(
                 modifier = Modifier
-                    .fillMaxWidth()  // Make the Row fill the maximum width
+                    .fillMaxWidth()
                     .padding(bottom = 16.dp),
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
