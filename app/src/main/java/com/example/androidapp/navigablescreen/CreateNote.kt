@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.view.View
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.activity.viewModels
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -26,10 +27,10 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.AddCircle
+import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Done
-import androidx.compose.material.icons.filled.Title
 import androidx.compose.ui.draw.shadow
 import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
@@ -58,27 +59,35 @@ import com.example.androidapp.AddBackgroundToComposables
 import com.example.androidapp.MainActivity
 import com.example.androidapp.authorizationscreen.LOGIN_BUTTON_TEXT
 import com.example.androidapp.authorizationscreen.SignUpScreen
+import com.example.androidapp.database.MyDatabaseConnection
+import com.example.androidapp.database.converter.LocalDateConverter
+import com.example.androidapp.database.model.Note
+import com.example.androidapp.database.repository.MyRepository
 import com.example.androidapp.database.viewmodel.DayViewModel
 import com.example.androidapp.ui.theme.AndroidAppTheme
 
 const val TITLE_TEXT : String = "TITLE"
 const val NOTE_TEXT : String = "NOTE"
 
-class CreateNote : ComponentActivity(){
-
+class CreateNote() : ComponentActivity(){
+    private val mDayViewModel: DayViewModel by viewModels()
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
             AndroidAppTheme {
-                AddBackgroundToComposables({ View() })
+                val noteId = intent.getLongExtra("noteId", -1)
+                val existingNote = mDayViewModel.getNoteById(noteId)
+                AddBackgroundToComposables( {
+                    View(existingNote)
+                })
             }
         }
     }
 
     @Composable
-    fun View() {
-        var titleValue by remember { mutableStateOf("") }
-        var noteValue by remember { mutableStateOf("") }
+    fun View(existingNote: Note?=null) {
+        var titleValue by remember { mutableStateOf(existingNote?.noteTitle ?: "") }
+        var noteValue by remember { mutableStateOf(existingNote?.content ?: "") }
         val context = LocalContext.current
 
         Column(
@@ -92,7 +101,7 @@ class CreateNote : ComponentActivity(){
                 label = { Text("Title") },
                 leadingIcon = {
                     Icon(
-                        imageVector = Icons.Default.Title,
+                        imageVector = Icons.Default.ArrowBack,
                         contentDescription = null
                     )
                 },
@@ -148,8 +157,23 @@ class CreateNote : ComponentActivity(){
 
                     IconButton(
                         onClick = {
-                            val intent = Intent(context, MainActivity::class.java)
-                            context.startActivity(intent)
+                            if (existingNote == null) {
+                                // Create a new note
+                                val newNote = Note(
+                                    noteTitle = titleValue,
+                                    content = noteValue,
+                                )
+                                mDayViewModel.addNewNote(newNote)
+                                val intent = Intent(context, MainActivity::class.java)
+                                context.startActivity(intent)
+                            } else {
+                                // Update the existing note
+                                val updatedNote = existingNote.copy(
+                                    noteTitle = titleValue,
+                                    content = noteValue
+                                )
+                                mDayViewModel.updateNote(updatedNote)
+                            }
                         },
                         modifier = Modifier
                             .size(56.dp)
@@ -169,7 +193,11 @@ class CreateNote : ComponentActivity(){
 
                     IconButton(
                         onClick = {
-                            // Handle delete note action
+                            if (existingNote != null) {
+                                mDayViewModel.deleteNote(existingNote)
+                            }
+                            val intent = Intent(context, MainActivity::class.java)
+                            context.startActivity(intent)
                         },
                         modifier = Modifier
                             .size(56.dp)
@@ -188,5 +216,6 @@ class CreateNote : ComponentActivity(){
             }
         }
     }
+
 
 }

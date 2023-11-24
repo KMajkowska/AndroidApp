@@ -6,7 +6,9 @@ import com.example.androidapp.database.model.DayEntity
 import com.example.androidapp.database.model.DayWithEvents
 import com.example.androidapp.database.model.DayWithTodos
 import com.example.androidapp.database.model.EventEntity
+import com.example.androidapp.database.model.Note
 import com.example.androidapp.database.model.TodoEntity
+import kotlinx.coroutines.flow.Flow
 import java.time.LocalDate
 
 class MyRepository(private val myDao: MyDao) {
@@ -16,6 +18,8 @@ class MyRepository(private val myDao: MyDao) {
     val allTodoEntities: LiveData<List<TodoEntity>> = myDao.getAllTodoEntities();
 
     val allEventEntities: LiveData<List<EventEntity>> = myDao.getAllEventEntities()
+
+    val allNotes: LiveData<List<Note>> = myDao.getAllNotes();
 
     suspend fun saveDayEntity(newDayEntity: DayEntity) {
         myDao.saveDayEntity(newDayEntity)
@@ -27,6 +31,20 @@ class MyRepository(private val myDao: MyDao) {
 
     suspend fun saveEventEntity(newEventEntity: EventEntity) {
         myDao.saveEventEntity(newEventEntity)
+    }
+
+    suspend fun addNewNote(note: Note){
+        myDao.addNewNote(note)
+    }
+    suspend fun updateNote(note: Note){
+        myDao.updateNote(note)
+    }
+
+    fun deleteNote(note:Note){
+        myDao.deleteNote(note)
+    }
+    fun getNoteById(noteId: Long): Note? {
+        return myDao.getNoteById(noteId)
     }
 
     fun getDayByDate(date: LocalDate): DayEntity? {

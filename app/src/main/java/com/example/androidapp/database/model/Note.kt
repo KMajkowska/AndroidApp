@@ -5,13 +5,11 @@ import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 
-@Entity
-data class Notes(
+@Entity(tableName="notes")
+data class Note(
     @PrimaryKey(autoGenerate = true)
-    val noteId: Long?=0,
-    @ColumnInfo(name="title")
+    val noteId: Long=0,
     val noteTitle: String = "",
-    @ColumnInfo(name="content")
     val content: String = "",
     val date:String = "",
     val pinned: Boolean = false
