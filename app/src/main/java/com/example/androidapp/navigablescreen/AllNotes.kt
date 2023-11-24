@@ -48,6 +48,7 @@ import com.example.androidapp.database.MyDatabaseConnection
 import com.example.androidapp.database.model.Note
 import com.example.androidapp.database.repository.MyRepository
 import com.example.androidapp.database.viewmodel.DayViewModel
+import com.example.androidapp.ui.theme.Blue
 import kotlinx.coroutines.flow.onEmpty
 
 class AllNotes(private val mDayViewModel: DayViewModel) : NavigableScreen() {
@@ -105,7 +106,7 @@ class AllNotes(private val mDayViewModel: DayViewModel) : NavigableScreen() {
                     modifier = Modifier
                         .size(66.dp)
                         .shadow(2.dp, CircleShape)
-                        .background(color = Color(0xFF3894ff), shape = CircleShape)
+                        .background(Blue, shape = CircleShape)
                         .padding(16.dp) // Padding moved inside the IconButton
                 ) {
                     Icon(

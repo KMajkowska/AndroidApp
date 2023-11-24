@@ -25,7 +25,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Title
 import androidx.compose.material.icons.filled.AddCircle
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Close
@@ -65,6 +65,8 @@ import com.example.androidapp.database.model.Note
 import com.example.androidapp.database.repository.MyRepository
 import com.example.androidapp.database.viewmodel.DayViewModel
 import com.example.androidapp.ui.theme.AndroidAppTheme
+import com.example.androidapp.ui.theme.Blue
+import com.example.androidapp.ui.theme.Red
 
 const val TITLE_TEXT : String = "TITLE"
 const val NOTE_TEXT : String = "NOTE"
@@ -95,13 +97,37 @@ class CreateNote() : ComponentActivity(){
                 .fillMaxSize()
                 .padding(16.dp)
         ) {
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth(),
+                contentAlignment = Alignment.TopEnd
+            ) {
+                IconButton(
+                    onClick = {
+                        val intent = Intent(context, MainActivity::class.java)
+                        context.startActivity(intent)
+                    },
+                    modifier = Modifier
+                        .size(40.dp),
+
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Close,
+                        contentDescription = null,
+                        tint = Color.Black
+                    )
+                }
+            }
+
+            Spacer(modifier = Modifier.width(16.dp))
+
             OutlinedTextField(
                 value = titleValue,
                 onValueChange = { titleValue = it },
                 label = { Text("Title") },
                 leadingIcon = {
                     Icon(
-                        imageVector = Icons.Default.ArrowBack,
+                        imageVector = Icons.Default.Title,
                         contentDescription = null
                     )
                 },
@@ -132,28 +158,8 @@ class CreateNote() : ComponentActivity(){
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .align(Alignment.BottomCenter)
+                        .align(Alignment.BottomCenter),
                 ) {
-                    IconButton(
-                        onClick = {
-                            val intent = Intent(context, MainActivity::class.java)
-                            context.startActivity(intent)
-                        },
-                        modifier = Modifier
-                            .size(56.dp)
-                            .background(MaterialTheme.colorScheme.primary, CircleShape)
-                            .padding(16.dp)
-                            .clip(CircleShape)
-                            .shadow(4.dp, CircleShape)
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.Close,
-                            contentDescription = null,
-                            tint = Color.White
-                        )
-                    }
-
-                    Spacer(modifier = Modifier.width(16.dp))
 
                     IconButton(
                         onClick = {
@@ -177,7 +183,7 @@ class CreateNote() : ComponentActivity(){
                         },
                         modifier = Modifier
                             .size(56.dp)
-                            .background(MaterialTheme.colorScheme.primary, CircleShape)
+                            .background(Blue, CircleShape)
                             .padding(16.dp)
                             .clip(CircleShape)
                             .shadow(4.dp, CircleShape)
@@ -201,7 +207,7 @@ class CreateNote() : ComponentActivity(){
                         },
                         modifier = Modifier
                             .size(56.dp)
-                            .background(MaterialTheme.colorScheme.primary, CircleShape)
+                            .background(Red, CircleShape)
                             .padding(16.dp)
                             .clip(CircleShape)
                             .shadow(4.dp, CircleShape)
