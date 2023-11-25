@@ -14,7 +14,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyColumn
@@ -22,12 +21,21 @@ import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Cake
+import androidx.compose.material.icons.filled.CalendarMonth
+import androidx.compose.material.icons.filled.Celebration
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Create
+import androidx.compose.material.icons.filled.Fastfood
+import androidx.compose.material.icons.filled.MeetingRoom
+import androidx.compose.material.icons.filled.PartyMode
 import androidx.compose.material.icons.filled.Save
+import androidx.compose.material.icons.filled.SportsBasketball
 import androidx.compose.material3.Button
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -61,8 +69,6 @@ import androidx.compose.ui.window.Dialog
 import com.example.androidapp.AddBackgroundToComposables
 import com.example.androidapp.HorizontalDivider
 import com.example.androidapp.database.model.DayEntity
-import com.example.androidapp.database.model.DayWithTodos
-import com.example.androidapp.database.model.TodoEntity
 import com.example.androidapp.database.viewmodel.DayViewModel
 import java.time.LocalDate
 import java.util.Calendar
@@ -93,8 +99,6 @@ class DaysScreen(
 
         val note = remember { mutableStateOf(dayEntity.note) }
         val dayTitle = remember { mutableStateOf(dayEntity.dayTitle) }
-
-        val todoDay: DayWithTodos? = dayEntity.dayId?.let { mDayViewModel.getTodosByDayId(it) }
 
         DisposableEffect(dayEntity) {
             onDispose {
@@ -145,10 +149,20 @@ class DaysScreen(
                     onAddTodoItem = {}
                 )
             }
+            item {
+                EventView(
+                    onEventIconSelected = { index, category ->
+                        // Handle selecting event icon as needed
+                        // For simplicity, let's use a default icon here
+                        val icon = "📅"
+                        val event = Pair(icon, category)
+                    },
+                    onAddEvent = { category, eventName ->
+                    }
+                )
+            }
         }
     }
-
-
 
     @Composable
     override fun View() {
@@ -352,7 +366,7 @@ fun ToDoView(
     onAddTodoItem: (String) -> Unit
 ) {
     // Create an empty mutable state list to store to-do items
-    val todoList = remember { mutableStateListOf<String>() }
+    val todoList = remember { mutableStateListOf<Pair<String, Boolean>>() }
 
     // Create a local variable for the new to-do item
     var newTodoItem by remember { mutableStateOf("") }
@@ -366,21 +380,23 @@ fun ToDoView(
 
         // Display existing to-do items with checkboxes if the list is not empty
         if (todoList.isNotEmpty()) {
-            todoList.forEachIndexed { index, todo ->
+            todoList.forEachIndexed { index, (text, isChecked) ->
                 Row(
                     modifier = Modifier.clickable { onTodoItemChecked(index) },
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Checkbox(
-                        checked = todo.startsWith("[✓]"),
+                        checked = isChecked,
                         onCheckedChange = { checked ->
+                            // Toggle completion status when the checkbox is clicked
+                            todoList[index] = text to checked
                             onTodoItemChecked(index)
                         },
                         modifier = Modifier
                             .size(24.dp)
                             .padding(end = 8.dp)
                     )
-                    Text(text = todo.removePrefix("[✓]"))
+                    Text(text = text)
                 }
             }
         } else {
@@ -400,7 +416,7 @@ fun ToDoView(
                 .onKeyEvent {
                     if (it.key == Key.Enter) {
                         if (newTodoItem.isNotBlank()) {
-                            todoList.add(newTodoItem)
+                            todoList.add(newTodoItem to false)
                             onAddTodoItem(newTodoItem)
                             newTodoItem = ""
                         }
@@ -411,5 +427,120 @@ fun ToDoView(
                 }
         )
     }
+}
 
+@Composable
+fun EventView(
+    onEventIconSelected: (Int, String) -> Unit,
+    onAddEvent: (String, String) -> Unit
+) {
+    // Create an empty mutable state list to store event items
+    val eventList = remember { mutableStateListOf<Pair<String, String>>() }
+
+    // Create a local variable for the new event item
+    var newEventItem by remember { mutableStateOf("") }
+
+    // Create a local variable for the selected category
+    var selectedCategory by remember { mutableStateOf("General") }
+
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(8.dp)
+    ) {
+        Text("Event List")
+
+        // Display existing event items with categories and names if the list is not empty
+        if (eventList.isNotEmpty()) {
+            eventList.forEachIndexed { index, (category, eventName) ->
+                Row(
+                    modifier = Modifier.clickable { /* Handle item click if needed */ },
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        // Map the category to the corresponding icon
+                        val icon = getCategoryIcon(category)
+
+                        Icon(imageVector = icon, contentDescription = null)
+                        Text(eventName)
+                    }
+                }
+            }
+        } else {
+            // Show a message when the event list is empty
+            Text("No events.")
+        }
+
+        Spacer(modifier = Modifier.height(8.dp))
+
+        // Input field for adding new event items
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            var expanded by remember { mutableStateOf(false) }
+
+            // Dropdown toggle for new event items
+            Box(
+                modifier = Modifier.clickable(onClick = { expanded = !expanded })
+            ) {
+                Text(selectedCategory)
+
+                // Dropdown menu for new event items
+                DropdownMenu(
+                    expanded = expanded,
+                    onDismissRequest = { expanded = false }
+                ) {
+                    // Define a list of categories for the dropdown
+                    val categoryList = listOf("General", "Party", "Sports", "Meeting", "Food")
+
+                    // Display categories in the dropdown
+                    categoryList.forEach { category ->
+                        DropdownMenuItem(
+                            { Text(category, Modifier.padding(24.dp)) },
+                            onClick = {
+                            selectedCategory = category
+                            expanded = false
+                        })
+                    }
+                }
+            }
+
+            TextField(
+                value = newEventItem,
+                onValueChange = { newEventItem = it },
+                label = { Text("Add an event") },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .onKeyEvent {
+                        if (it.key == Key.Enter) {
+                            if (newEventItem.isNotBlank()) {
+                                eventList.add(Pair(selectedCategory, newEventItem))
+                                onAddEvent(selectedCategory, newEventItem)
+                                newEventItem = ""
+                            }
+                            true
+                        } else {
+                            false
+                        }
+                    }
+            )
+        }
+    }
+}
+
+@Composable
+fun getCategoryIcon(category: String): ImageVector {
+    return when (category) {
+        "General" -> Icons.Default.CalendarMonth
+        "Party" -> Icons.Default.Cake
+        "Sports" -> Icons.Default.SportsBasketball
+        "Meeting" -> Icons.Default.MeetingRoom
+        "Food" -> Icons.Default.Fastfood
+        "Entertainment" -> Icons.Default.Celebration
+        else -> Icons.Default.CalendarMonth
+    }
 }
