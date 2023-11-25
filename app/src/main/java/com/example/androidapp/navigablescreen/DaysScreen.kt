@@ -61,6 +61,8 @@ import androidx.compose.ui.window.Dialog
 import com.example.androidapp.AddBackgroundToComposables
 import com.example.androidapp.HorizontalDivider
 import com.example.androidapp.database.model.DayEntity
+import com.example.androidapp.database.model.DayWithTodos
+import com.example.androidapp.database.model.TodoEntity
 import com.example.androidapp.database.viewmodel.DayViewModel
 import java.time.LocalDate
 import java.util.Calendar
@@ -91,6 +93,8 @@ class DaysScreen(
 
         val note = remember { mutableStateOf(dayEntity.note) }
         val dayTitle = remember { mutableStateOf(dayEntity.dayTitle) }
+
+        val todoDay: DayWithTodos? = dayEntity.dayId?.let { mDayViewModel.getTodosByDayId(it) }
 
         DisposableEffect(dayEntity) {
             onDispose {
@@ -407,65 +411,5 @@ fun ToDoView(
                 }
         )
     }
-}
 
-@OptIn(ExperimentalComposeUiApi::class)
-@Composable
-fun InlineTextEditor(
-    data: MutableState<String>,
-    hasDayEntityBeenChanged: MutableState<Boolean>,
-    onAddTodoItem: (String) -> Unit,
-    onCloseEditor: () -> Unit
-) {
-    val keyboardController = LocalSoftwareKeyboardController.current
-    var tempText by remember { mutableStateOf(data.value) }
-
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(16.dp)
-    ) {
-        TextField(
-            value = tempText,
-            onValueChange = {
-                tempText = it
-            },
-            label = {
-                Text("Content")
-            },
-            modifier = Modifier.fillMaxSize()
-        )
-
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween
-        ) {
-
-            Button(
-                onClick = {
-                    keyboardController?.hide()
-                    onCloseEditor()
-                }
-            ) {
-                Text("Cancel")
-            }
-
-            Button(
-                onClick = {
-                    data.value = tempText
-                    hasDayEntityBeenChanged.value = true
-
-                    // Automatically add a to-do item to the list
-                    if (tempText.isNotBlank()) {
-                        onAddTodoItem(tempText)
-                    }
-
-                    keyboardController?.hide()
-                    onCloseEditor()
-                }
-            ) {
-                Text("Save")
-            }
-        }
-    }
 }
