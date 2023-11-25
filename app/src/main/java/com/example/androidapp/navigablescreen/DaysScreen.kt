@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyColumn
@@ -25,6 +26,7 @@ import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Create
 import androidx.compose.material.icons.filled.Save
 import androidx.compose.material3.Button
+import androidx.compose.material3.Checkbox
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -38,15 +40,18 @@ import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.input.key.Key
+import androidx.compose.ui.input.key.key
+import androidx.compose.ui.input.key.onKeyEvent
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.text.input.ImeAction
@@ -57,8 +62,6 @@ import com.example.androidapp.AddBackgroundToComposables
 import com.example.androidapp.HorizontalDivider
 import com.example.androidapp.database.model.DayEntity
 import com.example.androidapp.database.viewmodel.DayViewModel
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
 import java.time.LocalDate
 import java.util.Calendar
 
@@ -132,8 +135,16 @@ class DaysScreen(
                     )
                 }
             }
+            item {
+                ToDoView(
+                    onTodoItemChecked = {},
+                    onAddTodoItem = {}
+                )
+            }
         }
     }
+
+
 
     @Composable
     override fun View() {
@@ -326,6 +337,134 @@ fun FullscreenTextEditor(onCloseEditor: () -> Unit) {
                         .background(MaterialTheme.colorScheme.surface)
                         .padding(16.dp)
                 )
+            }
+        }
+    }
+}
+
+@Composable
+fun ToDoView(
+    onTodoItemChecked: (Int) -> Unit,
+    onAddTodoItem: (String) -> Unit
+) {
+    // Create an empty mutable state list to store to-do items
+    val todoList = remember { mutableStateListOf<String>() }
+
+    // Create a local variable for the new to-do item
+    var newTodoItem by remember { mutableStateOf("") }
+
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(8.dp)
+    ) {
+        Text("To-Do List")
+
+        // Display existing to-do items with checkboxes if the list is not empty
+        if (todoList.isNotEmpty()) {
+            todoList.forEachIndexed { index, todo ->
+                Row(
+                    modifier = Modifier.clickable { onTodoItemChecked(index) },
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Checkbox(
+                        checked = todo.startsWith("[✓]"),
+                        onCheckedChange = { checked ->
+                            onTodoItemChecked(index)
+                        },
+                        modifier = Modifier
+                            .size(24.dp)
+                            .padding(end = 8.dp)
+                    )
+                    Text(text = todo.removePrefix("[✓]"))
+                }
+            }
+        } else {
+            // Show a message when the to-do list is empty
+            Text("No to-do items.")
+        }
+
+        Spacer(modifier = Modifier.height(8.dp))
+
+        // Input field for adding new to-do items
+        TextField(
+            value = newTodoItem,
+            onValueChange = { newTodoItem = it },
+            label = { Text("Add a to-do item") },
+            modifier = Modifier
+                .fillMaxWidth()
+                .onKeyEvent {
+                    if (it.key == Key.Enter) {
+                        if (newTodoItem.isNotBlank()) {
+                            todoList.add(newTodoItem)
+                            onAddTodoItem(newTodoItem)
+                            newTodoItem = ""
+                        }
+                        true
+                    } else {
+                        false
+                    }
+                }
+        )
+    }
+}
+
+@OptIn(ExperimentalComposeUiApi::class)
+@Composable
+fun InlineTextEditor(
+    data: MutableState<String>,
+    hasDayEntityBeenChanged: MutableState<Boolean>,
+    onAddTodoItem: (String) -> Unit,
+    onCloseEditor: () -> Unit
+) {
+    val keyboardController = LocalSoftwareKeyboardController.current
+    var tempText by remember { mutableStateOf(data.value) }
+
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(16.dp)
+    ) {
+        TextField(
+            value = tempText,
+            onValueChange = {
+                tempText = it
+            },
+            label = {
+                Text("Content")
+            },
+            modifier = Modifier.fillMaxSize()
+        )
+
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+
+            Button(
+                onClick = {
+                    keyboardController?.hide()
+                    onCloseEditor()
+                }
+            ) {
+                Text("Cancel")
+            }
+
+            Button(
+                onClick = {
+                    data.value = tempText
+                    hasDayEntityBeenChanged.value = true
+
+                    // Automatically add a to-do item to the list
+                    if (tempText.isNotBlank()) {
+                        onAddTodoItem(tempText)
+                    }
+
+                    keyboardController?.hide()
+                    onCloseEditor()
+                }
+            ) {
+                Text("Save")
             }
         }
     }

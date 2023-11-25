@@ -10,5 +10,5 @@ data class DayWithTodos (
         parentColumn = "dayId",
         entityColumn = "dayForeignId"
     )
-    val todos: List<TodoEntity>
+    var todos: List<TodoEntity>
 )

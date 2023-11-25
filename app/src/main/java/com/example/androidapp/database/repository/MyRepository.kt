@@ -29,6 +29,7 @@ class MyRepository(private val myDao: MyDao) {
         myDao.saveTodoEntity(newTodoEntity)
     }
 
+
     suspend fun saveEventEntity(newEventEntity: EventEntity) {
         myDao.saveEventEntity(newEventEntity)
     }
@@ -57,6 +58,27 @@ class MyRepository(private val myDao: MyDao) {
 
     fun getTodosByDayId(dayId: Long): DayWithTodos? {
         return myDao.getTodosByDayId(dayId)
+
+    }
+
+    fun getDayWithTodosByDate(date: LocalDate): DayWithTodos? {
+        return myDao.getTodosByDay(date)
+    }
+
+
+    suspend fun addNewTodo(todo: TodoEntity) {
+        return myDao.addNewTodo(todo)
+    }
+
+    suspend fun saveDayEntityWithTodos(dayWithTodos: DayWithTodos?, todos: List<TodoEntity>) {
+        val dayEntity = dayWithTodos?.dayEntity
+        val dayId = dayEntity?.let { myDao.insertDayEntity(it) }
+        todos.forEach {
+            if (dayId != null) {
+                it.dayForeignId = dayId
+            }
+        }
+        myDao.insertTodos(todos)
     }
 
 }

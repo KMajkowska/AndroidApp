@@ -7,7 +7,7 @@ import androidx.room.PrimaryKey
 data class TodoEntity(
     @PrimaryKey(autoGenerate = true)
     val todoId: Long? = null,
-    val dayForeignId: Long,
+    var dayForeignId: Long,
     val title: String = "",
     val isDone: Boolean = false,
 )

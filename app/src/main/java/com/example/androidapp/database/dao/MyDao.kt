@@ -79,4 +79,16 @@ interface MyDao {
     @Transaction
     @Query("SELECT * FROM day_data WHERE dayId = :dayId")
     fun getTodosByDayId(dayId: Long): DayWithTodos?
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun addNewTodo(todo: TodoEntity)
+    @Transaction
+    @Query("SELECT * FROM day_data WHERE date = :date")
+    fun getTodosByDay(date: LocalDate): DayWithTodos?
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertDayEntity(dayEntity: DayEntity): Long
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertTodos(todos: List<TodoEntity>)
+
 }
