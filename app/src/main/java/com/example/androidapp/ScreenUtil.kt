@@ -14,6 +14,8 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
@@ -104,12 +106,11 @@ fun Dialog(
             confirmButton = {
                 Button(
                     onClick = {
-                        // Handle confirmation logic here
                         functionCall()
                         showDialog.value = false
                     }
                 ) {
-                    Text("Confirm")
+                    Icon(imageVector = Icons.Default.Check, contentDescription = "Confirm")
                 }
             },
             dismissButton = {
@@ -118,7 +119,7 @@ fun Dialog(
                         showDialog.value = false
                     }
                 ) {
-                    Text("Cancel")
+                    Icon(imageVector = Icons.Default.Close, contentDescription = "Close")
                 }
             }
         )

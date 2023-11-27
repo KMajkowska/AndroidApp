@@ -8,31 +8,21 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.text.BasicTextField
-import androidx.compose.foundation.text.KeyboardActions
-import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Create
-import androidx.compose.material.icons.filled.Save
 import androidx.compose.material3.Button
-import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
-import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.MutableState
@@ -40,7 +30,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
@@ -49,16 +38,14 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
-import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.window.DialogProperties
 import com.example.androidapp.AddBackgroundToComposables
 import com.example.androidapp.HorizontalDivider
 import com.example.androidapp.database.model.DayEntity
 import com.example.androidapp.database.viewmodel.DayViewModel
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
 import java.time.LocalDate
 import java.util.Calendar
 
@@ -128,7 +115,13 @@ class DaysScreen(
                 ) {
                     TextEditorWithPreview(
                         data = note,
-                        textEditor = { _, onCloseEditor -> FullscreenTextEditor(onCloseEditor = onCloseEditor) }
+                        textEditor = { data, onCloseEditor ->
+                            DialogTextEditor(
+                                data = data,
+                                hasDayEntityBeenChanged = hasDayEntityBeenChanged,
+                                onCloseEditor = onCloseEditor
+                            )
+                        }
                     )
                 }
             }
@@ -218,9 +211,6 @@ fun InlineTextEditor(
             onValueChange = {
                 tempText = it
             },
-            label = {
-                Text("Content")
-            },
             modifier = Modifier.fillMaxSize()
         )
 
@@ -235,7 +225,7 @@ fun InlineTextEditor(
                     onCloseEditor()
                 }
             ) {
-                Text("Cancel")
+                Icon(imageVector = Icons.Default.Close, contentDescription = "Cancel")
             }
 
             Button(
@@ -246,86 +236,73 @@ fun InlineTextEditor(
                     onCloseEditor()
                 }
             ) {
-                Text("Save")
+                Icon(imageVector = Icons.Default.Check, contentDescription = "Save")
             }
         }
     }
 }
 
-@OptIn(ExperimentalComposeUiApi::class, ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalComposeUiApi::class)
 @Composable
-fun FullscreenTextEditor(onCloseEditor: () -> Unit) {
-    var text by remember { mutableStateOf("Your initial text here") }
-    var isEditing by remember { mutableStateOf(true) }
-    var isSaving by remember { mutableStateOf(false) }
-
+fun DialogTextEditor(
+    data: MutableState<String>,
+    hasDayEntityBeenChanged: MutableState<Boolean>,
+    onCloseEditor: () -> Unit
+) {
     val keyboardController = LocalSoftwareKeyboardController.current
+    var tempText by remember { mutableStateOf(data.value) }
+    var showDialog by remember { mutableStateOf(false) }
+    if (showDialog) {
 
-    val title = if (isEditing) "Editing" else "Viewing"
-
-    Dialog(
-        onDismissRequest = {
-            // Handle dismiss request, e.g., navigate back or close the modal
-        }
-    ) {
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .background(MaterialTheme.colorScheme.surface)
-                .padding(16.dp)
+        Dialog(
+            onDismissRequest = {
+            },
         ) {
-            TopAppBar(
-                title = { Text(text = title) },
-                navigationIcon = {
-                    IconButton(onClick = {
-                        // Handle dismiss request, e.g., navigate back or close the modal
-                    }) {
-                        Icon(imageVector = Icons.Default.Close, contentDescription = "Close")
-                    }
-                },
-                actions = {
-                    if (isEditing) {
-                        IconButton(onClick = {
-                            // Save logic goes here
-                            isSaving = true
-
-                        }) {
-                            Icon(imageVector = Icons.Default.Save, contentDescription = "Save")
-                        }
-                    }
-                }
-            )
-
-            Spacer(modifier = Modifier.height(16.dp))
-
-            if (isSaving) {
-                // Show a saving indicator
-                CircularProgressIndicator(
-                    modifier = Modifier
-                        .size(40.dp)
-                        .align(Alignment.CenterHorizontally)
-                )
-            } else {
-                // Text Editor
-                BasicTextField(
-                    value = text,
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(16.dp)
+            ) {
+                TextField(
+                    value = tempText,
                     onValueChange = {
-                        text = it
+                        tempText = it
                     },
-                    keyboardOptions = KeyboardOptions.Default.copy(
-                        imeAction = ImeAction.Done
-                    ),
-                    keyboardActions = KeyboardActions(
-                        onDone = {
-                            keyboardController?.hide()
-                            isEditing = false
-                        }
-                    ),
+                    label = {
+                        Text("Content")
+                    },
                     modifier = Modifier
                         .fillMaxWidth()
-                        .background(MaterialTheme.colorScheme.surface)
-                        .padding(16.dp)
+                        .padding(8.dp)
                 )
+
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+
+                    Button(
+                        onClick = {
+                            keyboardController?.hide()
+                            onCloseEditor()
+                            showDialog = false
+                        }
+                    ) {
+                        Icon(imageVector = Icons.Default.Close, contentDescription = "Cancel")
+                    }
+
+                    Button(
+                        onClick = {
+                            data.value = tempText
+                            hasDayEntityBeenChanged.value = true
+                            keyboardController?.hide()
+                            onCloseEditor()
+                            showDialog = false
+                        }
+                    ) {
+                        Icon(imageVector = Icons.Default.Check, contentDescription = "Save")
+                    }
+                }
             }
         }
     }
