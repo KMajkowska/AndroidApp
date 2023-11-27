@@ -5,21 +5,33 @@ import android.os.Bundle
 import android.view.View
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.activity.viewModels
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.AddCircle
-import androidx.compose.material.icons.filled.Cancel
-import androidx.compose.material.icons.filled.Email
-import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.filled.Title
+import androidx.compose.material.icons.filled.AddCircle
+import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Done
+import androidx.compose.ui.draw.shadow
 import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -33,7 +45,10 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.Alignment.Companion.Bottom
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.TextStyle
@@ -44,91 +59,169 @@ import com.example.androidapp.AddBackgroundToComposables
 import com.example.androidapp.MainActivity
 import com.example.androidapp.authorizationscreen.LOGIN_BUTTON_TEXT
 import com.example.androidapp.authorizationscreen.SignUpScreen
+import com.example.androidapp.database.MyDatabaseConnection
+import com.example.androidapp.database.converter.LocalDateConverter
+import com.example.androidapp.database.model.Note
+import com.example.androidapp.database.repository.MyRepository
 import com.example.androidapp.database.viewmodel.DayViewModel
 import com.example.androidapp.ui.theme.AndroidAppTheme
+import com.example.androidapp.ui.theme.Blue
+import com.example.androidapp.ui.theme.Red
 
 const val TITLE_TEXT : String = "TITLE"
 const val NOTE_TEXT : String = "NOTE"
 
-class CreateNote : ComponentActivity(){
-
+class CreateNote() : ComponentActivity(){
+    private val mDayViewModel: DayViewModel by viewModels()
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
             AndroidAppTheme {
-                AddBackgroundToComposables({ View() })
+                val noteId = intent.getLongExtra("noteId", -1)
+                val existingNote = mDayViewModel.getNoteById(noteId)
+                AddBackgroundToComposables( {
+                    View(existingNote)
+                })
             }
         }
     }
 
     @Composable
-    fun View() {
-        var titleValue by remember { mutableStateOf("") }
-        var noteValue by remember { mutableStateOf("") }
+    fun View(existingNote: Note?=null) {
+        var titleValue by remember { mutableStateOf(existingNote?.noteTitle ?: "") }
+        var noteValue by remember { mutableStateOf(existingNote?.content ?: "") }
         val context = LocalContext.current
 
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(16.dp),
-            verticalArrangement = Arrangement.Center,
-            horizontalAlignment = Alignment.CenterHorizontally
+                .padding(16.dp)
         ) {
-            Row(
+            Box(
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(bottom = 16.dp),
-                horizontalArrangement = Arrangement.SpaceBetween
+                    .fillMaxWidth(),
+                contentAlignment = Alignment.TopEnd
             ) {
-                OutlinedTextField(
-                    value = titleValue,
-                    onValueChange = { titleValue = it },
-                    label = { Text(TITLE_TEXT) },
-                    leadingIcon = { Icon(imageVector = Icons.Default.Title, contentDescription = null) },
-                    keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Text),
-                    modifier = Modifier.weight(1f)
-                )
                 IconButton(
                     onClick = {
                         val intent = Intent(context, MainActivity::class.java)
                         context.startActivity(intent)
                     },
                     modifier = Modifier
-                        .padding(end = 1.dp)
-                        .size(56.dp)
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.Add,
-                        contentDescription = null,
-                        tint = MaterialTheme.colorScheme.primary
-                    )
-                }
+                        .size(40.dp),
 
-                IconButton(
-                    onClick = {
-                        val intent = Intent(context, MainActivity::class.java)
-                        context.startActivity(intent)
-                    },
-                    modifier = Modifier
-                        .padding(start = 1.dp)
-                        .size(56.dp)
                 ) {
                     Icon(
-                        imageVector = Icons.Default.Cancel,
+                        imageVector = Icons.Default.Close,
                         contentDescription = null,
-                        tint = MaterialTheme.colorScheme.primary
+                        tint = Color.Black
                     )
                 }
             }
 
+            Spacer(modifier = Modifier.width(16.dp))
+
             OutlinedTextField(
-                value = noteValue,
-                onValueChange = { noteValue = it },
-                label = { Text(NOTE_TEXT) },
+                value = titleValue,
+                onValueChange = { titleValue = it },
+                label = { Text("Title") },
+                leadingIcon = {
+                    Icon(
+                        imageVector = Icons.Default.Title,
+                        contentDescription = null
+                    )
+                },
                 keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Text),
-                modifier = Modifier.fillMaxWidth()
+                maxLines = 2,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(bottom = 16.dp)
             )
+
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .fillMaxHeight()
+            ) {
+                OutlinedTextField(
+                    value = noteValue,
+                    onValueChange = { noteValue = it },
+                    label = { Text("Note") },
+                    keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Text),
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(bottom = 65.dp)
+                )
+
+                Spacer(modifier = Modifier.height(32.dp))
+
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .align(Alignment.BottomCenter),
+                ) {
+
+                    IconButton(
+                        onClick = {
+                            if (existingNote == null) {
+                                // Create a new note
+                                val newNote = Note(
+                                    noteTitle = titleValue,
+                                    content = noteValue,
+                                )
+                                mDayViewModel.addNewNote(newNote)
+                                val intent = Intent(context, MainActivity::class.java)
+                                context.startActivity(intent)
+                            } else {
+                                // Update the existing note
+                                val updatedNote = existingNote.copy(
+                                    noteTitle = titleValue,
+                                    content = noteValue
+                                )
+                                mDayViewModel.updateNote(updatedNote)
+                            }
+                        },
+                        modifier = Modifier
+                            .size(56.dp)
+                            .background(Blue, CircleShape)
+                            .padding(16.dp)
+                            .clip(CircleShape)
+                            .shadow(4.dp, CircleShape)
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Done,
+                            contentDescription = null,
+                            tint = Color.White
+                        )
+                    }
+
+                    Spacer(modifier = Modifier.width(16.dp))
+
+                    IconButton(
+                        onClick = {
+                            if (existingNote != null) {
+                                mDayViewModel.deleteNote(existingNote)
+                            }
+                            val intent = Intent(context, MainActivity::class.java)
+                            context.startActivity(intent)
+                        },
+                        modifier = Modifier
+                            .size(56.dp)
+                            .background(Red, CircleShape)
+                            .padding(16.dp)
+                            .clip(CircleShape)
+                            .shadow(4.dp, CircleShape)
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Delete,
+                            contentDescription = null,
+                            tint = Color.White
+                        )
+                    }
+                }
+            }
         }
     }
+
 
 }

@@ -2,14 +2,21 @@ package com.example.androidapp.database.dao
 
 import androidx.lifecycle.LiveData
 import androidx.room.Dao
+import androidx.room.Delete
+import androidx.room.Insert
+import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Transaction
+import androidx.room.Update
 import androidx.room.Upsert
 import com.example.androidapp.database.model.DayEntity
 import com.example.androidapp.database.model.DayWithEvents
 import com.example.androidapp.database.model.DayWithTodos
 import com.example.androidapp.database.model.EventEntity
+
+import com.example.androidapp.database.model.Note
 import com.example.androidapp.database.model.TodoEntity
+import kotlinx.coroutines.flow.Flow
 import java.time.LocalDate
 
 @Dao
@@ -40,9 +47,22 @@ interface MyDao {
     @Upsert
     suspend fun saveTodoEntity(todo: TodoEntity)
 
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun addNewNote(note: Note)
+
+    @Update
+    suspend fun updateNote(note: Note)
+
+    @Query("SELECT * FROM notes ORDER BY noteId DESC")
+    fun getAllNotes(): LiveData<List<Note>>
+
+    @Delete
+    fun deleteNote(note: Note)
+
     @Transaction
     @Query("SELECT * FROM todos")
     fun getAllTodoEntities(): LiveData<List<TodoEntity>>
+
 
     /*
     @Transaction
@@ -50,6 +70,8 @@ interface MyDao {
     fun getAllTodoEntitiesForDayEntityId(dayEntityId: Long): LiveData<List<TodoEntity>>
      */
 
+    @Query("SELECT * FROM notes WHERE noteId = :noteId")
+    fun getNoteById(noteId: Long):Note?
     @Transaction
     @Query("SELECT * FROM day_data WHERE dayId = :dayId")
     fun getEventsByDayId(dayId: Long): DayWithEvents?

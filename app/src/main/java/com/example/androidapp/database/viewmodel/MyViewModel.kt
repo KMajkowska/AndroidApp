@@ -6,18 +6,21 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
+import androidx.room.Query
 import com.example.androidapp.database.MyDatabaseConnection
 import com.example.androidapp.database.dao.MyDao
 import com.example.androidapp.database.model.DayEntity
 import com.example.androidapp.database.model.DayWithEvents
 import com.example.androidapp.database.model.DayWithTodos
 import com.example.androidapp.database.model.EventEntity
+import com.example.androidapp.database.model.Note
 import com.example.androidapp.database.model.TodoEntity
 import com.example.androidapp.database.repository.MyRepository
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.async
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
@@ -31,6 +34,7 @@ class DayViewModel(application: Application) : AndroidViewModel(application) {
     val allDayEntitiesSortedByDate: LiveData<List<DayEntity>> = repository.allDayEntitiesSortedByDate
     val allTodoEntities: LiveData<List<TodoEntity>> = repository.allTodoEntities
     val allEventEntities: LiveData<List<EventEntity>> = repository.allEventEntities
+    val allNotes: LiveData<List<Note>> = repository.allNotes
 
     fun saveDayEntity(dayEntity: DayEntity) {
         viewModelScope.launch(Dispatchers.IO) {
@@ -50,6 +54,32 @@ class DayViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
+    fun addNewNote(note: Note){
+        viewModelScope.launch(Dispatchers.IO) {
+            repository.addNewNote(note)
+        }
+    }
+
+
+    fun updateNote(note: Note){
+        viewModelScope.launch(Dispatchers.IO) {
+            repository.updateNote(note)
+        }
+    }
+
+    fun deleteNote(note: Note){
+        viewModelScope.launch(Dispatchers.IO) {
+            repository.deleteNote(note)
+        }
+    }
+
+    fun getNoteById(id: Long): Note?{
+        return runBlocking {
+            withContext(Dispatchers.IO){
+                repository.getNoteById(id)
+            }
+        }
+    }
     fun getDayByDate(date: LocalDate): DayEntity? {
         return runBlocking {
             withContext(Dispatchers.IO) {

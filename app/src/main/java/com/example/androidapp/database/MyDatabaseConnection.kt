@@ -10,9 +10,10 @@ import com.example.androidapp.database.dao.MyDao
 import com.example.androidapp.database.model.DayEntity
 import com.example.androidapp.database.model.EventEntity
 import com.example.androidapp.database.model.TodoEntity
+import com.example.androidapp.database.model.Note
 
 @Database(
-    entities = [DayEntity::class, TodoEntity::class, EventEntity::class],
+    entities = [DayEntity::class, TodoEntity::class, EventEntity::class, Note::class],
     version = 1,
     exportSchema = false
 )
@@ -30,7 +31,7 @@ abstract class MyDatabaseConnection : RoomDatabase() {
                     context.applicationContext,
                     MyDatabaseConnection::class.java,
                     "uniqrn_db"
-                ).build()
+                ).allowMainThreadQueries().fallbackToDestructiveMigration().build()
                 INSTANCE = instance
                 return instance
             }
