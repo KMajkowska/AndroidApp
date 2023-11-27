@@ -42,9 +42,22 @@ class DayViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
+    fun saveDayEntityWithTodos(dayWithTodos: DayWithTodos?, todos: List<TodoEntity>) {
+        viewModelScope.launch(Dispatchers.IO) {
+            repository.saveDayEntityWithTodos(dayWithTodos, todos)
+        }
+    }
+
     fun saveTodoEntity(todoEntity: TodoEntity) {
         viewModelScope.launch(Dispatchers.IO) {
             repository.saveTodoEntity(todoEntity)
+        }
+    }
+    fun getDayWithTodosByDate(date: LocalDate): DayWithTodos? {
+        return runBlocking {
+            withContext(Dispatchers.IO) {
+                repository.getDayWithTodosByDate(date)
+            }
         }
     }
 
@@ -87,7 +100,7 @@ class DayViewModel(application: Application) : AndroidViewModel(application) {
             }
         }
     }
-    fun getEventsByDayId(dayId: Long): DayWithEvents? {
+    fun getEventsByDayId(dayId: Long): DayWithEvents {
         return runBlocking {
             withContext(Dispatchers.IO) {
                 repository.getEventsByDayId(dayId)
@@ -95,13 +108,28 @@ class DayViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
-    fun getTodosByDayId(dayId: Long): DayWithTodos? {
+    fun getTodosByDayId(dayId: Long): DayWithTodos {
         return runBlocking {
             withContext(Dispatchers.IO) {
                 repository.getTodosByDayId(dayId)
             }
         }
     }
+
+    fun insertTodo(todo: TodoEntity) {
+        viewModelScope.launch {
+            repository.addNewTodo(todo)
+        }
+    }
+
+    fun getTodosByDay(date: LocalDate): DayWithTodos {
+        return runBlocking {
+            withContext(Dispatchers.IO) {
+                repository.getDayWithTodosByDate(date)
+            }
+        }
+    }
+
 }
 
 class DayViewModelFactory(private val application: Application) : ViewModelProvider.Factory {

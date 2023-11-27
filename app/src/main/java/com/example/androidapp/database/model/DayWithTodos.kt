@@ -1,5 +1,6 @@
 package com.example.androidapp.database.model
 
+import androidx.lifecycle.LiveData
 import androidx.room.Embedded
 import androidx.room.Relation
 
@@ -10,5 +11,5 @@ data class DayWithTodos (
         parentColumn = "dayId",
         entityColumn = "dayForeignId"
     )
-    val todos: List<TodoEntity>
+    var todos: List<TodoEntity>
 )

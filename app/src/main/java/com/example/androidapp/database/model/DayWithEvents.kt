@@ -1,5 +1,6 @@
 package com.example.androidapp.database.model
 
+import androidx.lifecycle.LiveData
 import androidx.room.Embedded
 import androidx.room.Relation
 

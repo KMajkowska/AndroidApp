@@ -13,7 +13,8 @@ import java.time.LocalDate
 
 class MyRepository(private val myDao: MyDao) {
 
-    val allDayEntitiesSortedByDate: LiveData<List<DayEntity>> = myDao.getAllDayEntitiesSortedByDate()
+    val allDayEntitiesSortedByDate: LiveData<List<DayEntity>> =
+        myDao.getAllDayEntitiesSortedByDate()
 
     val allTodoEntities: LiveData<List<TodoEntity>> = myDao.getAllTodoEntities();
 
@@ -33,16 +34,18 @@ class MyRepository(private val myDao: MyDao) {
         myDao.saveEventEntity(newEventEntity)
     }
 
-    suspend fun addNewNote(note: Note){
+    suspend fun addNewNote(note: Note) {
         myDao.addNewNote(note)
     }
-    suspend fun updateNote(note: Note){
+
+    suspend fun updateNote(note: Note) {
         myDao.updateNote(note)
     }
 
-    fun deleteNote(note:Note){
+    fun deleteNote(note: Note) {
         myDao.deleteNote(note)
     }
+
     fun getNoteById(noteId: Long): Note? {
         return myDao.getNoteById(noteId)
     }
@@ -51,12 +54,32 @@ class MyRepository(private val myDao: MyDao) {
         return myDao.getDayByDate(date)
     }
 
-    fun getEventsByDayId(dayId: Long): DayWithEvents? {
+    fun getEventsByDayId(dayId: Long): DayWithEvents {
         return myDao.getEventsByDayId(dayId)
     }
 
-    fun getTodosByDayId(dayId: Long): DayWithTodos? {
+    fun getTodosByDayId(dayId: Long): DayWithTodos {
         return myDao.getTodosByDayId(dayId)
+    }
+
+    fun getDayWithTodosByDate(date: LocalDate): DayWithTodos {
+        return myDao.getTodosByDay(date)
+    }
+
+
+    suspend fun addNewTodo(todo: TodoEntity) {
+        return myDao.addNewTodo(todo)
+    }
+
+    suspend fun saveDayEntityWithTodos(dayWithTodos: DayWithTodos?, todos: List<TodoEntity>) {
+        val dayEntity = dayWithTodos?.dayEntity
+        val dayId = dayEntity?.let { myDao.insertDayEntity(it) }
+        todos.forEach {
+            if (dayId != null) {
+                it.dayForeignId = dayId
+            }
+        }
+        myDao.insertTodos(todos)
     }
 
 }
