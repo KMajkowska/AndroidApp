@@ -77,13 +77,13 @@ interface MyDao {
     fun getEventsByDayId(dayId: Long): DayWithEvents
 
     @Transaction
-    @Query("SELECT * FROM day_data WHERE dayId = :dayId")
-    fun getTodosByDayId(dayId: Long): DayWithTodos
+    @Query("SELECT * FROM todos WHERE dayForeignId = :dayId")
+    fun getTodosByDayId(dayId: Long): LiveData<List<TodoEntity>>
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun addNewTodo(todo: TodoEntity)
     @Transaction
-    @Query("SELECT * FROM day_data WHERE date = :date")
-    fun getTodosByDay(date: LocalDate): DayWithTodos
+    @Query("SELECT * FROM todos INNER JOIN day_data ON todos.dayForeignId = day_data.dayId WHERE day_data.date = :date")
+    fun getTodosByDay(date: LocalDate): LiveData<List<TodoEntity>>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertDayEntity(dayEntity: DayEntity): Long

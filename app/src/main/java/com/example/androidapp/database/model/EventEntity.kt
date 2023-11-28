@@ -1,5 +1,6 @@
 package com.example.androidapp.database.model
 
+import android.graphics.Color
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 
@@ -9,7 +10,6 @@ data class EventEntity(
     val eventId: Long? = null,
     val dayForeignId: Long,
     val title: String = "",
-    //val color: Color,
-    //val icon: Icon,
-    //val forDate: Long = System.currentTimeMillis()
+    val colorInt: Color = Color.valueOf(0)
+    //val icon: ImageVector,
 )

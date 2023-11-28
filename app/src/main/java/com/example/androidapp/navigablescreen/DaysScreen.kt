@@ -1,6 +1,5 @@
 package com.example.androidapp.navigablescreen
 
-import android.util.Log
 import android.widget.CalendarView
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -13,7 +12,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyColumn
@@ -45,7 +43,6 @@ import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
@@ -68,10 +65,7 @@ import com.example.androidapp.database.viewmodel.DayViewModel
 import java.time.LocalDate
 import java.util.Calendar
 
-class DaysScreen(
-    private val mDayViewModel: DayViewModel,
-    private var chosenDate: LocalDate = LocalDate.now()
-) : NavigableScreen() {
+class DaysScreen(private val mDayViewModel: DayViewModel) : NavigableScreen() {
 
     override val screenName: String
         get() = "Days"
@@ -81,19 +75,22 @@ class DaysScreen(
     }
 
     @Composable
-    override fun ViewWithBackground() {
-        AddBackgroundToComposables({ View() }, { NoteView(chosenDate, mDayViewModel) })
+    override fun View() {
+        TODO("Not yet implemented")
     }
 
     @Composable
-    fun NoteView(chosenDate: LocalDate, mDayViewModel: DayViewModel) {
+    override fun ViewWithBackground() {
+        val chosenDate =  remember { mutableStateOf(LocalDate.now()) }
+
+        AddBackgroundToComposables({ View(chosenDate) }, { DayDataView(chosenDate, mDayViewModel) })
+    }
+
+    @Composable
+    fun DayDataView(chosenDate: MutableState<LocalDate>, mDayViewModel: DayViewModel) {
         val hasDayEntityBeenChanged = remember { mutableStateOf(false) }
-
-        if (mDayViewModel.getDayByDate(chosenDate) == null) {
-            mDayViewModel.saveDayEntity(DayEntity(date = chosenDate))
-        }
-
-        val dayEntity: DayEntity = mDayViewModel.getDayByDate(chosenDate)!!
+        val dayEntity: DayEntity = mDayViewModel.getDayByDate(chosenDate.value)
+            ?: mDayViewModel.saveAndRetrieveDayEntity(chosenDate.value)
 
         val note = remember { mutableStateOf(dayEntity.note) }
         val dayTitle = remember { mutableStateOf(dayEntity.dayTitle) }
@@ -105,6 +102,9 @@ class DaysScreen(
                     dayEntity.dayTitle = dayTitle.value
                     mDayViewModel.saveDayEntity(dayEntity)
                 }
+
+                dayTitle.value = ""
+                note.value = ""
             }
         }
 
@@ -166,10 +166,9 @@ class DaysScreen(
     }
 
     @Composable
-    override fun View() {
-        val days = mDayViewModel.allDayEntitiesSortedByDate.observeAsState(initial = listOf()).value
+    fun View(chosenDate: MutableState<LocalDate>) {
         val calendarView = CalendarView(LocalContext.current)
-        for (day in days) {
+        for (day in mDayViewModel.allDayEntitiesSortedByDate.observeAsState(initial = listOf()).value) {
             val calendar = Calendar.getInstance()
             calendar.set(day.date.year, day.date.monthValue - 1, day.date.dayOfMonth)
             calendarView.setDate(calendar.timeInMillis, true, true)
@@ -186,7 +185,7 @@ class DaysScreen(
                 modifier = Modifier.wrapContentWidth(),
                 update = {
                     it.setOnDateChangeListener { _, year, month, dayOfMonth ->
-                        chosenDate = LocalDate.of(year, month + 1, dayOfMonth)
+                        chosenDate.value = LocalDate.of(year, month + 1, dayOfMonth)
                     }
                 }
             )
@@ -199,7 +198,8 @@ class DaysScreen(
         dayId: Long,
         hasDayEntityBeenChanged: MutableState<Boolean>
     ) {
-        val todoList by remember { mutableStateOf(mDayViewModel.getTodosByDayId(dayId).todos) }
+        var isEditing by remember { mutableStateOf(false) }
+        val todoList = mDayViewModel.getTodosByDayId(dayId).observeAsState(initial = listOf()).value
         val newTodoItem = remember { mutableStateOf("") }
 
         Column(
@@ -208,6 +208,30 @@ class DaysScreen(
                 .padding(8.dp)
         ) {
             Text("To do")
+
+            if (isEditing) {
+                InlineTextEditor(
+                    data = newTodoItem,
+                    hasDayEntityBeenChanged = hasDayEntityBeenChanged
+                ) {
+                    if (newTodoItem.value.isNotEmpty()) {
+                        mDayViewModel.saveTodoEntity(
+                            TodoEntity(
+                                dayForeignId = dayId,
+                                title = newTodoItem.value
+                            )
+                        )
+                    }
+                    isEditing = false
+                    newTodoItem.value = ""
+                }
+            } else {
+                IconButton(onClick = {
+                    isEditing = true
+                }) {
+                    Icon(imageVector = Icons.Default.Add, contentDescription = "Add new todo")
+                }
+            }
 
             todoList.forEach { todo ->
                 var isChecked by remember { mutableStateOf(todo.isDone) }
@@ -226,34 +250,6 @@ class DaysScreen(
                     )
                     Text(text = todo.title)
                 }
-            }
-        }
-
-        HorizontalDivider()
-
-        var isEditing by remember { mutableStateOf(false) }
-
-        if (isEditing) {
-            InlineTextEditor(
-                data = newTodoItem,
-                hasDayEntityBeenChanged = hasDayEntityBeenChanged
-            ) {
-                if (newTodoItem.value.isNotEmpty()) {
-                    mDayViewModel.saveTodoEntity(
-                        TodoEntity(
-                            dayForeignId = dayId,
-                            title = newTodoItem.value
-                        )
-                    )
-                }
-                isEditing = false
-                newTodoItem.value = ""
-            }
-        } else {
-            IconButton(onClick = {
-                isEditing = true
-            }) {
-                Icon(imageVector = Icons.Default.Add, contentDescription = "Add new todo")
             }
         }
     }

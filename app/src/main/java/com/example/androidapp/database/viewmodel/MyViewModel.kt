@@ -7,6 +7,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import androidx.room.Query
+import androidx.room.Transaction
 import com.example.androidapp.database.MyDatabaseConnection
 import com.example.androidapp.database.dao.MyDao
 import com.example.androidapp.database.model.DayEntity
@@ -31,15 +32,24 @@ class DayViewModel(application: Application) : AndroidViewModel(application) {
     private val myDao: MyDao = MyDatabaseConnection.getDatabase(application).myDao()
     private val repository: MyRepository = MyRepository(myDao)
 
-    val allDayEntitiesSortedByDate: LiveData<List<DayEntity>> = repository.allDayEntitiesSortedByDate
+    val allDayEntitiesSortedByDate: LiveData<List<DayEntity>> =
+        repository.allDayEntitiesSortedByDate
     val allTodoEntities: LiveData<List<TodoEntity>> = repository.allTodoEntities
     val allEventEntities: LiveData<List<EventEntity>> = repository.allEventEntities
     val allNotes: LiveData<List<Note>> = repository.allNotes
 
     fun saveDayEntity(dayEntity: DayEntity) {
-        viewModelScope.launch(Dispatchers.IO) {
-            repository.saveDayEntity(dayEntity)
+        return runBlocking {
+            withContext(Dispatchers.IO) {
+                repository.saveDayEntity(dayEntity)
+            }
         }
+    }
+
+    fun saveAndRetrieveDayEntity(date: LocalDate): DayEntity {
+        val dayEntity = DayEntity(date = date)
+        saveDayEntity(dayEntity)
+        return getDayByDate(date)!!
     }
 
     fun saveDayEntityWithTodos(dayWithTodos: DayWithTodos?, todos: List<TodoEntity>) {
@@ -53,7 +63,8 @@ class DayViewModel(application: Application) : AndroidViewModel(application) {
             repository.saveTodoEntity(todoEntity)
         }
     }
-    fun getDayWithTodosByDate(date: LocalDate): DayWithTodos? {
+
+    fun getDayWithTodosByDate(date: LocalDate): LiveData<List<TodoEntity>> {
         return runBlocking {
             withContext(Dispatchers.IO) {
                 repository.getDayWithTodosByDate(date)
@@ -67,32 +78,33 @@ class DayViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
-    fun addNewNote(note: Note){
+    fun addNewNote(note: Note) {
         viewModelScope.launch(Dispatchers.IO) {
             repository.addNewNote(note)
         }
     }
 
 
-    fun updateNote(note: Note){
+    fun updateNote(note: Note) {
         viewModelScope.launch(Dispatchers.IO) {
             repository.updateNote(note)
         }
     }
 
-    fun deleteNote(note: Note){
+    fun deleteNote(note: Note) {
         viewModelScope.launch(Dispatchers.IO) {
             repository.deleteNote(note)
         }
     }
 
-    fun getNoteById(id: Long): Note?{
+    fun getNoteById(id: Long): Note? {
         return runBlocking {
-            withContext(Dispatchers.IO){
+            withContext(Dispatchers.IO) {
                 repository.getNoteById(id)
             }
         }
     }
+
     fun getDayByDate(date: LocalDate): DayEntity? {
         return runBlocking {
             withContext(Dispatchers.IO) {
@@ -100,6 +112,7 @@ class DayViewModel(application: Application) : AndroidViewModel(application) {
             }
         }
     }
+
     fun getEventsByDayId(dayId: Long): DayWithEvents {
         return runBlocking {
             withContext(Dispatchers.IO) {
@@ -108,7 +121,7 @@ class DayViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
-    fun getTodosByDayId(dayId: Long): DayWithTodos {
+    fun getTodosByDayId(dayId: Long): LiveData<List<TodoEntity>> {
         return runBlocking {
             withContext(Dispatchers.IO) {
                 repository.getTodosByDayId(dayId)
@@ -122,7 +135,7 @@ class DayViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
-    fun getTodosByDay(date: LocalDate): DayWithTodos {
+    fun getTodosByDay(date: LocalDate): LiveData<List<TodoEntity>> {
         return runBlocking {
             withContext(Dispatchers.IO) {
                 repository.getDayWithTodosByDate(date)

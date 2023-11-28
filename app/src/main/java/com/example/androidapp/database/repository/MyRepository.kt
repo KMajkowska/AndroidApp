@@ -58,11 +58,11 @@ class MyRepository(private val myDao: MyDao) {
         return myDao.getEventsByDayId(dayId)
     }
 
-    fun getTodosByDayId(dayId: Long): DayWithTodos {
+    fun getTodosByDayId(dayId: Long): LiveData<List<TodoEntity>> {
         return myDao.getTodosByDayId(dayId)
     }
 
-    fun getDayWithTodosByDate(date: LocalDate): DayWithTodos {
+    fun getDayWithTodosByDate(date: LocalDate): LiveData<List<TodoEntity>> {
         return myDao.getTodosByDay(date)
     }
 
