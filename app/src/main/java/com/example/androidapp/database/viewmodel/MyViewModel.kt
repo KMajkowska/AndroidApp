@@ -9,8 +9,6 @@ import androidx.lifecycle.viewModelScope
 import com.example.androidapp.database.MyDatabaseConnection
 import com.example.androidapp.database.dao.MyDao
 import com.example.androidapp.database.model.DayEntity
-import com.example.androidapp.database.model.DayWithEvents
-import com.example.androidapp.database.model.DayWithTodos
 import com.example.androidapp.database.model.EventEntity
 import com.example.androidapp.database.model.Note
 import com.example.androidapp.database.model.TodoEntity
@@ -52,11 +50,6 @@ class DayViewModel(application: Application) : AndroidViewModel(application) {
         return getDayByDate(date)!!
     }
 
-    fun saveDayEntityWithTodos(dayWithTodos: DayWithTodos?, todos: List<TodoEntity>) {
-        viewModelScope.launch(Dispatchers.IO) {
-            repository.saveDayEntityWithTodos(dayWithTodos, todos)
-        }
-    }
 
     fun saveTodoEntity(todoEntity: TodoEntity) {
         viewModelScope.launch(Dispatchers.IO) {
@@ -81,6 +74,12 @@ class DayViewModel(application: Application) : AndroidViewModel(application) {
     fun saveEventEntity(eventEntity: EventEntity) {
         viewModelScope.launch(Dispatchers.IO) {
             repository.saveEventEntity(eventEntity)
+        }
+    }
+
+    fun deleteEventEntity(eventEntity: EventEntity) {
+        viewModelScope.launch(Dispatchers.IO) {
+            repository.deleteEventEntity(eventEntity)
         }
     }
 
@@ -119,7 +118,7 @@ class DayViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
-    fun getEventsByDayId(dayId: Long): DayWithEvents {
+    fun getEventsByDayId(dayId: Long): LiveData<List<EventEntity>> {
         return runBlocking {
             withContext(Dispatchers.IO) {
                 repository.getEventsByDayId(dayId)

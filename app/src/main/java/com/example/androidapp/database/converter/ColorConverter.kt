@@ -1,10 +1,9 @@
 package com.example.androidapp.database.converter
 
 import android.graphics.Color
-import androidx.room.ProvidedTypeConverter
 import androidx.room.TypeConverter
 
-@ProvidedTypeConverter
+//@ProvidedTypeConverter
 class ColorConverter {
     @TypeConverter
     fun fromColor(color: Color): Int {

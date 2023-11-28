@@ -10,13 +10,9 @@ import androidx.room.Transaction
 import androidx.room.Update
 import androidx.room.Upsert
 import com.example.androidapp.database.model.DayEntity
-import com.example.androidapp.database.model.DayWithEvents
-import com.example.androidapp.database.model.DayWithTodos
 import com.example.androidapp.database.model.EventEntity
-
 import com.example.androidapp.database.model.Note
 import com.example.androidapp.database.model.TodoEntity
-import kotlinx.coroutines.flow.Flow
 import java.time.LocalDate
 
 @Dao
@@ -53,6 +49,9 @@ interface MyDao {
     @Delete
     suspend fun deleteTodoEntity(todo: TodoEntity)
 
+    @Delete
+    suspend fun deleteEventEntity(event: EventEntity)
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun addNewNote(note: Note)
 
@@ -79,8 +78,8 @@ interface MyDao {
     @Query("SELECT * FROM notes WHERE noteId = :noteId")
     fun getNoteById(noteId: Long):Note?
     @Transaction
-    @Query("SELECT * FROM day_data WHERE dayId = :dayId")
-    fun getEventsByDayId(dayId: Long): DayWithEvents
+    @Query("SELECT * FROM events WHERE dayForeignId = :dayId")
+    fun getEventsByDayId(dayId: Long): LiveData<List<EventEntity>>
 
     @Transaction
     @Query("SELECT * FROM todos WHERE dayForeignId = :dayId")
@@ -88,7 +87,7 @@ interface MyDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun addNewTodo(todo: TodoEntity)
     @Transaction
-    @Query("SELECT * FROM todos INNER JOIN day_data ON todos.dayForeignId = day_data.dayId WHERE day_data.date = :date")
+    @Query("SELECT todos.* FROM todos INNER JOIN day_data ON todos.dayForeignId = day_data.dayId WHERE day_data.date = :date")
     fun getTodosByDay(date: LocalDate): LiveData<List<TodoEntity>>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)

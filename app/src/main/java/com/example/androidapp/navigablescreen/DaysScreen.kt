@@ -10,8 +10,8 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyColumn
@@ -19,7 +19,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Cake
 import androidx.compose.material.icons.filled.CalendarMonth
-import androidx.compose.material.icons.filled.Celebration
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Create
@@ -41,7 +40,6 @@ import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
-import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -50,9 +48,6 @@ import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.input.key.Key
-import androidx.compose.ui.input.key.key
-import androidx.compose.ui.input.key.onKeyEvent
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.unit.dp
@@ -61,8 +56,10 @@ import androidx.compose.ui.window.Dialog
 import com.example.androidapp.AddBackgroundToComposables
 import com.example.androidapp.HorizontalDivider
 import com.example.androidapp.database.model.DayEntity
+import com.example.androidapp.database.model.EventEntity
 import com.example.androidapp.database.model.TodoEntity
 import com.example.androidapp.database.viewmodel.DayViewModel
+import com.example.androidapp.settings.EventCategories
 import java.time.LocalDate
 import java.util.Calendar
 
@@ -153,14 +150,8 @@ class DaysScreen(private val mDayViewModel: DayViewModel) : NavigableScreen() {
             }
             item {
                 EventView(
-                    onEventIconSelected = { index, category ->
-                        // Handle selecting event icon as needed
-                        // For simplicity, let's use a default icon here
-                        val icon = "📅"
-                        val event = Pair(icon, category)
-                    },
-                    onAddEvent = { category, eventName ->
-                    }
+                    dayEntity.dayId!!,
+                    hasDayEntityBeenChanged = hasDayEntityBeenChanged,
                 )
             }
         }
@@ -268,6 +259,124 @@ class DaysScreen(private val mDayViewModel: DayViewModel) : NavigableScreen() {
 
         }
     }
+
+    @Composable
+    fun EventView(
+        dayId: Long,
+        hasDayEntityBeenChanged: MutableState<Boolean>
+    ) {
+        val eventList =
+            mDayViewModel.getEventsByDayId(dayId).observeAsState(initial = listOf()).value
+        val newEventTitle = remember { mutableStateOf("") }
+        val newEventCategory = remember { mutableStateOf("General") }
+        var isEditing by remember { mutableStateOf(false) }
+        var isDropdownExpanded by remember { mutableStateOf(false) }
+
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(8.dp)
+        ) {
+            Text("Event List")
+        }
+
+        HorizontalDivider()
+
+        val categoryList = EventCategories.values()
+        if (isEditing) {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Box(
+                    modifier = Modifier
+                        .clickable {
+                            isDropdownExpanded = !isDropdownExpanded
+                        }
+                ) {
+                    DropdownMenu(
+                        expanded = isDropdownExpanded,
+                        onDismissRequest = {
+                            isDropdownExpanded = false
+                        }
+                    ) {
+
+                        categoryList.forEach { category ->
+                            if (category.name == newEventCategory.value) {
+                                return@forEach
+                            }
+                            DropdownMenuItem(
+                                {
+                                    Text(category.name, Modifier.padding(8.dp))
+                                },
+                                onClick = {
+                                    newEventCategory.value = category.name
+                                    hasDayEntityBeenChanged.value = true
+                                    isDropdownExpanded = false
+                                }
+                            )
+                        }
+                    }
+                    Text(newEventCategory.value)
+                }
+
+                Spacer(modifier = Modifier.width(8.dp))
+
+                InlineTextEditor(
+                    data = newEventTitle,
+                    hasDayEntityBeenChanged = hasDayEntityBeenChanged
+                ) {
+                    if (newEventTitle.value.isNotEmpty()) {
+                        mDayViewModel.saveEventEntity(
+                            EventEntity(
+                                dayForeignId = dayId,
+                                title = newEventTitle.value,
+                                category = newEventCategory.value
+                            )
+                        )
+                    }
+                    isEditing = false
+                    newEventCategory.value = categoryList.get(0).toString()
+                    newEventTitle.value = ""
+                }
+
+
+            }
+        } else {
+            IconButton(onClick = {
+                isEditing = true
+            }) {
+                Icon(
+                    imageVector = Icons.Default.Add,
+                    contentDescription = "Add new event"
+                )
+            }
+        }
+
+        eventList.forEach { event ->
+            var eventCategory by remember { mutableStateOf(event.category) }
+
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween, 
+                modifier = Modifier.padding(16.dp)
+            ) {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    val icon = getCategoryIcon(eventCategory)
+                    Icon(imageVector = icon, contentDescription = null)
+                    Text(event.title)
+                }
+
+                IconButton(
+                    onClick = { mDayViewModel.deleteEventEntity(event) }
+                ) {
+                    Icon(Icons.Default.Delete, contentDescription = "Delete")
+                }
+            }
+
+        }
+    }
 }
 
 @Composable
@@ -353,6 +462,8 @@ fun InlineTextEditor(
             }
         }
     }
+
+
 }
 
 @OptIn(ExperimentalComposeUiApi::class)
@@ -422,117 +533,13 @@ fun DialogTextEditor(
 }
 
 @Composable
-fun EventView(
-    onEventIconSelected: (Int, String) -> Unit,
-    onAddEvent: (String, String) -> Unit
-) {
-    // Create an empty mutable state list to store event items
-    val eventList = remember { mutableStateListOf<Pair<String, String>>() }
-
-    // Create a local variable for the new event item
-    var newEventItem by remember { mutableStateOf("") }
-
-    // Create a local variable for the selected category
-    var selectedCategory by remember { mutableStateOf("General") }
-
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(8.dp)
-    ) {
-        Text("Event List")
-
-        // Display existing event items with categories and names if the list is not empty
-        if (eventList.isNotEmpty()) {
-            eventList.forEachIndexed { index, (category, eventName) ->
-                Row(
-                    modifier = Modifier.clickable { /* Handle item click if needed */ },
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(8.dp)
-                    ) {
-                        // Map the category to the corresponding icon
-                        val icon = getCategoryIcon(category)
-
-                        Icon(imageVector = icon, contentDescription = null)
-                        Text(eventName)
-                    }
-                }
-            }
-        } else {
-            // Show a message when the event list is empty
-            Text("No events.")
-        }
-
-        Spacer(modifier = Modifier.height(8.dp))
-
-        // Input field for adding new event items
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            var expanded by remember { mutableStateOf(false) }
-
-            // Dropdown toggle for new event items
-            Box(
-                modifier = Modifier.clickable(onClick = { expanded = !expanded })
-            ) {
-                Text(selectedCategory)
-
-                // Dropdown menu for new event items
-                DropdownMenu(
-                    expanded = expanded,
-                    onDismissRequest = { expanded = false }
-                ) {
-                    // Define a list of categories for the dropdown
-                    val categoryList = listOf("General", "Party", "Sports", "Meeting", "Food")
-
-                    // Display categories in the dropdown
-                    categoryList.forEach { category ->
-                        DropdownMenuItem(
-                            { Text(category, Modifier.padding(24.dp)) },
-                            onClick = {
-                                selectedCategory = category
-                                expanded = false
-                            })
-                    }
-                }
-            }
-
-            TextField(
-                value = newEventItem,
-                onValueChange = { newEventItem = it },
-                label = { Text("Add an event") },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .onKeyEvent {
-                        if (it.key == Key.Enter) {
-                            if (newEventItem.isNotBlank()) {
-                                eventList.add(Pair(selectedCategory, newEventItem))
-                                onAddEvent(selectedCategory, newEventItem)
-                                newEventItem = ""
-                            }
-                            true
-                        } else {
-                            false
-                        }
-                    }
-            )
-        }
-    }
-}
-
-@Composable
 fun getCategoryIcon(category: String): ImageVector {
     return when (category) {
-        "General" -> Icons.Default.CalendarMonth
-        "Party" -> Icons.Default.Cake
-        "Sports" -> Icons.Default.SportsBasketball
-        "Meeting" -> Icons.Default.MeetingRoom
-        "Food" -> Icons.Default.Fastfood
-        "Entertainment" -> Icons.Default.Celebration
+        EventCategories.GENERAL.name-> Icons.Default.CalendarMonth
+        EventCategories.PARTY.name -> Icons.Default.Cake
+        EventCategories.SPORT.name -> Icons.Default.SportsBasketball
+        EventCategories.MEETING.name -> Icons.Default.MeetingRoom
+        EventCategories.FOOD.name -> Icons.Default.Fastfood
         else -> Icons.Default.CalendarMonth
     }
 }

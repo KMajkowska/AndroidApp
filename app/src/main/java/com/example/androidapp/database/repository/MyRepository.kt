@@ -1,16 +1,12 @@
 package com.example.androidapp.database.repository
 
 import androidx.lifecycle.LiveData
-import androidx.lifecycle.viewModelScope
 import com.example.androidapp.database.dao.MyDao
 import com.example.androidapp.database.model.DayEntity
-import com.example.androidapp.database.model.DayWithEvents
 import com.example.androidapp.database.model.DayWithTodos
 import com.example.androidapp.database.model.EventEntity
 import com.example.androidapp.database.model.Note
 import com.example.androidapp.database.model.TodoEntity
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 import java.time.LocalDate
 
 class MyRepository(private val myDao: MyDao) {
@@ -60,7 +56,7 @@ class MyRepository(private val myDao: MyDao) {
         return myDao.getDayByDate(date)
     }
 
-    fun getEventsByDayId(dayId: Long): DayWithEvents {
+    fun getEventsByDayId(dayId: Long): LiveData<List<EventEntity>> {
         return myDao.getEventsByDayId(dayId)
     }
 
@@ -78,6 +74,10 @@ class MyRepository(private val myDao: MyDao) {
 
     suspend fun deleteTodoEntity(todo: TodoEntity) {
         myDao.deleteTodoEntity(todo)
+    }
+
+    suspend fun deleteEventEntity(event: EventEntity) {
+        myDao.deleteEventEntity(event)
     }
 
     suspend fun saveDayEntityWithTodos(dayWithTodos: DayWithTodos?, todos: List<TodoEntity>) {

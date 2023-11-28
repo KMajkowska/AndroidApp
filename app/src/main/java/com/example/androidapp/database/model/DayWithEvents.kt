@@ -1,6 +1,5 @@
 package com.example.androidapp.database.model
 
-import androidx.lifecycle.LiveData
 import androidx.room.Embedded
 import androidx.room.Relation
 
@@ -11,5 +10,5 @@ data class DayWithEvents (
         parentColumn = "dayId",
         entityColumn = "dayForeignId"
     )
-    val events: List<EventEntity>
+    var events: List<EventEntity>
 )

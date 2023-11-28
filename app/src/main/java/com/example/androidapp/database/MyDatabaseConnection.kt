@@ -10,15 +10,15 @@ import com.example.androidapp.database.converter.LocalDateConverter
 import com.example.androidapp.database.dao.MyDao
 import com.example.androidapp.database.model.DayEntity
 import com.example.androidapp.database.model.EventEntity
-import com.example.androidapp.database.model.TodoEntity
 import com.example.androidapp.database.model.Note
+import com.example.androidapp.database.model.TodoEntity
 
 @Database(
     entities = [DayEntity::class, TodoEntity::class, EventEntity::class, Note::class],
     version = 1,
     exportSchema = false
 )
-//@TypeConverters(LocalDateConverter::class, ColorConverter::class)
+@TypeConverters(LocalDateConverter::class, ColorConverter::class)
 abstract class MyDatabaseConnection : RoomDatabase() {
     abstract fun myDao(): MyDao
 
