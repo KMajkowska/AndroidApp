@@ -18,7 +18,7 @@ import com.example.androidapp.database.model.Note
     version = 1,
     exportSchema = false
 )
-@TypeConverters(LocalDateConverter::class, ColorConverter::class)
+//@TypeConverters(LocalDateConverter::class, ColorConverter::class)
 abstract class MyDatabaseConnection : RoomDatabase() {
     abstract fun myDao(): MyDao
 

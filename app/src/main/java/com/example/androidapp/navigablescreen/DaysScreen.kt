@@ -23,6 +23,7 @@ import androidx.compose.material.icons.filled.Celebration
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Create
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Fastfood
 import androidx.compose.material.icons.filled.MeetingRoom
 import androidx.compose.material.icons.filled.SportsBasketball
@@ -238,19 +239,33 @@ class DaysScreen(private val mDayViewModel: DayViewModel) : NavigableScreen() {
 
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.SpaceBetween, // Added arrangement for space between elements
+                    modifier = Modifier.padding(16.dp) // Added padding for better spacing
                 ) {
-                    Checkbox(
-                        checked = isChecked,
-                        onCheckedChange = { checked ->
-                            isChecked = checked
-                            todo.isDone = isChecked
-                            mDayViewModel.saveTodoEntity(todo)
-                            hasDayEntityBeenChanged.value = true
-                        }
-                    )
-                    Text(text = todo.title)
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        Checkbox(
+                            checked = isChecked,
+                            onCheckedChange = { checked ->
+                                isChecked = checked
+                                todo.isDone = isChecked
+                                mDayViewModel.saveTodoEntity(todo)
+                                hasDayEntityBeenChanged.value = true
+                            }
+                        )
+                        Text(text = todo.title)
+                    }
+
+                    // Added delete button
+                    IconButton(
+                        onClick = {mDayViewModel.deleteTodoEntity(todo)}
+                    ) {
+                        Icon(Icons.Default.Delete, contentDescription = "Delete")
+                    }
                 }
             }
+
         }
     }
 }

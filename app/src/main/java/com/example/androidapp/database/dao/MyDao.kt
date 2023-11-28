@@ -24,6 +24,9 @@ interface MyDao {
     @Upsert
     suspend fun saveDayEntity(dayEntity: DayEntity)
 
+    @Delete
+    suspend fun deleteDayEntity(dayEntity: DayEntity)
+
     @Transaction
     @Query("SELECT * FROM day_data ORDER BY date ASC")
     fun getAllDayEntitiesSortedByDate(): LiveData<List<DayEntity>>
@@ -47,6 +50,9 @@ interface MyDao {
     @Upsert
     suspend fun saveTodoEntity(todo: TodoEntity)
 
+    @Delete
+    suspend fun deleteTodoEntity(todo: TodoEntity)
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun addNewNote(note: Note)
 
@@ -57,7 +63,7 @@ interface MyDao {
     fun getAllNotes(): LiveData<List<Note>>
 
     @Delete
-    fun deleteNote(note: Note)
+    suspend fun deleteNote(note: Note)
 
     @Transaction
     @Query("SELECT * FROM todos")
