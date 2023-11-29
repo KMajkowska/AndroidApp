@@ -17,14 +17,15 @@ import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.Cake
 import androidx.compose.material.icons.filled.CalendarMonth
+import androidx.compose.material.icons.filled.Celebration
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Create
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Fastfood
-import androidx.compose.material.icons.filled.MeetingRoom
+import androidx.compose.material.icons.filled.Games
+import androidx.compose.material.icons.filled.Groups
 import androidx.compose.material.icons.filled.SportsBasketball
 import androidx.compose.material3.Button
 import androidx.compose.material3.Checkbox
@@ -335,7 +336,7 @@ class DaysScreen(private val mDayViewModel: DayViewModel) : NavigableScreen() {
                         )
                     }
                     isEditing = false
-                    newEventCategory.value = categoryList.get(0).toString()
+                    newEventCategory.value = categoryList[0].toString()
                     newEventTitle.value = ""
                 }
 
@@ -536,10 +537,11 @@ fun DialogTextEditor(
 fun getCategoryIcon(category: String): ImageVector {
     return when (category) {
         EventCategories.GENERAL.name-> Icons.Default.CalendarMonth
-        EventCategories.PARTY.name -> Icons.Default.Cake
+        EventCategories.PARTY.name -> Icons.Default.Celebration
         EventCategories.SPORT.name -> Icons.Default.SportsBasketball
-        EventCategories.MEETING.name -> Icons.Default.MeetingRoom
+        EventCategories.MEETING.name -> Icons.Default.Groups
         EventCategories.FOOD.name -> Icons.Default.Fastfood
+        EventCategories.ENTERTAINMENT.name -> Icons.Default.Games
         else -> Icons.Default.CalendarMonth
     }
 }

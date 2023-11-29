@@ -63,13 +63,6 @@ class DayViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
-    fun getDayWithTodosByDate(date: LocalDate): LiveData<List<TodoEntity>> {
-        return runBlocking {
-            withContext(Dispatchers.IO) {
-                repository.getDayWithTodosByDate(date)
-            }
-        }
-    }
 
     fun saveEventEntity(eventEntity: EventEntity) {
         viewModelScope.launch(Dispatchers.IO) {
@@ -137,14 +130,6 @@ class DayViewModel(application: Application) : AndroidViewModel(application) {
     fun insertTodo(todo: TodoEntity) {
         viewModelScope.launch {
             repository.addNewTodo(todo)
-        }
-    }
-
-    fun getTodosByDay(date: LocalDate): LiveData<List<TodoEntity>> {
-        return runBlocking {
-            withContext(Dispatchers.IO) {
-                repository.getDayWithTodosByDate(date)
-            }
         }
     }
 

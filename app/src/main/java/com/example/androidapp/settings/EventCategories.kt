@@ -5,5 +5,6 @@ enum class EventCategories {
     PARTY,
     MEETING,
     SPORT,
-    FOOD
+    FOOD,
+    ENTERTAINMENT
 }
