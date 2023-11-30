@@ -48,19 +48,19 @@ class CalendarScreen(private val mDayViewModel: DayViewModel) : NavigableScreen(
 
     @Composable
     fun View(chosenDate: MutableState<LocalDate>) {
-
-        val allDayEntities = mDayViewModel.allDayEntitiesSortedByDate.observeAsState(initial = listOf()).value
-        val allEventEntities = mDayViewModel.allEventEntities.observeAsState(initial = listOf()).value
+        // Get all DayEntities and EventEntities
+        val allDayEntities =
+            mDayViewModel.allDayEntitiesSortedByDate.observeAsState(initial = listOf()).value
+        val allEventEntities =
+            mDayViewModel.allEventEntities.observeAsState(initial = listOf()).value
 
         LazyColumn(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(16.dp)
         ) {
-            // Display only DayEntities that have associated events
-            items(allDayEntities.filter { dayEntity ->
-                allEventEntities.any { it.dayForeignId == dayEntity.dayId }
-            }) { dayEntity ->
+            // Display each DayEntity and its associated EventEntities
+            items(allDayEntities) { dayEntity ->
                 // Display Year
                 this@LazyColumn.item {
                     Text(
