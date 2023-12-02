@@ -1,5 +1,6 @@
 package com.example.androidapp.navigablescreen
 
+import android.util.Log
 import android.widget.CalendarView
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -48,20 +49,17 @@ import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.compose.ui.window.Dialog
 import com.example.androidapp.AddBackgroundToComposables
 import com.example.androidapp.HorizontalDivider
-import com.example.androidapp.database.model.DayEntity
 import com.example.androidapp.database.model.EventEntity
 import com.example.androidapp.database.model.TodoEntity
 import com.example.androidapp.database.viewmodel.DayViewModel
 import com.example.androidapp.settings.EventCategories
 import java.time.LocalDate
-import java.util.Calendar
 
 class DaysScreen(private val mDayViewModel: DayViewModel) : NavigableScreen() {
 
@@ -84,96 +82,81 @@ class DaysScreen(private val mDayViewModel: DayViewModel) : NavigableScreen() {
         AddBackgroundToComposables({ View(chosenDate) }, { DayDataView(chosenDate, mDayViewModel) })
     }
 
-    @Composable
-    fun DayDataView(chosenDate: MutableState<LocalDate>, mDayViewModel: DayViewModel) {
-        val hasDayEntityBeenChanged = remember { mutableStateOf(false) }
-        val dayEntity: DayEntity = mDayViewModel.getDayByDate(chosenDate.value)
-            ?: mDayViewModel.saveAndRetrieveDayEntity(chosenDate.value)
-
-        val note = remember { mutableStateOf(dayEntity.note) }
-        val dayTitle = remember { mutableStateOf(dayEntity.dayTitle) }
-
-        DisposableEffect(dayEntity) {
-            onDispose {
-                if (hasDayEntityBeenChanged.value) {
-                    dayEntity.note = note.value
-                    dayEntity.dayTitle = dayTitle.value
-                    mDayViewModel.saveDayEntity(dayEntity)
+        @Composable
+        fun DayDataView(chosenDate: MutableState<LocalDate>, mDayViewModel: DayViewModel) {
+            val hasDayEntityBeenChanged = remember { mutableStateOf(false) }
+            val dayEntity = mDayViewModel.getDayByDate(chosenDate.value)
+                ?: mDayViewModel.saveAndRetrieveDayEntity(chosenDate.value)
+            Log.e("TEST", dayEntity.toString())
+            DisposableEffect(dayEntity) {
+                onDispose {
+                    if (hasDayEntityBeenChanged.value)
+                       mDayViewModel.saveDayEntity(dayEntity)
                 }
-
-                dayTitle.value = ""
-                note.value = ""
             }
-        }
 
-        LazyColumn(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(8.dp)
-        ) {
-            item {
-                TextEditorWithPreview(
-                    data = dayTitle,
-                    textEditor = { data, onCloseEditor ->
-                        InlineTextEditor(
-                            data = data,
-                            hasDayEntityBeenChanged = hasDayEntityBeenChanged,
-                            onCloseEditor = onCloseEditor
-                        )
-                    }
-                )
-                HorizontalDivider()
-            }
-            item {
-                Box(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .background(Color.Yellow)
-                ) {
+            LazyColumn(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(8.dp)
+            ) {
+                item {
                     TextEditorWithPreview(
-                        data = note,
+                        data = dayEntity.dayTitle,
                         textEditor = { data, onCloseEditor ->
-                            DialogTextEditor(
+                            InlineTextEditor(
                                 data = data,
                                 hasDayEntityBeenChanged = hasDayEntityBeenChanged,
-                                onCloseEditor = onCloseEditor
-                            )
+                            ) {
+                                onCloseEditor()
+                                dayEntity.dayTitle = data.value
+                            }
                         }
+                    )
+                    HorizontalDivider()
+                }
+                item {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .background(Color.Yellow)
+                    ) {
+                        TextEditorWithPreview(
+                            data = dayEntity.note,
+                            textEditor = { data, onCloseEditor ->
+                                DialogTextEditor(
+                                    data = data,
+                                    hasDayEntityBeenChanged = hasDayEntityBeenChanged,
+                                    onCloseEditor = onCloseEditor
+                                )
+                            }
+                        )
+                    }
+                }
+                item {
+                    ToDoView(
+                        dayEntity.dayId!!,
+                        hasDayEntityBeenChanged = hasDayEntityBeenChanged,
+                    )
+                }
+                item {
+                    EventView(
+                        dayEntity.dayId!!,
+                        hasDayEntityBeenChanged = hasDayEntityBeenChanged,
                     )
                 }
             }
-            item {
-                ToDoView(
-                    dayEntity.dayId!!,
-                    hasDayEntityBeenChanged = hasDayEntityBeenChanged,
-                )
-            }
-            item {
-                EventView(
-                    dayEntity.dayId!!,
-                    hasDayEntityBeenChanged = hasDayEntityBeenChanged,
-                )
-            }
         }
-    }
 
     @Composable
     fun View(chosenDate: MutableState<LocalDate>) {
-        val calendarView = CalendarView(LocalContext.current)
-        for (day in mDayViewModel.allDayEntitiesSortedByDate.observeAsState(initial = listOf()).value) {
-            val calendar = Calendar.getInstance()
-            calendar.set(day.date.year, day.date.monthValue - 1, day.date.dayOfMonth)
-            calendarView.setDate(calendar.timeInMillis, true, true)
-        }
-
         Row(
-            modifier = Modifier
-                .padding(6.dp),
+            modifier = Modifier.padding(6.dp),
             verticalAlignment = Alignment.Top
         ) {
 
             AndroidView(
-                { calendarView },
+                { CalendarView(it) },
                 modifier = Modifier.wrapContentWidth(),
                 update = {
                     it.setOnDateChangeListener { _, year, month, dayOfMonth ->
@@ -183,7 +166,6 @@ class DaysScreen(private val mDayViewModel: DayViewModel) : NavigableScreen() {
             )
         }
     }
-
 
     @Composable
     fun ToDoView(
@@ -253,6 +235,7 @@ class DaysScreen(private val mDayViewModel: DayViewModel) : NavigableScreen() {
                         onClick = {mDayViewModel.deleteTodoEntity(todo)}
                     ) {
                         Icon(Icons.Default.Delete, contentDescription = "Delete")
+                        hasDayEntityBeenChanged.value = true
                     }
                 }
             }
@@ -335,7 +318,7 @@ class DaysScreen(private val mDayViewModel: DayViewModel) : NavigableScreen() {
                         )
                     }
                     isEditing = false
-                    newEventCategory.value = categoryList.get(0).toString()
+                    newEventCategory.value = categoryList[0].toString()
                     newEventTitle.value = ""
                 }
 
@@ -353,7 +336,7 @@ class DaysScreen(private val mDayViewModel: DayViewModel) : NavigableScreen() {
         }
 
         eventList.forEach { event ->
-            var eventCategory by remember { mutableStateOf(event.category) }
+            val eventCategory by remember { mutableStateOf(event.category) }
 
             Row(
                 verticalAlignment = Alignment.CenterVertically,
@@ -372,6 +355,7 @@ class DaysScreen(private val mDayViewModel: DayViewModel) : NavigableScreen() {
                     onClick = { mDayViewModel.deleteEventEntity(event) }
                 ) {
                     Icon(Icons.Default.Delete, contentDescription = "Delete")
+                    hasDayEntityBeenChanged.value = true
                 }
             }
 
@@ -397,17 +381,18 @@ fun NotePreview(noteData: MutableState<String>, onEditClick: () -> Unit) {
 
 @Composable
 fun TextEditorWithPreview(
-    data: MutableState<String>,
+    data: String,
     textEditor: @Composable (data: MutableState<String>, onCloseEditor: () -> Unit) -> Unit
 ) {
+    val dataComposable = remember { mutableStateOf(data) }
     var isEditing by remember { mutableStateOf(false) }
 
     if (isEditing) {
-        textEditor(data) {
+        textEditor(dataComposable) {
             isEditing = false
         }
     } else {
-        NotePreview(noteData = data) {
+        NotePreview(noteData = dataComposable) {
             isEditing = true
         }
     }
@@ -422,6 +407,7 @@ fun InlineTextEditor(
 ) {
     val keyboardController = LocalSoftwareKeyboardController.current
     var tempText by remember { mutableStateOf(data.value) }
+    Log.e("TEST", tempText)
 
     Column(
         modifier = Modifier
