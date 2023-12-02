@@ -4,7 +4,6 @@ import androidx.activity.ComponentActivity
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.vector.ImageVector
 import com.example.androidapp.AddBackgroundToComposables
-import com.example.androidapp.database.viewmodel.DayViewModel
 
 abstract class NavigableScreen() : ComponentActivity() {
 
@@ -19,5 +18,6 @@ abstract class NavigableScreen() : ComponentActivity() {
 
     @Composable
     protected abstract fun View()
+
 
 }

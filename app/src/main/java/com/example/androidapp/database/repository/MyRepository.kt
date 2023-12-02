@@ -3,7 +3,6 @@ package com.example.androidapp.database.repository
 import androidx.lifecycle.LiveData
 import com.example.androidapp.database.dao.MyDao
 import com.example.androidapp.database.model.DayEntity
-import com.example.androidapp.database.model.DayWithTodos
 import com.example.androidapp.database.model.EventEntity
 import com.example.androidapp.database.model.Note
 import com.example.androidapp.database.model.TodoEntity
@@ -80,15 +79,5 @@ class MyRepository(private val myDao: MyDao) {
         myDao.deleteEventEntity(event)
     }
 
-    suspend fun saveDayEntityWithTodos(dayWithTodos: DayWithTodos?, todos: List<TodoEntity>) {
-        val dayEntity = dayWithTodos?.dayEntity
-        val dayId = dayEntity?.let { myDao.insertDayEntity(it) }
-        todos.forEach {
-            if (dayId != null) {
-                it.dayForeignId = dayId
-            }
-        }
-        myDao.insertTodos(todos)
-    }
 
 }

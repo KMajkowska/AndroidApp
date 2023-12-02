@@ -47,7 +47,7 @@ fun TextPreview(data: String, onEditClick: () -> Unit) {
 @Composable
 fun TextEditorWithPreview(
     data: String,
-    textEditor: @Composable (data: String, onCloseEditor: (possiblyEditedData: String) -> Unit) -> Unit
+    textEditor: @Composable (possibleNewData: String, onCloseEditor: (possiblyEditedData: String) -> Unit) -> Unit
 ) {
     var isEditing by remember { mutableStateOf(false) }
 

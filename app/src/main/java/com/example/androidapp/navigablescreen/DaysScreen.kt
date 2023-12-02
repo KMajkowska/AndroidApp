@@ -1,5 +1,6 @@
 package com.example.androidapp.navigablescreen
 
+import android.util.Log
 import android.widget.CalendarView
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -11,30 +12,33 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.Cake
 import androidx.compose.material.icons.filled.CalendarMonth
+import androidx.compose.material.icons.filled.Celebration
 import androidx.compose.material.icons.filled.Create
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Fastfood
-import androidx.compose.material.icons.filled.MeetingRoom
+import androidx.compose.material.icons.filled.Games
+import androidx.compose.material.icons.filled.Groups
 import androidx.compose.material.icons.filled.SportsBasketball
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.SnapshotMutationPolicy
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -46,6 +50,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import com.example.androidapp.AddBackgroundToComposables
 import com.example.androidapp.HorizontalDivider
+import com.example.androidapp.database.model.DayEntity
 import com.example.androidapp.database.model.EventEntity
 import com.example.androidapp.database.model.TodoEntity
 import com.example.androidapp.database.viewmodel.DayViewModel
@@ -68,20 +73,26 @@ class DaysScreen(private val mDayViewModel: DayViewModel) : NavigableScreen() {
 
     @Composable
     override fun ViewWithBackground() {
-        val chosenDate = remember { mutableStateOf(LocalDate.now()) }
+        var dayEntity by remember { mutableStateOf(mDayViewModel.getDayByDate(LocalDate.now())) }
 
-        AddBackgroundToComposables({ View(chosenDate) }, { DayDataView(chosenDate, mDayViewModel) })
+        AddBackgroundToComposables({
+            View { chosenDate ->
+                dayEntity = mDayViewModel.getDayByDate(chosenDate)
+            }
+        }, {
+            DayDataView(dayEntity)
+        })
     }
 
     @Composable
-    fun DayDataView(chosenDate: MutableState<LocalDate>, mDayViewModel: DayViewModel) {
+    fun DayDataView(dayEntity: DayEntity) {
         val hasDayEntityBeenChanged = remember { mutableStateOf(false) }
-        val dayEntity = mDayViewModel.getDayByDate(chosenDate.value)
-            ?: mDayViewModel.saveAndRetrieveDayEntity(chosenDate.value)
-        DisposableEffect(dayEntity) {
+
+        DisposableEffect(dayEntity, hasDayEntityBeenChanged.value) {
             onDispose {
-                if (hasDayEntityBeenChanged.value)
+                if (hasDayEntityBeenChanged.value) {
                     mDayViewModel.saveDayEntity(dayEntity)
+                }
             }
         }
 
@@ -97,13 +108,17 @@ class DaysScreen(private val mDayViewModel: DayViewModel) : NavigableScreen() {
                     InlineTextEditor(
                         data = data,
                         hasDayEntityBeenChanged = hasDayEntityBeenChanged,
-                    ) {
-                        onCloseEditor(data)
-                        dayEntity.dayTitle = data
+                    ) { possibleNewData ->
+                        dayEntity.dayTitle = possibleNewData
+                        onCloseEditor(possibleNewData)
                     }
                 }
+            }
+
+            item {
                 HorizontalDivider()
             }
+
             item {
                 Box(
                     modifier = Modifier
@@ -116,8 +131,10 @@ class DaysScreen(private val mDayViewModel: DayViewModel) : NavigableScreen() {
                         DialogTextEditor(
                             data = data,
                             hasDayEntityBeenChanged = hasDayEntityBeenChanged,
-                            onCloseEditor = { onCloseEditor(data) }
-                        )
+                        ) { possibleNewData ->
+                            dayEntity.note = possibleNewData
+                            onCloseEditor(possibleNewData)
+                        }
                     }
                 }
             }
@@ -137,7 +154,7 @@ class DaysScreen(private val mDayViewModel: DayViewModel) : NavigableScreen() {
     }
 
     @Composable
-    fun View(chosenDate: MutableState<LocalDate>) {
+    fun View(onChangeDate: (possiblyChangedDate: LocalDate) -> Unit) {
         Row(
             modifier = Modifier.padding(6.dp),
             verticalAlignment = Alignment.Top
@@ -148,7 +165,7 @@ class DaysScreen(private val mDayViewModel: DayViewModel) : NavigableScreen() {
                 modifier = Modifier.wrapContentWidth(),
                 update = {
                     it.setOnDateChangeListener { _, year, month, dayOfMonth ->
-                        chosenDate.value = LocalDate.of(year, month + 1, dayOfMonth)
+                        onChangeDate(LocalDate.of(year, month + 1, dayOfMonth))
                     }
                 }
             )
@@ -350,11 +367,13 @@ class DaysScreen(private val mDayViewModel: DayViewModel) : NavigableScreen() {
 @Composable
 fun getCategoryIcon(category: String): ImageVector {
     return when (category) {
+
         EventCategories.GENERAL.name -> Icons.Default.CalendarMonth
-        EventCategories.PARTY.name -> Icons.Default.Cake
+        EventCategories.PARTY.name -> Icons.Default.Celebration
         EventCategories.SPORT.name -> Icons.Default.SportsBasketball
-        EventCategories.MEETING.name -> Icons.Default.MeetingRoom
+        EventCategories.MEETING.name -> Icons.Default.Groups
         EventCategories.FOOD.name -> Icons.Default.Fastfood
+        EventCategories.ENTERTAINMENT.name -> Icons.Default.Games
         else -> Icons.Default.CalendarMonth
     }
 }

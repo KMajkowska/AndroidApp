@@ -1,8 +1,7 @@
 package com.example.androidapp.navigablescreen
 
-import android.content.Intent
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
@@ -11,12 +10,15 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CalendarMonth
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.navigation.compose.rememberNavController
+import androidx.compose.ui.unit.sp
 import com.example.androidapp.AddBackgroundToComposables
 import com.example.androidapp.database.viewmodel.DayViewModel
 import java.time.LocalDate
@@ -33,99 +35,68 @@ class CalendarScreen(private val mDayViewModel: DayViewModel) : NavigableScreen(
 
     @Composable
     override fun ViewWithBackground() {
-        AddBackgroundToComposables({ View() })
+
+        val chosenDate = remember { mutableStateOf(LocalDate.now()) }
+        AddBackgroundToComposables({ View(chosenDate) })
     }
 
     @Composable
     override fun View() {
-
-        val events = mapOf(
-            LocalDate.now().minusYears(1) to listOf("Event A", "Event B"),
-            LocalDate.now() to listOf("Event 1", "Event 2"),
-            LocalDate.now().plusMonths(1) to listOf("Event 3", "Event 4"),
-            LocalDate.now().plusYears(1) to listOf("Event 5", "Event 6"),
-            LocalDate.now().plusYears(2) to listOf("Event X", "Event Y")
-        )
-
-        LazyColumn {
-            items(events.entries.toList()) { (date, monthEvents) ->
-                CalendarMonth(date, monthEvents)
-            }
-        }
+        TODO("Not yet implemented")
     }
 
-    @Composable
-    fun CalendarMonth(date: LocalDate, events: List<String>) {
 
-        val context = LocalContext.current
-        Column(
+    @Composable
+    fun View(chosenDate: MutableState<LocalDate>) {
+        // Get all DayEntities and EventEntities
+        val allDayEntities =
+            mDayViewModel.allDayEntitiesSortedByDate.observeAsState(initial = listOf()).value
+        val allEventEntities =
+            mDayViewModel.allEventEntities.observeAsState(initial = listOf()).value
+
+        LazyColumn(
             modifier = Modifier
-                .fillMaxWidth()
+                .fillMaxSize()
                 .padding(16.dp)
         ) {
-
-            Text(
-                text = date.year.toString(),
-                modifier = Modifier
-                    .padding(bottom = 8.dp)
-            )
-
-            Text(
-                text = date.format(DateTimeFormatter.ofPattern("MMMM")),
-                modifier = Modifier
-                    .padding(bottom = 8.dp)
-//                    .clickable {
-//                        val intent = Intent(context, DaysScreen::class.java)
-//                        context.startActivity(intent)
-//                    }
-            )
-
-            if (events.isNotEmpty()) {
-                Text(
-                    text = "Potential Events:",
-                    modifier = Modifier.padding(bottom = 4.dp)
-                )
-                events.forEach { event ->
+            // Display each DayEntity and its associated EventEntities
+            items(allDayEntities) { dayEntity ->
+                // Display Year
+                this@LazyColumn.item {
                     Text(
-                        text = " - $event",
-                        modifier = Modifier
-                            .padding(start = 16.dp)
-//                            .clickable {
-//                                val intent = Intent(context, DaysScreen::class.java)
-//                                context.startActivity(intent)
-//                            }
+                        text = dayEntity.date.year.toString(),
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 20.sp,
+                        modifier = Modifier.padding(bottom = 8.dp)
                     )
                 }
-            }
 
-            val nextMonthEvents = emptyList<String>()
-            if (nextMonthEvents.isNotEmpty()) {
-                nextMonthEvents.forEach { event ->
+                // Display Month
+                this@LazyColumn.item {
                     Text(
-                        text = " - $event",
-                        modifier = Modifier
-                            .padding(start = 16.dp)
-                            //TODO clicking crashes the app
-//                            .clickable {
-//                                val intent = Intent(context, DaysScreen::class.java)
-//                                context.startActivity(intent)
-//                            }
+                        text = DateTimeFormatter.ofPattern("MMMM").format(dayEntity.date),
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 16.sp,
+                        modifier = Modifier.padding(bottom = 8.dp)
                     )
                 }
-            }
 
-            val nextYearMonthEvents = emptyList<String>()
-            if (nextYearMonthEvents.isNotEmpty()) {
-                nextYearMonthEvents.forEach { event ->
-                    Text(
-                        text = " - $event",
+                // Get EventEntities associated with the current DayEntity
+                val eventsForDay = allEventEntities.filter { it.dayForeignId == dayEntity.dayId }
+
+                // Display Events for the current DayEntity
+                this@LazyColumn.items(eventsForDay) { event ->
+                    Column(
                         modifier = Modifier
-                            .padding(start = 16.dp)
-//                            .clickable {
-//                                val intent = Intent(context, DaysScreen::class.java)
-//                                context.startActivity(intent)
-//                            }
-                    )
+                            .fillMaxWidth()
+                            .padding(8.dp)
+                    ) {
+                        // Display Day and Event Title
+                        Text(
+                            text = "${dayEntity.date.dayOfMonth} ${event.title}",
+                            fontWeight = FontWeight.Bold
+                        )
+                    }
                 }
             }
         }

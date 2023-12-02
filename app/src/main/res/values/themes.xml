@@ -6,4 +6,5 @@
     </style>
 
     <style name="Theme.AndroidApp" parent="Base.Theme.AndroidApp" />
+
 </resources>

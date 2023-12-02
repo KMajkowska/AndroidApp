@@ -44,10 +44,14 @@ class DayViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
-    fun saveAndRetrieveDayEntity(date: LocalDate): DayEntity {
+    private fun saveAndRetrieveDayEntity(date: LocalDate): DayEntity {
         val dayEntity = DayEntity(date = date)
         saveDayEntity(dayEntity)
-        return getDayByDate(date)!!
+        return getInnerDayByDate(date)!!
+    }
+
+    fun getDayByDate(chosenDate: LocalDate): DayEntity {
+        return getInnerDayByDate(chosenDate) ?: saveAndRetrieveDayEntity(chosenDate)
     }
 
 
@@ -63,13 +67,6 @@ class DayViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
-    fun getDayWithTodosByDate(date: LocalDate): LiveData<List<TodoEntity>> {
-        return runBlocking {
-            withContext(Dispatchers.IO) {
-                repository.getDayWithTodosByDate(date)
-            }
-        }
-    }
 
     fun saveEventEntity(eventEntity: EventEntity) {
         viewModelScope.launch(Dispatchers.IO) {
@@ -110,7 +107,7 @@ class DayViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
-    fun getDayByDate(date: LocalDate): DayEntity? {
+    private fun getInnerDayByDate(date: LocalDate): DayEntity? {
         return runBlocking {
             withContext(Dispatchers.IO) {
                 repository.getDayByDate(date)
@@ -137,14 +134,6 @@ class DayViewModel(application: Application) : AndroidViewModel(application) {
     fun insertTodo(todo: TodoEntity) {
         viewModelScope.launch {
             repository.addNewTodo(todo)
-        }
-    }
-
-    fun getTodosByDay(date: LocalDate): LiveData<List<TodoEntity>> {
-        return runBlocking {
-            withContext(Dispatchers.IO) {
-                repository.getDayWithTodosByDate(date)
-            }
         }
     }
 
