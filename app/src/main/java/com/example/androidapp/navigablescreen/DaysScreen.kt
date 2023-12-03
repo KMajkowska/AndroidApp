@@ -1,6 +1,5 @@
 package com.example.androidapp.navigablescreen
 
-import android.util.Log
 import android.widget.CalendarView
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -32,13 +31,9 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
-import androidx.compose.runtime.SnapshotMutationPolicy
-import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -49,7 +44,10 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import com.example.androidapp.AddBackgroundToComposables
+import com.example.androidapp.DialogTextEditor
 import com.example.androidapp.HorizontalDivider
+import com.example.androidapp.InlineTextEditor
+import com.example.androidapp.TextEditorWithPreview
 import com.example.androidapp.database.model.DayEntity
 import com.example.androidapp.database.model.EventEntity
 import com.example.androidapp.database.model.TodoEntity
@@ -90,9 +88,9 @@ class DaysScreen(private val mDayViewModel: DayViewModel) : NavigableScreen() {
 
         DisposableEffect(dayEntity, hasDayEntityBeenChanged.value) {
             onDispose {
-                if (hasDayEntityBeenChanged.value) {
+                if (hasDayEntityBeenChanged.value)
                     mDayViewModel.saveDayEntity(dayEntity)
-                }
+                mDayViewModel.deleteDayEntityIfEmpty(dayEntity.dayId!!)
             }
         }
 

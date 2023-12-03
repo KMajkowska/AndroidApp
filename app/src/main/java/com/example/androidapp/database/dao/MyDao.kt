@@ -10,6 +10,7 @@ import androidx.room.Transaction
 import androidx.room.Update
 import androidx.room.Upsert
 import com.example.androidapp.database.model.DayEntity
+import com.example.androidapp.database.model.DayWithTodosAndEvents
 import com.example.androidapp.database.model.EventEntity
 import com.example.androidapp.database.model.Note
 import com.example.androidapp.database.model.TodoEntity
@@ -68,7 +69,13 @@ interface MyDao {
     @Query("SELECT * FROM todos")
     fun getAllTodoEntities(): LiveData<List<TodoEntity>>
 
+    @Transaction
+    @Query("SELECT * FROM day_data WHERE dayId = :dayId")
+    fun getDayIdWithRelated(dayId: Long): DayWithTodosAndEvents?
 
+    @Transaction
+    @Query("SELECT * FROM day_data ORDER BY date ASC")
+    fun getAllDayEntitiesWithRelatedSortedByDate(): LiveData<List<DayWithTodosAndEvents>>
     /*
     @Transaction
     @Query("SELECT * FROM todos WHERE dayForeignId = :dayEntityId")

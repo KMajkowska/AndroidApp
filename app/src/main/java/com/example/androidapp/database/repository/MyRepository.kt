@@ -3,6 +3,7 @@ package com.example.androidapp.database.repository
 import androidx.lifecycle.LiveData
 import com.example.androidapp.database.dao.MyDao
 import com.example.androidapp.database.model.DayEntity
+import com.example.androidapp.database.model.DayWithTodosAndEvents
 import com.example.androidapp.database.model.EventEntity
 import com.example.androidapp.database.model.Note
 import com.example.androidapp.database.model.TodoEntity
@@ -18,6 +19,8 @@ class MyRepository(private val myDao: MyDao) {
     val allEventEntities: LiveData<List<EventEntity>> = myDao.getAllEventEntities()
 
     val allNotes: LiveData<List<Note>> = myDao.getAllNotes();
+
+    val allDayEntitiesWithRelatedSortedByDate: LiveData<List<DayWithTodosAndEvents>> = myDao.getAllDayEntitiesWithRelatedSortedByDate()
 
     suspend fun saveDayEntity(newDayEntity: DayEntity) {
         myDao.saveDayEntity(newDayEntity)
@@ -65,6 +68,10 @@ class MyRepository(private val myDao: MyDao) {
 
     fun getDayWithTodosByDate(date: LocalDate): LiveData<List<TodoEntity>> {
         return myDao.getTodosByDay(date)
+    }
+
+    fun getDayIdWithRelated(dayId: Long): DayWithTodosAndEvents? {
+        return myDao.getDayIdWithRelated(dayId)
     }
 
     suspend fun addNewTodo(todo: TodoEntity) {

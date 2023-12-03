@@ -9,6 +9,7 @@ import androidx.lifecycle.viewModelScope
 import com.example.androidapp.database.MyDatabaseConnection
 import com.example.androidapp.database.dao.MyDao
 import com.example.androidapp.database.model.DayEntity
+import com.example.androidapp.database.model.DayWithTodosAndEvents
 import com.example.androidapp.database.model.EventEntity
 import com.example.androidapp.database.model.Note
 import com.example.androidapp.database.model.TodoEntity
@@ -24,8 +25,8 @@ class DayViewModel(application: Application) : AndroidViewModel(application) {
     private val myDao: MyDao = MyDatabaseConnection.getDatabase(application).myDao()
     private val repository: MyRepository = MyRepository(myDao)
 
-    val allDayEntitiesSortedByDate: LiveData<List<DayEntity>> =
-        repository.allDayEntitiesSortedByDate
+    val allDayEntitiesSortedByDate: LiveData<List<DayEntity>> = repository.allDayEntitiesSortedByDate
+    val allDayEntitiesWithRelatedSortedByDate: LiveData<List<DayWithTodosAndEvents>> = repository.allDayEntitiesWithRelatedSortedByDate
     val allTodoEntities: LiveData<List<TodoEntity>> = repository.allTodoEntities
     val allEventEntities: LiveData<List<EventEntity>> = repository.allEventEntities
     val allNotes: LiveData<List<Note>> = repository.allNotes
@@ -131,10 +132,27 @@ class DayViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
+    private fun getDayIdWithRelated(dayId: Long): DayWithTodosAndEvents? {
+        return runBlocking {
+            withContext(Dispatchers.IO) {
+                repository.getDayIdWithRelated(dayId)
+            }
+        }
+    }
+
     fun insertTodo(todo: TodoEntity) {
         viewModelScope.launch {
             repository.addNewTodo(todo)
         }
+    }
+
+    fun deleteDayEntityIfEmpty(dayId: Long) {
+        val temp: DayWithTodosAndEvents? = getDayIdWithRelated(dayId)
+        if (temp?.events?.isEmpty() == true &&
+            temp.todos.isEmpty() &&
+            temp.dayEntity.dayTitle.trim().isEmpty() &&
+            temp.dayEntity.note.trim().isEmpty())
+            deleteDayEntity(temp.dayEntity)
     }
 
 }
