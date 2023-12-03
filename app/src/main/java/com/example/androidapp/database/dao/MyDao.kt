@@ -43,6 +43,10 @@ interface MyDao {
     fun getAllForDayEntityId(dayEntityId: Long): LiveData<List<EventEntity>>
     */
 
+    @Transaction
+    @Query("SELECT * FROM notes WHERE noteDate = :date")
+    fun getNoteByDate(date: LocalDate): Note?
+
     @Upsert
     suspend fun saveTodoEntity(todo: TodoEntity)
 

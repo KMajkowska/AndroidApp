@@ -1,8 +1,10 @@
 package com.example.androidapp.navigablescreen
 
+import android.content.Intent
 import android.util.Log
 import android.widget.CalendarView
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -10,6 +12,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentWidth
@@ -46,12 +49,17 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
 import com.example.androidapp.AddBackgroundToComposables
 import com.example.androidapp.HorizontalDivider
 import com.example.androidapp.database.model.DayEntity
 import com.example.androidapp.database.model.EventEntity
+import com.example.androidapp.database.model.Note
 import com.example.androidapp.database.model.TodoEntity
 import com.example.androidapp.database.viewmodel.DayViewModel
 import com.example.androidapp.settings.EventCategories
@@ -87,6 +95,7 @@ class DaysScreen(private val mDayViewModel: DayViewModel) : NavigableScreen() {
     @Composable
     fun DayDataView(dayEntity: DayEntity) {
         val hasDayEntityBeenChanged = remember { mutableStateOf(false) }
+        val context = LocalContext.current
 
         DisposableEffect(dayEntity, hasDayEntityBeenChanged.value) {
             onDispose {
@@ -95,6 +104,25 @@ class DaysScreen(private val mDayViewModel: DayViewModel) : NavigableScreen() {
                 }
             }
         }
+
+
+        val date = dayEntity.date
+        val dayNote = mDayViewModel.getNoteByDate(date)
+        var selectedNote by remember { mutableStateOf(mDayViewModel.getNoteByDate(date))}
+        var isUpdated by remember { mutableStateOf(false) }
+
+
+        DisposableEffect(selectedNote, isUpdated) {
+            onDispose {
+                if (isUpdated) {
+                    selectedNote?.let {
+                        mDayViewModel.updateNote(it)
+                    }
+                    isUpdated = false
+                }
+            }
+        }
+
 
         LazyColumn(
             modifier = Modifier
@@ -117,27 +145,40 @@ class DaysScreen(private val mDayViewModel: DayViewModel) : NavigableScreen() {
 
             item {
                 HorizontalDivider()
-            }
 
-            item {
-                Box(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .background(Color.Yellow)
-                ) {
-                    TextEditorWithPreview(
-                        data = dayEntity.note
-                    ) { data, onCloseEditor ->
-                        DialogTextEditor(
-                            data = data,
-                            hasDayEntityBeenChanged = hasDayEntityBeenChanged,
-                        ) { possibleNewData ->
-                            dayEntity.note = possibleNewData
-                            onCloseEditor(possibleNewData)
+                NoteItem(note = dayNote) { note ->
+                    selectedNote = note
+
+                    if (selectedNote == null) {
+                        // Check if a note already exists for the date
+                        val existingNote = mDayViewModel.getNoteByDate(date)
+
+                        if (existingNote == null) {
+                            // If no note exists, create a new one
+                            val newNote = Note(
+                                noteTitle = "My note for ${date}",
+                                content = "",
+                                noteDate = date
+                            )
+                            mDayViewModel.addNewNote(newNote)
+
+                            // Set selectedNote to the newly created note
+                            selectedNote = newNote
+                            isUpdated = true
                         }
+                    } else {
+                        val intent = Intent(context, CreateNote::class.java)
+                        intent.putExtra("noteId", selectedNote!!.noteId)
+                        context.startActivity(intent)
+                        selectedNote = mDayViewModel.getNoteByDate(date)
+                        isUpdated = true
                     }
                 }
+
+
+                HorizontalDivider()
             }
+
             item {
                 ToDoView(
                     dayEntity.dayId!!,
@@ -362,6 +403,7 @@ class DaysScreen(private val mDayViewModel: DayViewModel) : NavigableScreen() {
 
         }
     }
+
 }
 
 @Composable
@@ -377,3 +419,44 @@ fun getCategoryIcon(category: String): ImageVector {
         else -> Icons.Default.CalendarMonth
     }
 }
+
+
+
+@Composable
+fun NoteItem(note: Note?, onNoteClicked: (Note?) -> Unit) {
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .border(1.dp, Color.Gray)
+            .padding(8.dp)
+            .clickable { onNoteClicked(note) }
+
+    ) {
+        Column {
+            if (note != null) {
+                Text(
+                    text = "${note.noteTitle}",
+                    style = TextStyle(fontSize = 18.sp, fontWeight = FontWeight.Bold)
+                )
+                val lines = note.content.lines().take(2)
+                lines.forEachIndexed { index, line ->
+                    Text(
+                        text = if (index == 1 && lines.size > 1) "$line..." else line,
+                        style = TextStyle(fontSize = 16.sp)
+                    )
+                }
+            }
+            else {
+                Text(
+                    text = "No note available - click to add!",
+                    style = TextStyle(fontSize = 18.sp, fontWeight = FontWeight.Bold)
+                )
+
+            }
+        }
+
+    }
+}
+
+
+

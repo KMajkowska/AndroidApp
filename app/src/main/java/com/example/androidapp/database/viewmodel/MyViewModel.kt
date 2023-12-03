@@ -54,6 +54,14 @@ class DayViewModel(application: Application) : AndroidViewModel(application) {
         return getInnerDayByDate(chosenDate) ?: saveAndRetrieveDayEntity(chosenDate)
     }
 
+    fun getNoteByDate(chosenDate: LocalDate): Note? {
+        return runBlocking {
+            withContext(Dispatchers.IO) {
+                repository.getNoteByDate(chosenDate)
+            }
+        }
+    }
+
 
     fun saveTodoEntity(todoEntity: TodoEntity) {
         viewModelScope.launch(Dispatchers.IO) {

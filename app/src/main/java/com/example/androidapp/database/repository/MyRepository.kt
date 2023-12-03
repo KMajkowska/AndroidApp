@@ -51,6 +51,10 @@ class MyRepository(private val myDao: MyDao) {
         return myDao.getNoteById(noteId)
     }
 
+    fun getNoteByDate(date: LocalDate): Note? {
+        return myDao.getNoteByDate(date)
+    }
+
     fun getDayByDate(date: LocalDate): DayEntity? {
         return myDao.getDayByDate(date)
     }
