@@ -1,4 +1,4 @@
-package com.example.androidapp.navigablescreen
+package com.example.androidapp.navigation.navigablescreen
 
 import android.content.Intent
 import android.os.Bundle

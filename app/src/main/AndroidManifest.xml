@@ -23,13 +23,13 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".navigablescreen.NavigableScreen"
+            android:name=".navigation.navigablescreen.NavigableScreen"
             android:exported="false" />
         <activity
-            android:name=".navigablescreen.AllNotes"
+            android:name=".navigation.navigablescreen.AllNotes"
             android:exported="false" />
         <activity
-            android:name=".navigablescreen.SettingsScreen"
+            android:name=".navigation.navigablescreen.SettingsScreen"
             android:exported="false" />
         <activity
             android:name=".authorizationscreen.Login"
@@ -48,13 +48,13 @@
             android:name=".authorizationscreen.RestorePassword"
             android:exported="false" />
         <activity
-            android:name=".navigablescreen.CreateNote"
+            android:name=".navigation.navigablescreen.CreateNote"
             android:exported="false" />
         <activity
-            android:name=".navigablescreen.DaysScreen"
+            android:name=".navigation.navigablescreen.DaysScreen"
             android:exported="false" />
         <activity
-            android:name=".navigablescreen.CalendarScreen"
+            android:name=".navigation.navigablescreen.CalendarScreen"
             android:exported="false" />
         <activity
             android:name=".navigablescreen.CreateToDo"

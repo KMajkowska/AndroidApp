@@ -1,4 +1,4 @@
-package com.example.androidapp.navigablescreen
+package com.example.androidapp.navigation.navigablescreen
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
@@ -13,6 +13,7 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CalendarMonth
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -27,17 +28,17 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavBackStackEntry
 import com.example.androidapp.database.model.DayWithTodosAndEvents
 import com.example.androidapp.database.viewmodel.DayViewModel
+import java.time.LocalDate
 import java.time.YearMonth
 
-class CalendarScreen(private val mDayViewModel: DayViewModel) : NavigableScreen() {
-    override val screenName: String
-        get() = "Calendar"
-
-    override fun screenIcon(): ImageVector {
-        return Icons.Default.CalendarMonth
-    }
+class CalendarScreen(
+    private val mDayViewModel: DayViewModel,
+    localDate: LocalDate,
+    onDaySelected: (LocalDate, NavBackStackEntry) -> Unit,
+) : NavigableScreen() {
 
     @Composable
     override fun View() {
@@ -45,7 +46,11 @@ class CalendarScreen(private val mDayViewModel: DayViewModel) : NavigableScreen(
             mDayViewModel.allDayEntitiesWithRelatedSortedByDate.observeAsState(initial = listOf()).value
 
         val groupedByYearMonth =
-            allDayEntitiesWithRelatedSortedByDate.groupBy { dayEntityWithRelated -> YearMonth.from(dayEntityWithRelated.dayEntity.date) }
+            allDayEntitiesWithRelatedSortedByDate.groupBy { dayEntityWithRelated ->
+                YearMonth.from(
+                    dayEntityWithRelated.dayEntity.date
+                )
+            }
 
         var currentYearMonth by remember { mutableStateOf(YearMonth.now()) }
         val lazyListState = rememberLazyListState()
@@ -67,8 +72,13 @@ class CalendarScreen(private val mDayViewModel: DayViewModel) : NavigableScreen(
         }
     }
 }
+
 @Composable
-fun YearSquare(yearMonth: YearMonth, objects: List<DayWithTodosAndEvents>, currentYearMonth: YearMonth) {
+fun YearSquare(
+    yearMonth: YearMonth,
+    objects: List<DayWithTodosAndEvents>,
+    currentYearMonth: YearMonth
+) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -92,7 +102,11 @@ fun YearSquare(yearMonth: YearMonth, objects: List<DayWithTodosAndEvents>, curre
 }
 
 @Composable
-fun MonthSquare(yearMonth: YearMonth, objects: List<DayWithTodosAndEvents>, currentYearMonth: YearMonth) {
+fun MonthSquare(
+    yearMonth: YearMonth,
+    objects: List<DayWithTodosAndEvents>,
+    currentYearMonth: YearMonth
+) {
     val isCurrentYearMonth = yearMonth == currentYearMonth
 
     Column(

@@ -1,4 +1,4 @@
-package com.example.androidapp.navigablescreen
+package com.example.androidapp.navigation.navigablescreen
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -30,12 +30,6 @@ val fontSizes = FontSizeEnum.values()
 val sortOptions = NoteSortOptionEnum.values()
 
 class SettingsScreen: NavigableScreen() {
-    override val screenName: String
-        get() = "Settings"
-
-    override fun screenIcon(): ImageVector {
-        return Icons.Default.Settings
-    }
 
     // TODO: Add actual states of the application, make selecting actually call functions
     @Composable

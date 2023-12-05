@@ -1,4 +1,4 @@
-package com.example.androidapp.navigablescreen
+package com.example.androidapp.navigation.navigablescreen
 
 import androidx.activity.ComponentActivity
 import androidx.compose.runtime.Composable
@@ -12,12 +12,6 @@ abstract class NavigableScreen() : ComponentActivity() {
         AddBackgroundToComposables({ View() })
     }
 
-    abstract val screenName: String
-
-    abstract fun screenIcon(): ImageVector
-
     @Composable
     protected abstract fun View()
-
-
 }

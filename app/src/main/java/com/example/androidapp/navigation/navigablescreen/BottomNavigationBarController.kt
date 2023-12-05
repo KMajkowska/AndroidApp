@@ -1,4 +1,4 @@
-package com.example.androidapp.navigablescreen
+package com.example.androidapp.navigation.navigablescreen
 
 import android.app.Application
 import androidx.compose.foundation.layout.Arrangement
@@ -19,13 +19,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewmodel.compose.viewModel
-import androidx.lifecycle.viewmodel.viewModelFactory
 import com.example.androidapp.database.viewmodel.DayViewModel
 import com.example.androidapp.database.viewmodel.DayViewModelFactory
 import com.example.androidapp.ui.theme.AndroidAppTheme
-
+/*
 @Composable
 fun CustomBottomNavigation() {
 
@@ -39,9 +37,12 @@ fun CustomBottomNavigation() {
      on the navigation bar is correct
      */
     val screens: List<NavigableScreen> = listOf(
-        AllNotes(mDayViewModel),
-        CalendarScreen(mDayViewModel),
-        DaysScreen(mDayViewModel),
+        AllNotes(mDayViewModel, localDateConverter.toLocalDate(arguments.getString(dateString))),
+        CalendarScreen(
+            mDayViewModel,
+            localDateConverter.toLocalDate(arguments.getString(dateString)!!)
+        ),
+        DaysScreen(mDayViewModel, localDateConverter.toLocalDate(arguments.getString(dateString)!!)),
         SettingsScreen()
     )
     var selectedScreen by remember { mutableStateOf(screens.first()) }
@@ -53,10 +54,10 @@ fun CustomBottomNavigation() {
                     icon = {
                         Icon(
                             imageVector = screen.screenIcon(),
-                            contentDescription = screen.screenName,
+                            contentDescription = screen.screenNameAndRoute,
                         )
                     },
-                    label = { Text(screen.screenName) },
+                    label = { Text(screen.screenNameAndRoute) },
                     selected = screen == selectedScreen,
                     onClick = { selectedScreen = screen },
                 )
@@ -74,11 +75,12 @@ fun CustomBottomNavigation() {
         }
     })
 }
+ */
 
 @Preview(showBackground = true)
 @Composable
 fun BottomNavigationBarControllerPreview() {
     AndroidAppTheme {
-        CustomBottomNavigation()
+        //CustomBottomNavigation()
     }
 }

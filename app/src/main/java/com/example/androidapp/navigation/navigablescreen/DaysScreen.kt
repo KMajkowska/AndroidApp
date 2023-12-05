@@ -1,4 +1,4 @@
-package com.example.androidapp.navigablescreen
+package com.example.androidapp.navigation.navigablescreen
 
 import android.widget.CalendarView
 import androidx.compose.foundation.background
@@ -55,14 +55,7 @@ import com.example.androidapp.database.viewmodel.DayViewModel
 import com.example.androidapp.settings.EventCategories
 import java.time.LocalDate
 
-class DaysScreen(private val mDayViewModel: DayViewModel) : NavigableScreen() {
-
-    override val screenName: String
-        get() = "Days"
-
-    override fun screenIcon(): ImageVector {
-        return Icons.Default.Create
-    }
+class DaysScreen(private val mDayViewModel: DayViewModel, localDate: LocalDate) : NavigableScreen() {
 
     @Composable
     override fun View() {
