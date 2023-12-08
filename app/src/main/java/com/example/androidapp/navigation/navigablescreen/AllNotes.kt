@@ -123,6 +123,11 @@ class AllNotes(private val mDayViewModel: DayViewModel, localDate: LocalDate) : 
                         style = TextStyle(fontSize = 16.sp)
                     )
                 }
+                if (note.noteDate!=null){
+                    Text(
+                        text = "${note.noteDate}",
+                        style = TextStyle(fontSize = 12.sp))
+                }
             }
         }
     }

@@ -85,8 +85,7 @@ class CreateNote() : ComponentActivity(){
             ) {
                 IconButton(
                     onClick = {
-                        val intent = Intent(context, MainActivity::class.java)
-                        context.startActivity(intent)
+                        finish()
                     },
                     modifier = Modifier
                         .size(40.dp),
@@ -151,8 +150,7 @@ class CreateNote() : ComponentActivity(){
                                     content = noteValue,
                                 )
                                 mDayViewModel.addNewNote(newNote)
-                                val intent = Intent(context, MainActivity::class.java)
-                                context.startActivity(intent)
+                               finish()
                             } else {
                                 // Update the existing note
                                 val updatedNote = existingNote.copy(
@@ -183,8 +181,7 @@ class CreateNote() : ComponentActivity(){
                             if (existingNote != null) {
                                 mDayViewModel.deleteNote(existingNote)
                             }
-                            val intent = Intent(context, MainActivity::class.java)
-                            context.startActivity(intent)
+                            finish()
                         },
                         modifier = Modifier
                             .size(56.dp)
