@@ -1,10 +1,5 @@
 package com.example.androidapp.navigation.navigablescreen
 
-import android.content.Intent
-import android.os.Bundle
-import androidx.activity.ComponentActivity
-import androidx.activity.compose.setContent
-import androidx.activity.viewModels
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -20,11 +15,10 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Title
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Done
-import androidx.compose.ui.draw.shadow
+import androidx.compose.material.icons.filled.Title
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedTextField
@@ -37,41 +31,27 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
-import com.example.androidapp.AddBackgroundToComposables
-import com.example.androidapp.MainActivity
 import com.example.androidapp.database.model.Note
 import com.example.androidapp.database.viewmodel.DayViewModel
-import com.example.androidapp.ui.theme.AndroidAppTheme
 import com.example.androidapp.ui.theme.Blue
 import com.example.androidapp.ui.theme.Red
+import java.time.LocalDate
 
-const val TITLE_TEXT : String = "TITLE"
-const val NOTE_TEXT : String = "NOTE"
-
-class CreateNote() : ComponentActivity(){
-    private val mDayViewModel: DayViewModel by viewModels()
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setContent {
-            AndroidAppTheme {
-                val noteId = intent.getLongExtra("noteId", -1)
-                val existingNote = mDayViewModel.getNoteById(noteId)
-                AddBackgroundToComposables( {
-                    View(existingNote)
-                })
-            }
-        }
-    }
-
+class CreateNote(
+    private val mDayViewModel: DayViewModel,
+    private val noteId: Long,
+    private val localDate: LocalDate?,
+    private val upPress: () -> Unit,
+) : NavigableScreen() {
     @Composable
-    fun View(existingNote: Note?=null) {
-        var titleValue by remember { mutableStateOf(existingNote?.noteTitle ?: "") }
-        var noteValue by remember { mutableStateOf(existingNote?.content ?: "") }
-        val context = LocalContext.current
+    override fun View() {
+        val note: Note?  = mDayViewModel.getNoteById(noteId)
+        var titleValue by remember { mutableStateOf(note?.noteTitle ?: "") }
+        var noteValue by remember { mutableStateOf(note?.content ?: "") }
 
         Column(
             modifier = Modifier
@@ -84,12 +64,9 @@ class CreateNote() : ComponentActivity(){
                 contentAlignment = Alignment.TopEnd
             ) {
                 IconButton(
-                    onClick = {
-                        finish()
-                    },
+                    onClick = upPress ,
                     modifier = Modifier
                         .size(40.dp),
-
                 ) {
                     Icon(
                         imageVector = Icons.Default.Close,
@@ -143,22 +120,25 @@ class CreateNote() : ComponentActivity(){
 
                     IconButton(
                         onClick = {
-                            if (existingNote == null) {
-                                // Create a new note
-                                val newNote = Note(
-                                    noteTitle = titleValue,
-                                    content = noteValue,
-                                )
-                                mDayViewModel.addNewNote(newNote)
-                               finish()
-                            } else {
-                                // Update the existing note
-                                val updatedNote = existingNote.copy(
+                            if (note == null) {
+                                val newNote =  Note(
                                     noteTitle = titleValue,
                                     content = noteValue
                                 )
+
+                                if (localDate != null)
+                                    newNote.noteDate = localDate
+                                mDayViewModel.addNewNote(newNote)
+                            } else {
+                                val updatedNote =  note.copy(
+                                    noteTitle = titleValue,
+                                    content = noteValue
+                                )
+
                                 mDayViewModel.updateNote(updatedNote)
                             }
+                            upPress()
+
                         },
                         modifier = Modifier
                             .size(56.dp)
@@ -178,10 +158,9 @@ class CreateNote() : ComponentActivity(){
 
                     IconButton(
                         onClick = {
-                            if (existingNote != null) {
-                                mDayViewModel.deleteNote(existingNote)
-                            }
-                            finish()
+                            if (note != null)
+                                mDayViewModel.deleteNote(note)
+                            upPress()
                         },
                         modifier = Modifier
                             .size(56.dp)
@@ -200,6 +179,4 @@ class CreateNote() : ComponentActivity(){
             }
         }
     }
-
-
 }

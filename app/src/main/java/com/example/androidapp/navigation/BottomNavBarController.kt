@@ -5,9 +5,9 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.AddAlarm
 import androidx.compose.material.icons.filled.AddCircle
 import androidx.compose.material.icons.filled.CalendarMonth
-import androidx.compose.material.icons.filled.Create
 import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBar
@@ -16,10 +16,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -30,6 +27,7 @@ import androidx.navigation.NavGraph
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.example.androidapp.database.converter.LocalDateConverter
+import com.example.androidapp.database.model.Note
 import com.example.androidapp.navigation.navigablescreen.NavigableScreen
 import java.time.LocalDate
 
@@ -38,6 +36,7 @@ object ScreenRoutes {
     const val CALENDAR = "calendar"
     const val DAYS = "days"
     const val SETTINGS = "settings"
+    const val CREATE_NOTE = "createNote"
 }
 
 enum class NavItem(
@@ -47,8 +46,8 @@ enum class NavItem(
 ) {
     ALL_NOTES(/*R.string.home_feed*/ "All notes", Icons.Default.AddCircle, ScreenRoutes.ALL_NOTES),
     CALENDAR("Calendar", Icons.Default.CalendarMonth, ScreenRoutes.CALENDAR),
-    DAYS("Days", Icons.Default.Create, ScreenRoutes.DAYS),
-    SETTINGS("Settings", Icons.Outlined.Settings, ScreenRoutes.SETTINGS)
+    DAYS("Days", Icons.Default.AddAlarm, ScreenRoutes.DAYS),
+    SETTINGS("Settings", Icons.Outlined.Settings, ScreenRoutes.SETTINGS),
 }
 
 @Composable
@@ -122,15 +121,17 @@ class BottomNavBarController(val navController: NavHostController) {
     }
 
     fun navigateToDayDetail(localDate: LocalDate, from: NavBackStackEntry) {
-        if (from.lifecycleIsResumed()) {
+        if (from.lifecycleIsResumed())
+            navController.navigate("${ScreenRoutes.DAYS}?localDate=${localDateConverter.fromLocalDate(localDate)}")
+    }
+
+    fun navigateToNoteEditor(noteId: Long, localDate: LocalDate?, from: NavBackStackEntry) {
+        if (from.lifecycleIsResumed())
             navController.navigate(
-                "${ScreenRoutes.DAYS}/${
-                    localDateConverter.fromLocalDate(
-                        localDate
-                    )
-                }"
+                "${ScreenRoutes.CREATE_NOTE}?noteId=$noteId" +
+                        if (localDate == null) "" else "&localDate=${localDateConverter.fromLocalDate(localDate)}"
             )
-        }
+
     }
 }
 

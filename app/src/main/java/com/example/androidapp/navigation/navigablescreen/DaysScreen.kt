@@ -1,9 +1,6 @@
 package com.example.androidapp.navigation.navigablescreen
 
-
-import android.content.Intent
 import android.widget.CalendarView
-import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -21,7 +18,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.CalendarMonth
 import androidx.compose.material.icons.filled.Celebration
-import androidx.compose.material.icons.filled.Create
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Fastfood
 import androidx.compose.material.icons.filled.Games
@@ -45,14 +41,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
 import com.example.androidapp.AddBackgroundToComposables
-import com.example.androidapp.DialogTextEditor
 import com.example.androidapp.HorizontalDivider
 import com.example.androidapp.InlineTextEditor
 import com.example.androidapp.TextEditorWithPreview
@@ -64,7 +58,11 @@ import com.example.androidapp.database.viewmodel.DayViewModel
 import com.example.androidapp.settings.EventCategories
 import java.time.LocalDate
 
-class DaysScreen(private val mDayViewModel: DayViewModel, localDate: LocalDate) : NavigableScreen() {
+class DaysScreen(
+    private val mDayViewModel: DayViewModel,
+    private val localDate: LocalDate,
+    private val onNoteClick: (Long, LocalDate) -> Unit
+) : NavigableScreen() {
 
     @Composable
     override fun View() {
@@ -73,48 +71,35 @@ class DaysScreen(private val mDayViewModel: DayViewModel, localDate: LocalDate) 
 
     @Composable
     override fun ViewWithBackground() {
-        var dayEntity by remember { mutableStateOf(mDayViewModel.getDayByDate(LocalDate.now())) }
+        var dayEntity by remember { mutableStateOf(mDayViewModel.getDayByDate(localDate)) }
+        var selectedNote by remember { mutableStateOf(mDayViewModel.getNoteByDate(dayEntity.date))}
 
         AddBackgroundToComposables({
             View { chosenDate ->
                 dayEntity = mDayViewModel.getDayByDate(chosenDate)
+                selectedNote = mDayViewModel.getNoteByDate(dayEntity.date)
             }
         }, {
-            DayDataView(dayEntity)
+            DayDataView(dayEntity, selectedNote)
         })
     }
 
     @Composable
-    fun DayDataView(dayEntity: DayEntity) {
+    fun DayDataView(dayEntity: DayEntity, selectedNote: Note?) {
         val hasDayEntityBeenChanged = remember { mutableStateOf(false) }
-        val context = LocalContext.current
+        var hasNoteBeenChanged by remember { mutableStateOf(false) }
 
-        DisposableEffect(dayEntity, hasDayEntityBeenChanged.value) {
+        DisposableEffect(dayEntity, selectedNote, hasDayEntityBeenChanged.value, hasNoteBeenChanged) {
             onDispose {
                 if (hasDayEntityBeenChanged.value)
                     mDayViewModel.saveDayEntity(dayEntity)
+
+                if (hasNoteBeenChanged && selectedNote != null)
+                    mDayViewModel.updateNote(selectedNote)
+
                 mDayViewModel.deleteDayEntityIfEmpty(dayEntity.dayId!!)
             }
         }
-
-
-        val date = dayEntity.date
-        val dayNote = mDayViewModel.getNoteByDate(date)
-        var selectedNote by remember { mutableStateOf(mDayViewModel.getNoteByDate(date))}
-        var isUpdated by remember { mutableStateOf(false) }
-
-
-        DisposableEffect(selectedNote, isUpdated) {
-            onDispose {
-                if (isUpdated) {
-                    selectedNote?.let {
-                        mDayViewModel.updateNote(it)
-                    }
-                    isUpdated = false
-                }
-            }
-        }
-
 
         LazyColumn(
             modifier = Modifier
@@ -138,35 +123,10 @@ class DaysScreen(private val mDayViewModel: DayViewModel, localDate: LocalDate) 
             item {
                 HorizontalDivider()
 
-                NoteItem(note = dayNote) { note ->
-                    selectedNote = note
-
-                    if (selectedNote == null) {
-                        // Check if a note already exists for the date
-                        val existingNote = mDayViewModel.getNoteByDate(date)
-
-                        if (existingNote == null) {
-                            // If no note exists, create a new one
-                            val newNote = Note(
-                                noteTitle = "My note for ${date}",
-                                content = "",
-                                noteDate = date
-                            )
-                            mDayViewModel.addNewNote(newNote)
-
-                            // Set selectedNote to the newly created note
-                            selectedNote = newNote
-                            isUpdated = true
-                        }
-                    } else {
-                        val intent = Intent(context, CreateNote::class.java)
-                        intent.putExtra("noteId", selectedNote!!.noteId)
-                        context.startActivity(intent)
-                        selectedNote = mDayViewModel.getNoteByDate(date)
-                        isUpdated = true
-                    }
+                NoteItem(selectedNote) { note ->
+                    onNoteClick(note?.noteId ?: -1, localDate)
+                    hasNoteBeenChanged = true
                 }
-
 
                 HorizontalDivider()
             }
@@ -187,7 +147,7 @@ class DaysScreen(private val mDayViewModel: DayViewModel, localDate: LocalDate) 
     }
 
     @Composable
-    fun View(onChangeDate: (possiblyChangedDate: LocalDate) -> Unit) {
+    fun View(onChangeDate: (LocalDate) -> Unit) {
         Row(
             modifier = Modifier.padding(6.dp),
             verticalAlignment = Alignment.Top
@@ -395,7 +355,6 @@ class DaysScreen(private val mDayViewModel: DayViewModel, localDate: LocalDate) 
 
         }
     }
-
 }
 
 @Composable
@@ -412,8 +371,6 @@ fun getCategoryIcon(category: String): ImageVector {
     }
 }
 
-
-
 @Composable
 fun NoteItem(note: Note?, onNoteClicked: (Note?) -> Unit) {
     Box(
@@ -422,12 +379,11 @@ fun NoteItem(note: Note?, onNoteClicked: (Note?) -> Unit) {
             .border(1.dp, Color.Gray)
             .padding(8.dp)
             .clickable { onNoteClicked(note) }
-
     ) {
         Column {
             if (note != null) {
                 Text(
-                    text = "${note.noteTitle}",
+                    text = note.noteTitle,
                     style = TextStyle(fontSize = 18.sp, fontWeight = FontWeight.Bold)
                 )
                 val lines = note.content.lines().take(2)
@@ -449,6 +405,3 @@ fun NoteItem(note: Note?, onNoteClicked: (Note?) -> Unit) {
 
     }
 }
-
-
-

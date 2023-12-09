@@ -11,9 +11,6 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.CalendarMonth
-import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -26,7 +23,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavBackStackEntry
 import com.example.androidapp.database.model.DayWithTodosAndEvents
@@ -37,7 +33,7 @@ import java.time.YearMonth
 class CalendarScreen(
     private val mDayViewModel: DayViewModel,
     localDate: LocalDate,
-    onDaySelected: (LocalDate, NavBackStackEntry) -> Unit,
+    onDaySelected: (LocalDate) -> Unit,
 ) : NavigableScreen() {
 
     @Composable

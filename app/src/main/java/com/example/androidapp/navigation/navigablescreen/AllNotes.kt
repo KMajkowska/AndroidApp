@@ -12,15 +12,13 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.AddCircle
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.livedata.observeAsState
@@ -28,23 +26,25 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavBackStackEntry
 import com.example.androidapp.database.model.Note
 import com.example.androidapp.database.viewmodel.DayViewModel
 import com.example.androidapp.ui.theme.Blue
 import java.time.LocalDate
 
-class AllNotes(private val mDayViewModel: DayViewModel, localDate: LocalDate) : NavigableScreen() {
+class AllNotes(
+    private val mDayViewModel: DayViewModel,
+    private val localDate: LocalDate,
+    private val onNoteClick: (Long) -> Unit
+   ) : NavigableScreen() {
 
     @Composable
     override fun View() {
-        val days = mDayViewModel.allDayEntitiesSortedByDate.observeAsState(initial = listOf()).value
-        val context = LocalContext.current
         val notes = mDayViewModel.allNotes.observeAsState(initial = listOf()).value
 
         Box(
@@ -64,11 +64,10 @@ class AllNotes(private val mDayViewModel: DayViewModel, localDate: LocalDate) : 
                     )
                 } else {
                     for (note in notes) {
-                        NoteItem(note = note, onNoteClicked = { selectedNote ->
-                            val intent = Intent(context, CreateNote::class.java)
-                            intent.putExtra("noteId", selectedNote.noteId)
-                            context.startActivity(intent)
-                        })
+                        NoteItem(
+                            note = note,
+                            onNoteClicked = { selectedNote -> onNoteClick(selectedNote.noteId) }
+                        )
                         Spacer(modifier = Modifier.height(8.dp))
                     }
                 }
@@ -81,14 +80,13 @@ class AllNotes(private val mDayViewModel: DayViewModel, localDate: LocalDate) : 
             ) {
                 IconButton(
                     onClick = {
-                        val intent = Intent(context, CreateNote::class.java)
-                        context.startActivity(intent)
+                        onNoteClick(-1) // negative value means that no note will be found!
                     },
                     modifier = Modifier
                         .size(66.dp)
                         .shadow(2.dp, CircleShape)
                         .background(Blue, shape = CircleShape)
-                        .padding(16.dp) // Padding moved inside the IconButton
+                        .padding(16.dp)
                 ) {
                     Icon(
                         imageVector = Icons.Default.Edit,
@@ -109,8 +107,7 @@ class AllNotes(private val mDayViewModel: DayViewModel, localDate: LocalDate) : 
                 .border(1.dp, Color.Gray)
                 .padding(8.dp)
                 .clickable { onNoteClicked(note)}
-
-                    ) {
+        ) {
             Column {
                 Text(
                     text = note.noteTitle,
@@ -123,7 +120,7 @@ class AllNotes(private val mDayViewModel: DayViewModel, localDate: LocalDate) : 
                         style = TextStyle(fontSize = 16.sp)
                     )
                 }
-                if (note.noteDate!=null){
+                if (note.noteDate!=null) {
                     Text(
                         text = "${note.noteDate}",
                         style = TextStyle(fontSize = 12.sp))

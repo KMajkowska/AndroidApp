@@ -10,6 +10,5 @@ data class DayEntity (
     @PrimaryKey(autoGenerate = true)
     val dayId: Long? = null,
     var dayTitle: String = "",
-    var note: String = "",
     val date: LocalDate
 )

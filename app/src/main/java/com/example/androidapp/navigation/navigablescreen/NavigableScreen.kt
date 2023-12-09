@@ -2,7 +2,6 @@ package com.example.androidapp.navigation.navigablescreen
 
 import androidx.activity.ComponentActivity
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.graphics.vector.ImageVector
 import com.example.androidapp.AddBackgroundToComposables
 
 abstract class NavigableScreen() : ComponentActivity() {

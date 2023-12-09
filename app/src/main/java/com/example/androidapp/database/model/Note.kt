@@ -1,7 +1,6 @@
 package com.example.androidapp.database.model
 
 
-import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 import java.time.LocalDate

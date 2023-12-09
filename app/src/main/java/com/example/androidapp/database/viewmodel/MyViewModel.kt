@@ -163,8 +163,7 @@ class DayViewModel(application: Application) : AndroidViewModel(application) {
             val temp: DayWithTodosAndEvents? = getDayIdWithRelated(dayId)
             if (temp?.events?.isEmpty() == true &&
                 temp.todos.isEmpty() &&
-                temp.dayEntity.dayTitle.trim().isEmpty() &&
-                temp.dayEntity.note.trim().isEmpty()
+                temp.dayEntity.dayTitle.trim().isEmpty()
             )
                 deleteDayEntity(temp.dayEntity)
         }
