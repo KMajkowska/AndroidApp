@@ -41,6 +41,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -49,6 +50,7 @@ import androidx.compose.ui.viewinterop.AndroidView
 import com.example.androidapp.AddBackgroundToComposables
 import com.example.androidapp.HorizontalDivider
 import com.example.androidapp.InlineTextEditor
+import com.example.androidapp.R
 import com.example.androidapp.TextEditorWithPreview
 import com.example.androidapp.database.model.DayEntity
 import com.example.androidapp.database.model.EventEntity
@@ -255,7 +257,7 @@ class DaysScreen(
                 .fillMaxSize()
                 .padding(8.dp)
         ) {
-            Text("Event List")
+            Text(stringResource(id = R.string.event_list))
         }
 
         HorizontalDivider()
@@ -355,6 +357,7 @@ class DaysScreen(
 
         }
     }
+
 }
 
 @Composable
@@ -371,6 +374,8 @@ fun getCategoryIcon(category: String): ImageVector {
     }
 }
 
+
+
 @Composable
 fun NoteItem(note: Note?, onNoteClicked: (Note?) -> Unit) {
     Box(
@@ -379,11 +384,12 @@ fun NoteItem(note: Note?, onNoteClicked: (Note?) -> Unit) {
             .border(1.dp, Color.Gray)
             .padding(8.dp)
             .clickable { onNoteClicked(note) }
+
     ) {
         Column {
             if (note != null) {
                 Text(
-                    text = note.noteTitle,
+                    text = "${note.noteTitle}",
                     style = TextStyle(fontSize = 18.sp, fontWeight = FontWeight.Bold)
                 )
                 val lines = note.content.lines().take(2)
@@ -396,7 +402,7 @@ fun NoteItem(note: Note?, onNoteClicked: (Note?) -> Unit) {
             }
             else {
                 Text(
-                    text = "No note available - click to add!",
+                    text = stringResource(id = R.string.no_note),
                     style = TextStyle(fontSize = 18.sp, fontWeight = FontWeight.Bold)
                 )
 
@@ -405,3 +411,5 @@ fun NoteItem(note: Note?, onNoteClicked: (Note?) -> Unit) {
 
     }
 }
+
+

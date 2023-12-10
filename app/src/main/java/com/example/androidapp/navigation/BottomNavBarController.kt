@@ -1,5 +1,6 @@
 package com.example.androidapp.navigation
 
+import androidx.annotation.StringRes
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -20,14 +21,15 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.Lifecycle
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavDestination
 import androidx.navigation.NavGraph
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
+import com.example.androidapp.R
 import com.example.androidapp.database.converter.LocalDateConverter
-import com.example.androidapp.database.model.Note
 import com.example.androidapp.navigation.navigablescreen.NavigableScreen
 import java.time.LocalDate
 
@@ -40,14 +42,14 @@ object ScreenRoutes {
 }
 
 enum class NavItem(
-    /*@StringRes val title: Int*/ val title: String,
+    @StringRes val title: Int,
     val icon: ImageVector,
     val route: String
 ) {
-    ALL_NOTES(/*R.string.home_feed*/ "All notes", Icons.Default.AddCircle, ScreenRoutes.ALL_NOTES),
-    CALENDAR("Calendar", Icons.Default.CalendarMonth, ScreenRoutes.CALENDAR),
-    DAYS("Days", Icons.Default.AddAlarm, ScreenRoutes.DAYS),
-    SETTINGS("Settings", Icons.Outlined.Settings, ScreenRoutes.SETTINGS),
+    ALL_NOTES(R.string.all_notes, Icons.Default.AddCircle, ScreenRoutes.ALL_NOTES),
+    CALENDAR(R.string.calendar, Icons.Default.CalendarMonth, ScreenRoutes.CALENDAR),
+    DAYS(R.string.days, Icons.Default.AddAlarm, ScreenRoutes.DAYS),
+    SETTINGS(R.string.settings, Icons.Outlined.Settings, ScreenRoutes.SETTINGS),
 }
 
 @Composable
@@ -66,10 +68,10 @@ fun CustomBottomNavigation(
                     icon = {
                         Icon(
                             imageVector = tab.icon,
-                            contentDescription = tab.title,
+                            contentDescription = stringResource(id = tab.title),
                         )
                     },
-                    label = { Text(tab.title) },
+                    label = { Text(stringResource(id = tab.title)) },
                     selected = tab == currentSection,
                     onClick = { navigateToRoute(tab.route) },
                 )

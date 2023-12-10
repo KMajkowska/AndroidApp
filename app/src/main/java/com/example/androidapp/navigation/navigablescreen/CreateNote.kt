@@ -33,8 +33,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
+import com.example.androidapp.R
 import com.example.androidapp.database.model.Note
 import com.example.androidapp.database.viewmodel.DayViewModel
 import com.example.androidapp.ui.theme.Blue
@@ -81,7 +83,7 @@ class CreateNote(
             OutlinedTextField(
                 value = titleValue,
                 onValueChange = { titleValue = it },
-                label = { Text("Title") },
+                label = { Text(stringResource(id = R.string.note_title)) },
                 leadingIcon = {
                     Icon(
                         imageVector = Icons.Default.Title,
@@ -103,7 +105,7 @@ class CreateNote(
                 OutlinedTextField(
                     value = noteValue,
                     onValueChange = { noteValue = it },
-                    label = { Text("Note") },
+                    label = { Text(stringResource(id = R.string.note_content)) },
                     keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Text),
                     modifier = Modifier
                         .fillMaxSize()
