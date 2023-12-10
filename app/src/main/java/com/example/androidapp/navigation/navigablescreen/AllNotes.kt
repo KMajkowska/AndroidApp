@@ -31,6 +31,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavBackStackEntry
@@ -125,7 +126,9 @@ class AllNotes(
                 lines.forEachIndexed { index, line ->
                     Text(
                         text = if (index == 1 && lines.size > 1) "$line..." else line,
-                        style = TextStyle(fontSize = 16.sp)
+                        style = TextStyle(fontSize = 16.sp),
+                        maxLines = 1,  // Limit to one line
+                        overflow = TextOverflow.Ellipsis  // Indicate that the text might be truncated
                     )
                 }
                 if (note.noteDate != null) {
