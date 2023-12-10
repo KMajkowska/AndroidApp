@@ -69,9 +69,9 @@ private fun NavGraphBuilder.unqirnNavGraph(
             ScreenRoutes.ALL_NOTES,
             AllNotes(
                 mDayViewModel,
-                LocalDate.now()
-            ) { noteId -> onNoteSelected(noteId, null, backStackEntry) },
-            onNavigateToRoute
+                LocalDate.now(),
+                {noteId -> onNoteSelected(noteId, null, backStackEntry) }
+            ){date -> onDaySelected(date, backStackEntry)}, onNavigateToRoute
         )
     }
 

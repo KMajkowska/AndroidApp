@@ -57,6 +57,7 @@ import com.example.androidapp.database.model.TodoEntity
 import com.example.androidapp.database.viewmodel.DayViewModel
 import com.example.androidapp.settings.EventCategories
 import java.time.LocalDate
+import java.util.Calendar
 
 class DaysScreen(
     private val mDayViewModel: DayViewModel,
@@ -88,11 +89,16 @@ class DaysScreen(
     fun DayDataView(dayEntity: DayEntity, selectedNote: Note?) {
         val hasDayEntityBeenChanged = remember { mutableStateOf(false) }
         var hasNoteBeenChanged by remember { mutableStateOf(false) }
+        var currentDayTitle by remember { mutableStateOf(dayEntity.dayTitle) }
+        val hasDayTitleChanged = remember { mutableStateOf(false) }
 
         DisposableEffect(dayEntity, selectedNote, hasDayEntityBeenChanged.value, hasNoteBeenChanged) {
             onDispose {
-                if (hasDayEntityBeenChanged.value)
+                if (hasDayEntityBeenChanged.value) {
                     mDayViewModel.saveDayEntity(dayEntity)
+                    currentDayTitle = dayEntity.dayTitle
+                }
+
 
                 if (hasNoteBeenChanged && selectedNote != null)
                     mDayViewModel.updateNote(selectedNote)
@@ -120,11 +126,13 @@ class DaysScreen(
                 }
             }
 
+
+
             item {
                 HorizontalDivider()
 
                 NoteItem(selectedNote) { note ->
-                    onNoteClick(note?.noteId ?: -1, localDate)
+                    onNoteClick(note?.noteId ?: -1, dayEntity.date)
                     hasNoteBeenChanged = true
                 }
 
@@ -144,6 +152,14 @@ class DaysScreen(
                 )
             }
         }
+        DisposableEffect(hasDayTitleChanged.value) {
+            if (hasDayTitleChanged.value) {
+                // Day title has changed, update your UI or perform any other actions
+                // This block will be executed when the day title changes
+                hasDayTitleChanged.value = false // Reset the flag
+            }
+            onDispose { }
+        }
     }
 
     @Composable
@@ -157,6 +173,16 @@ class DaysScreen(
                 { CalendarView(it) },
                 modifier = Modifier.wrapContentWidth(),
                 update = {
+                    if (localDate!=null){
+                        val calendar = Calendar.getInstance()
+                        val chosenDateInMillis: Long = calendar.apply {
+                            set(Calendar.YEAR, localDate.year)
+                            set(Calendar.MONTH, localDate.monthValue-1)
+                            set(Calendar.DAY_OF_MONTH, localDate.dayOfMonth)
+                        }.timeInMillis
+
+                        it.setDate(chosenDateInMillis, false, true)
+                    }
                     it.setOnDateChangeListener { _, year, month, dayOfMonth ->
                         onChangeDate(LocalDate.of(year, month + 1, dayOfMonth))
                     }
@@ -378,7 +404,7 @@ fun NoteItem(note: Note?, onNoteClicked: (Note?) -> Unit) {
             .fillMaxWidth()
             .border(1.dp, Color.Gray)
             .padding(8.dp)
-            .clickable { onNoteClicked(note) }
+            .clickable { onNoteClicked(note)}
     ) {
         Column {
             if (note != null) {

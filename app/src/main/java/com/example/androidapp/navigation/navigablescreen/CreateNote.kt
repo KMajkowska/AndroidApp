@@ -33,6 +33,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import com.example.androidapp.database.model.Note
@@ -80,7 +81,10 @@ class CreateNote(
 
             OutlinedTextField(
                 value = titleValue,
-                onValueChange = { titleValue = it },
+                onValueChange = {
+                    val filteredText = it.replace("\n", "")
+                    titleValue = filteredText.take(50)
+                                },
                 label = { Text("Title") },
                 leadingIcon = {
                     Icon(
@@ -88,7 +92,10 @@ class CreateNote(
                         contentDescription = null
                     )
                 },
-                keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Text),
+                keyboardOptions = KeyboardOptions(
+                    keyboardType = KeyboardType.Text,
+                    imeAction = ImeAction.Done
+                ),
                 maxLines = 2,
                 modifier = Modifier
                     .fillMaxWidth()
@@ -137,7 +144,6 @@ class CreateNote(
 
                                 mDayViewModel.updateNote(updatedNote)
                             }
-                            upPress()
 
                         },
                         modifier = Modifier
