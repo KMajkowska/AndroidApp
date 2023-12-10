@@ -3,7 +3,6 @@ package com.example.androidapp.navigation.navigablescreen
 import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
-import android.preference.PreferenceManager
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
@@ -49,7 +48,7 @@ class SettingsScreen: NavigableScreen() {
         val selectedSortOption = remember { mutableStateOf(sortOptions.first()) }
 
         val context = LocalContext.current
-        val sharedPreferences = remember(context) { PreferenceManager.getDefaultSharedPreferences(context) }
+        val sharedPreferences = context.getSharedPreferences("My_Lang", Context.MODE_PRIVATE)
 
         LazyColumn(
             modifier = Modifier
