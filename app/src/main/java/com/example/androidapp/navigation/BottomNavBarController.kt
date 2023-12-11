@@ -27,7 +27,6 @@ import androidx.navigation.NavGraph
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.example.androidapp.database.converter.LocalDateConverter
-import com.example.androidapp.database.model.Note
 import com.example.androidapp.navigation.navigablescreen.NavigableScreen
 import java.time.LocalDate
 
@@ -113,9 +112,9 @@ class BottomNavBarController(val navController: NavHostController) {
                 restoreState = true
                 // Pop up backstack to the first destination and save state. This makes going back
                 // to the start destination when pressing back in any other bottom tab.
-                popUpTo(findStartDestination(navController.graph).id) {
-                    saveState = true
-                }
+//                popUpTo(findStartDestination(navController.graph).id) {
+//                    saveState = true
+//                }
             }
         }
     }

@@ -33,6 +33,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import com.example.androidapp.database.model.Note
@@ -49,7 +50,7 @@ class CreateNote(
 ) : NavigableScreen() {
     @Composable
     override fun View() {
-        val note: Note?  = mDayViewModel.getNoteById(noteId)
+        val note: Note? = mDayViewModel.getNoteById(noteId)
         var titleValue by remember { mutableStateOf(note?.noteTitle ?: "") }
         var noteValue by remember { mutableStateOf(note?.content ?: "") }
 
@@ -64,7 +65,7 @@ class CreateNote(
                 contentAlignment = Alignment.TopEnd
             ) {
                 IconButton(
-                    onClick = upPress ,
+                    onClick = upPress,
                     modifier = Modifier
                         .size(40.dp),
                 ) {
@@ -80,7 +81,10 @@ class CreateNote(
 
             OutlinedTextField(
                 value = titleValue,
-                onValueChange = { titleValue = it },
+                onValueChange = {
+                    val filteredText = it.replace("\n", "")
+                    titleValue = filteredText.take(50)
+                },
                 label = { Text("Title") },
                 leadingIcon = {
                     Icon(
@@ -88,7 +92,10 @@ class CreateNote(
                         contentDescription = null
                     )
                 },
-                keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Text),
+                keyboardOptions = KeyboardOptions(
+                    keyboardType = KeyboardType.Text,
+                    imeAction = ImeAction.Done
+                ),
                 maxLines = 2,
                 modifier = Modifier
                     .fillMaxWidth()
@@ -121,7 +128,7 @@ class CreateNote(
                     IconButton(
                         onClick = {
                             if (note == null) {
-                                val newNote =  Note(
+                                val newNote = Note(
                                     noteTitle = titleValue,
                                     content = noteValue
                                 )
@@ -130,7 +137,7 @@ class CreateNote(
                                     newNote.noteDate = localDate
                                 mDayViewModel.addNewNote(newNote)
                             } else {
-                                val updatedNote =  note.copy(
+                                val updatedNote = note.copy(
                                     noteTitle = titleValue,
                                     content = noteValue
                                 )
@@ -138,7 +145,6 @@ class CreateNote(
                                 mDayViewModel.updateNote(updatedNote)
                             }
                             upPress()
-
                         },
                         modifier = Modifier
                             .size(56.dp)
