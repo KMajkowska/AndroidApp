@@ -1,6 +1,7 @@
 package com.example.androidapp.navigation.navigablescreen
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -14,8 +15,11 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.internal.composableLambda
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -24,7 +28,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
-import androidx.navigation.NavBackStackEntry
 import com.example.androidapp.database.model.DayWithTodosAndEvents
 import com.example.androidapp.database.viewmodel.DayViewModel
 import java.time.LocalDate
@@ -32,8 +35,8 @@ import java.time.YearMonth
 
 class CalendarScreen(
     private val mDayViewModel: DayViewModel,
-    localDate: LocalDate,
-    onDaySelected: (LocalDate) -> Unit,
+    private val localDate: LocalDate,
+    private val onDayClick: (LocalDate) -> Unit,
 ) : NavigableScreen() {
 
     @Composable
@@ -48,14 +51,9 @@ class CalendarScreen(
                 )
             }
 
-        var currentYearMonth by remember { mutableStateOf(YearMonth.now()) }
         val lazyListState = rememberLazyListState()
 
-        LaunchedEffect(currentYearMonth) {
-            val index = groupedByYearMonth.keys.indexOf(currentYearMonth)
-            if (index >= 0)
-                lazyListState.scrollToItem(index)
-        }
+
         LazyColumn(
             modifier = Modifier
                 .fillMaxSize()
@@ -63,7 +61,7 @@ class CalendarScreen(
             state = lazyListState
         ) {
             items(groupedByYearMonth.entries.toList()) { (yearMonth, objects) ->
-                YearSquare(yearMonth, objects, currentYearMonth)
+                YearSquare(yearMonth, objects, onDayClick)
             }
         }
     }
@@ -73,7 +71,7 @@ class CalendarScreen(
 fun YearSquare(
     yearMonth: YearMonth,
     objects: List<DayWithTodosAndEvents>,
-    currentYearMonth: YearMonth
+    onDayClick: (LocalDate) -> Unit
 ) {
     Column(
         modifier = Modifier
@@ -93,7 +91,7 @@ fun YearSquare(
         )
         Spacer(modifier = Modifier.height(4.dp))
 
-        MonthSquare(yearMonth, objects, currentYearMonth)
+        MonthSquare(yearMonth, objects, onDayClick)
     }
 }
 
@@ -101,10 +99,8 @@ fun YearSquare(
 fun MonthSquare(
     yearMonth: YearMonth,
     objects: List<DayWithTodosAndEvents>,
-    currentYearMonth: YearMonth
+    onDayClick: (LocalDate) -> Unit
 ) {
-    val isCurrentYearMonth = yearMonth == currentYearMonth
-
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -123,21 +119,25 @@ fun MonthSquare(
         Spacer(modifier = Modifier.height(4.dp))
 
         objects.forEach { obj ->
-            ObjectItem(obj)
+            ObjectItem(obj, onDayClick)
         }
     }
 }
 
 @Composable
-fun ObjectItem(obj: DayWithTodosAndEvents) {
+fun ObjectItem(
+    dayWithTodosAndEvents: DayWithTodosAndEvents,
+    onDayClick: (LocalDate) -> Unit
+) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
             .padding(8.dp)
             .background(MaterialTheme.colorScheme.background)
-            .clip(RoundedCornerShape(16.dp)),
+            .clip(RoundedCornerShape(16.dp))
+            .clickable { onDayClick(dayWithTodosAndEvents.dayEntity.date) },
     ) {
-        Text(text = "${obj.dayEntity.date.dayOfMonth},  ${obj.dayEntity.dayTitle}")
+        Text(text = "${dayWithTodosAndEvents.dayEntity.date.dayOfMonth},  ${dayWithTodosAndEvents.dayEntity.dayTitle}")
         Spacer(modifier = Modifier.height(4.dp))
     }
 }

@@ -1,6 +1,7 @@
 package com.example.androidapp
 
 import android.app.Application
+import android.util.Log
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -69,8 +70,10 @@ private fun NavGraphBuilder.unqirnNavGraph(
             ScreenRoutes.ALL_NOTES,
             AllNotes(
                 mDayViewModel,
-                LocalDate.now()
-            ) { noteId -> onNoteSelected(noteId, null, backStackEntry) },
+                LocalDate.now(),
+                onNoteClick = { noteId -> onNoteSelected(noteId, null, backStackEntry) },
+                onDayClick = { date -> onDaySelected(date, backStackEntry) }
+            ),
             onNavigateToRoute
         )
     }

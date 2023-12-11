@@ -40,7 +40,8 @@ import java.time.LocalDate
 class AllNotes(
     private val mDayViewModel: DayViewModel,
     private val localDate: LocalDate,
-    private val onNoteClick: (Long) -> Unit
+    private val onNoteClick: (Long) -> Unit,
+    private val onDayClick: (LocalDate) -> Unit
    ) : NavigableScreen() {
 
     @Composable
