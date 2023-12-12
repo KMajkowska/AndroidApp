@@ -1,6 +1,7 @@
 package com.example.androidapp.navigation.navigablescreen
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -24,7 +25,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
-import androidx.navigation.NavBackStackEntry
 import com.example.androidapp.database.model.DayWithTodosAndEvents
 import com.example.androidapp.database.viewmodel.DayViewModel
 import java.time.LocalDate
@@ -32,12 +32,13 @@ import java.time.YearMonth
 
 class CalendarScreen(
     private val mDayViewModel: DayViewModel,
-    localDate: LocalDate,
-    onDaySelected: (LocalDate) -> Unit,
+    private val localDate: LocalDate,
+    private val onDaySelected: (LocalDate) -> Unit,
 ) : NavigableScreen() {
 
     @Composable
     override fun View() {
+
         val allDayEntitiesWithRelatedSortedByDate =
             mDayViewModel.allDayEntitiesWithRelatedSortedByDate.observeAsState(initial = listOf()).value
 
@@ -63,7 +64,7 @@ class CalendarScreen(
             state = lazyListState
         ) {
             items(groupedByYearMonth.entries.toList()) { (yearMonth, objects) ->
-                YearSquare(yearMonth, objects, currentYearMonth)
+                YearSquare(yearMonth, objects, currentYearMonth, onDaySelected)
             }
         }
     }
@@ -73,7 +74,8 @@ class CalendarScreen(
 fun YearSquare(
     yearMonth: YearMonth,
     objects: List<DayWithTodosAndEvents>,
-    currentYearMonth: YearMonth
+    currentYearMonth: YearMonth,
+    onDaySelected: (LocalDate) -> Unit
 ) {
     Column(
         modifier = Modifier
@@ -93,7 +95,7 @@ fun YearSquare(
         )
         Spacer(modifier = Modifier.height(4.dp))
 
-        MonthSquare(yearMonth, objects, currentYearMonth)
+        MonthSquare(yearMonth, objects, currentYearMonth, onDaySelected)
     }
 }
 
@@ -101,7 +103,8 @@ fun YearSquare(
 fun MonthSquare(
     yearMonth: YearMonth,
     objects: List<DayWithTodosAndEvents>,
-    currentYearMonth: YearMonth
+    currentYearMonth: YearMonth,
+    onDaySelected: (LocalDate) -> Unit
 ) {
     val isCurrentYearMonth = yearMonth == currentYearMonth
 
@@ -123,19 +126,20 @@ fun MonthSquare(
         Spacer(modifier = Modifier.height(4.dp))
 
         objects.forEach { obj ->
-            ObjectItem(obj)
+            ObjectItem(obj, onDaySelected)
         }
     }
 }
 
 @Composable
-fun ObjectItem(obj: DayWithTodosAndEvents) {
+fun ObjectItem(obj: DayWithTodosAndEvents, onDaySelected: (LocalDate) -> Unit) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
             .padding(8.dp)
             .background(MaterialTheme.colorScheme.background)
-            .clip(RoundedCornerShape(16.dp)),
+            .clip(RoundedCornerShape(16.dp))
+            .clickable { onDaySelected(obj.dayEntity.date) }
     ) {
         Text(text = "${obj.dayEntity.date.dayOfMonth},  ${obj.dayEntity.dayTitle}")
         Spacer(modifier = Modifier.height(4.dp))

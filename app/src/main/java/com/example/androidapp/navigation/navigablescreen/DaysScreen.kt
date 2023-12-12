@@ -41,16 +41,15 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
 import com.example.androidapp.AddBackgroundToComposables
 import com.example.androidapp.HorizontalDivider
 import com.example.androidapp.InlineTextEditor
-import com.example.androidapp.R
 import com.example.androidapp.TextEditorWithPreview
 import com.example.androidapp.database.model.DayEntity
 import com.example.androidapp.database.model.EventEntity
@@ -59,6 +58,7 @@ import com.example.androidapp.database.model.TodoEntity
 import com.example.androidapp.database.viewmodel.DayViewModel
 import com.example.androidapp.settings.EventCategories
 import java.time.LocalDate
+import java.util.Calendar
 
 class DaysScreen(
     private val mDayViewModel: DayViewModel,
@@ -90,11 +90,16 @@ class DaysScreen(
     fun DayDataView(dayEntity: DayEntity, selectedNote: Note?) {
         val hasDayEntityBeenChanged = remember { mutableStateOf(false) }
         var hasNoteBeenChanged by remember { mutableStateOf(false) }
+        var currentDayTitle by remember { mutableStateOf(dayEntity.dayTitle) }
+        val hasDayTitleChanged = remember { mutableStateOf(false) }
 
         DisposableEffect(dayEntity, selectedNote, hasDayEntityBeenChanged.value, hasNoteBeenChanged) {
             onDispose {
-                if (hasDayEntityBeenChanged.value)
+                if (hasDayEntityBeenChanged.value) {
                     mDayViewModel.saveDayEntity(dayEntity)
+                    currentDayTitle = dayEntity.dayTitle
+                }
+
 
                 if (hasNoteBeenChanged && selectedNote != null)
                     mDayViewModel.updateNote(selectedNote)
@@ -122,11 +127,13 @@ class DaysScreen(
                 }
             }
 
+
+
             item {
                 HorizontalDivider()
 
                 NoteItem(selectedNote) { note ->
-                    onNoteClick(note?.noteId ?: -1, localDate)
+                    onNoteClick(note?.noteId ?: -1, dayEntity.date)
                     hasNoteBeenChanged = true
                 }
 
@@ -146,6 +153,14 @@ class DaysScreen(
                 )
             }
         }
+        DisposableEffect(hasDayTitleChanged.value) {
+            if (hasDayTitleChanged.value) {
+                // Day title has changed, update your UI or perform any other actions
+                // This block will be executed when the day title changes
+                hasDayTitleChanged.value = false // Reset the flag
+            }
+            onDispose { }
+        }
     }
 
     @Composable
@@ -159,6 +174,16 @@ class DaysScreen(
                 { CalendarView(it) },
                 modifier = Modifier.wrapContentWidth(),
                 update = {
+                    if (localDate!=null){
+                        val calendar = Calendar.getInstance()
+                        val chosenDateInMillis: Long = calendar.apply {
+                            set(Calendar.YEAR, localDate.year)
+                            set(Calendar.MONTH, localDate.monthValue-1)
+                            set(Calendar.DAY_OF_MONTH, localDate.dayOfMonth)
+                        }.timeInMillis
+
+                        it.setDate(chosenDateInMillis, false, true)
+                    }
                     it.setOnDateChangeListener { _, year, month, dayOfMonth ->
                         onChangeDate(LocalDate.of(year, month + 1, dayOfMonth))
                     }
@@ -257,7 +282,7 @@ class DaysScreen(
                 .fillMaxSize()
                 .padding(8.dp)
         ) {
-            Text(stringResource(id = R.string.event_list))
+            Text("Event List")
         }
 
         HorizontalDivider()
@@ -357,7 +382,6 @@ class DaysScreen(
 
         }
     }
-
 }
 
 @Composable
@@ -374,8 +398,6 @@ fun getCategoryIcon(category: String): ImageVector {
     }
 }
 
-
-
 @Composable
 fun NoteItem(note: Note?, onNoteClicked: (Note?) -> Unit) {
     Box(
@@ -383,26 +405,27 @@ fun NoteItem(note: Note?, onNoteClicked: (Note?) -> Unit) {
             .fillMaxWidth()
             .border(1.dp, Color.Gray)
             .padding(8.dp)
-            .clickable { onNoteClicked(note) }
-
+            .clickable { onNoteClicked(note)}
     ) {
         Column {
             if (note != null) {
                 Text(
-                    text = "${note.noteTitle}",
+                    text = note.noteTitle,
                     style = TextStyle(fontSize = 18.sp, fontWeight = FontWeight.Bold)
                 )
                 val lines = note.content.lines().take(2)
                 lines.forEachIndexed { index, line ->
                     Text(
                         text = if (index == 1 && lines.size > 1) "$line..." else line,
-                        style = TextStyle(fontSize = 16.sp)
+                        style = TextStyle(fontSize = 16.sp),
+                        maxLines = 1,  // Limit to one line
+                        overflow = TextOverflow.Ellipsis  // Indicate that the text might be truncated
                     )
                 }
             }
             else {
                 Text(
-                    text = stringResource(id = R.string.no_note),
+                    text = "No note available - click to add!",
                     style = TextStyle(fontSize = 18.sp, fontWeight = FontWeight.Bold)
                 )
 
@@ -411,5 +434,3 @@ fun NoteItem(note: Note?, onNoteClicked: (Note?) -> Unit) {
 
     }
 }
-
-

@@ -11,7 +11,6 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
 import com.example.androidapp.database.converter.LocalDateConverter
-import com.example.androidapp.database.model.Note
 import com.example.androidapp.database.viewmodel.DayViewModel
 import com.example.androidapp.database.viewmodel.DayViewModelFactory
 import com.example.androidapp.navigation.CustomBottomNavigation
@@ -69,9 +68,9 @@ private fun NavGraphBuilder.unqirnNavGraph(
             ScreenRoutes.ALL_NOTES,
             AllNotes(
                 mDayViewModel,
-                LocalDate.now()
-            ) { noteId -> onNoteSelected(noteId, null, backStackEntry) },
-            onNavigateToRoute
+                LocalDate.now(),
+                {noteId -> onNoteSelected(noteId, null, backStackEntry) }
+            ){date -> onDaySelected(date, backStackEntry)}, onNavigateToRoute
         )
     }
 
