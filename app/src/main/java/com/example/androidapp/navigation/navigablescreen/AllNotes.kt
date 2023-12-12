@@ -27,11 +27,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.androidapp.R
 import com.example.androidapp.database.model.Note
 import com.example.androidapp.database.viewmodel.DayViewModel
 import com.example.androidapp.ui.theme.Blue
@@ -60,7 +62,7 @@ class AllNotes(
             ) {
                 if (notes.isEmpty()) {
                     Text(
-                        text = "All Notes!",
+                        text = stringResource(id = R.string.all_notes),
                         style = TextStyle(fontSize = 24.sp)
                     )
                 } else {

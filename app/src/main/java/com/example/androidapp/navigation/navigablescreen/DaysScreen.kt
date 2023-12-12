@@ -41,6 +41,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
@@ -50,6 +51,7 @@ import androidx.compose.ui.viewinterop.AndroidView
 import com.example.androidapp.AddBackgroundToComposables
 import com.example.androidapp.HorizontalDivider
 import com.example.androidapp.InlineTextEditor
+import com.example.androidapp.R
 import com.example.androidapp.TextEditorWithPreview
 import com.example.androidapp.database.model.DayEntity
 import com.example.androidapp.database.model.EventEntity
@@ -273,7 +275,8 @@ class DaysScreen(
     ) {
         val eventList =
             mDayViewModel.getEventsByDayId(dayId).observeAsState(initial = listOf()).value
-        val newEventCategory = remember { mutableStateOf("General") }
+        val setUpCategory = stringResource(id = R.string.event_category_general)
+        val newEventCategory = remember { mutableStateOf(setUpCategory) }
         var isEditing by remember { mutableStateOf(false) }
         var isDropdownExpanded by remember { mutableStateOf(false) }
 
@@ -282,7 +285,7 @@ class DaysScreen(
                 .fillMaxSize()
                 .padding(8.dp)
         ) {
-            Text("Event List")
+            Text(stringResource(id = R.string.event_list))
         }
 
         HorizontalDivider()
@@ -311,7 +314,7 @@ class DaysScreen(
                             }
                             DropdownMenuItem(
                                 {
-                                    Text(category.name, Modifier.padding(8.dp))
+                                    Text(text = stringResource(id = category.resourceId), Modifier.padding(8.dp))
                                 },
                                 onClick = {
                                     newEventCategory.value = category.name
@@ -382,6 +385,7 @@ class DaysScreen(
 
         }
     }
+
 }
 
 @Composable
@@ -405,7 +409,7 @@ fun NoteItem(note: Note?, onNoteClicked: (Note?) -> Unit) {
             .fillMaxWidth()
             .border(1.dp, Color.Gray)
             .padding(8.dp)
-            .clickable { onNoteClicked(note)}
+            .clickable { onNoteClicked(note) }
     ) {
         Column {
             if (note != null) {
@@ -425,7 +429,7 @@ fun NoteItem(note: Note?, onNoteClicked: (Note?) -> Unit) {
             }
             else {
                 Text(
-                    text = "No note available - click to add!",
+                    text = stringResource(id = R.string.no_note),
                     style = TextStyle(fontSize = 18.sp, fontWeight = FontWeight.Bold)
                 )
 

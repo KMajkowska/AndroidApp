@@ -130,6 +130,7 @@ class SettingsScreen: NavigableScreen() {
 
         val intent = Intent("com.example.androidapp.LANGUAGE_CHANGED")
         context.sendBroadcast(intent)
+
     }
 
 }
