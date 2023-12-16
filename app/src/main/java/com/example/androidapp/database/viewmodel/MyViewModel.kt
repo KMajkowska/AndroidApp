@@ -22,8 +22,7 @@ import java.time.LocalDate
 
 class DayViewModel(application: Application) : AndroidViewModel(application) {
 
-    private val myDao: MyDao = MyDatabaseConnection.getDatabase(application).myDao()
-    private val repository: MyRepository = MyRepository(myDao)
+    private val repository: MyRepository = MyRepository(MyDatabaseConnection.getDatabase(application).myDao())
 
     val allDayEntitiesSortedByDate: LiveData<List<DayEntity>> =
         repository.allDayEntitiesSortedByDate
@@ -41,7 +40,7 @@ class DayViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
-    fun deleteDayEntity(dayEntity: DayEntity) {
+    private fun deleteDayEntity(dayEntity: DayEntity) {
         viewModelScope.launch(Dispatchers.IO) {
             repository.deleteDayEntity(dayEntity)
         }
@@ -64,7 +63,6 @@ class DayViewModel(application: Application) : AndroidViewModel(application) {
             }
         }
     }
-
 
     fun saveTodoEntity(todoEntity: TodoEntity) {
         viewModelScope.launch(Dispatchers.IO) {

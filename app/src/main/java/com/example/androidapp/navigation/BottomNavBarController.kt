@@ -36,6 +36,8 @@ object ScreenRoutes {
     const val DAYS = "days"
     const val SETTINGS = "settings"
     const val CREATE_NOTE = "createNote"
+    const val IMPORT_PICKER = "importPicker"
+    const val BACKUP_PICKER = "backupPicker"
 }
 
 enum class NavItem(
@@ -96,7 +98,7 @@ fun rememberNavHostController(
 
 @Stable
 class BottomNavBarController(val navController: NavHostController) {
-    val currentRoute: String?
+    private val currentRoute: String?
         get() = navController.currentDestination?.route
 
     fun upPress() {
@@ -106,17 +108,8 @@ class BottomNavBarController(val navController: NavHostController) {
     private val localDateConverter = LocalDateConverter()
 
     fun navigateToBottomBarRoute(route: String) {
-        if (route != currentRoute) {
-            navController.navigate(route) {
-                launchSingleTop = true
-                restoreState = true
-                // Pop up backstack to the first destination and save state. This makes going back
-                // to the start destination when pressing back in any other bottom tab.
-//                popUpTo(findStartDestination(navController.graph).id) {
-//                    saveState = true
-//                }
-            }
-        }
+        if (route != currentRoute)
+            navController.navigate(route)
     }
 
     fun navigateToDayDetail(localDate: LocalDate, from: NavBackStackEntry) {
@@ -130,7 +123,6 @@ class BottomNavBarController(val navController: NavHostController) {
                 "${ScreenRoutes.CREATE_NOTE}?noteId=$noteId" +
                         if (localDate == null) "" else "&localDate=${localDateConverter.fromLocalDate(localDate)}"
             )
-
     }
 }
 

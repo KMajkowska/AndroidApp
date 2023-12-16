@@ -26,6 +26,12 @@
             android:name=".navigation.navigablescreen.NavigableScreen"
             android:exported="false" />
         <activity
+            android:name=".navigation.navigablescreen.CreateNote"
+            android:exported="false" />
+        <activity
+            android:name=".navigation.navigablescreen.FilePicker"
+            android:exported="false" />
+        <activity
             android:name=".navigation.navigablescreen.AllNotes"
             android:exported="false" />
         <activity
@@ -48,22 +54,11 @@
             android:name=".authorizationscreen.RestorePassword"
             android:exported="false" />
         <activity
-            android:name=".navigation.navigablescreen.CreateNote"
-            android:exported="false" />
-        <activity
             android:name=".navigation.navigablescreen.DaysScreen"
             android:exported="false" />
         <activity
             android:name=".navigation.navigablescreen.CalendarScreen"
             android:exported="false" />
-        <activity
-            android:name=".navigablescreen.CreateToDo"
-            android:exported="true" >
-<!--                <intent-filter>-->
-<!--                    <action android:name="android.intent.action.MAIN" />-->
-<!--                    <category android:name="android.intent.category.LAUNCHER" />-->
-<!--                </intent-filter>-->
-        </activity>
     </application>
 
 </manifest>
