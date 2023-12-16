@@ -1,5 +1,6 @@
 package com.example.androidapp.navigation.navigablescreen
 
+import android.view.ViewGroup
 import android.widget.CalendarView
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -12,7 +13,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
@@ -167,32 +167,39 @@ class DaysScreen(
 
     @Composable
     fun View(onChangeDate: (LocalDate) -> Unit) {
-        Row(
-            modifier = Modifier.padding(6.dp),
-            verticalAlignment = Alignment.Top
-        ) {
+        LazyColumn(modifier = Modifier.fillMaxSize()){
+            item{
+                AndroidView(
+                    factory = { context ->
+                        CalendarView(context).apply {
+                            layoutParams = ViewGroup.LayoutParams(
+                                ViewGroup.LayoutParams.MATCH_PARENT,
+                                ViewGroup.LayoutParams.MATCH_PARENT
+                            )
+                        }
+                    },
+                    modifier = Modifier.fillMaxSize(),
+                    update = {
+                        if (localDate != null) {
+                            val calendar = Calendar.getInstance()
+                            val chosenDateInMillis: Long = calendar.apply {
+                                set(Calendar.YEAR, localDate.year)
+                                set(Calendar.MONTH, localDate.monthValue - 1)
+                                set(Calendar.DAY_OF_MONTH, localDate.dayOfMonth)
+                            }.timeInMillis
 
-            AndroidView(
-                { CalendarView(it) },
-                modifier = Modifier.wrapContentWidth(),
-                update = {
-                    if (localDate!=null){
-                        val calendar = Calendar.getInstance()
-                        val chosenDateInMillis: Long = calendar.apply {
-                            set(Calendar.YEAR, localDate.year)
-                            set(Calendar.MONTH, localDate.monthValue-1)
-                            set(Calendar.DAY_OF_MONTH, localDate.dayOfMonth)
-                        }.timeInMillis
-
-                        it.setDate(chosenDateInMillis, false, true)
+                            it.setDate(chosenDateInMillis, false, true)
+                        }
+                        it.setOnDateChangeListener { _, year, month, dayOfMonth ->
+                            onChangeDate(LocalDate.of(year, month + 1, dayOfMonth))
+                        }
                     }
-                    it.setOnDateChangeListener { _, year, month, dayOfMonth ->
-                        onChangeDate(LocalDate.of(year, month + 1, dayOfMonth))
-                    }
-                }
-            )
+                )
+            }
         }
     }
+
+
 
     @Composable
     fun ToDoView(
