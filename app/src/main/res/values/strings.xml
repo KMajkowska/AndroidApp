@@ -37,4 +37,5 @@
     <string name="days">Days</string>
     <string name="apply_language">Apply language</string>
     <string name="change_mode">Change mode</string>
+    <string name="pop_up_window">"Do you want to save the changes in the note?"</string>
 </resources>

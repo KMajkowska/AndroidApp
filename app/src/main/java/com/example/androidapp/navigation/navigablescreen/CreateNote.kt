@@ -224,12 +224,12 @@ fun CloseNotePopUp(upPress: () -> Unit, onSaveChanges: () -> Unit, onDismiss: ()
     AlertDialog(
         onDismissRequest = { onDismiss() },
         title = {
-            Text("Do you want to save the changes in the note?")
+            Text(stringResource(id = R.string.pop_up_window))
         },
         confirmButton = {
             Button(
                 onClick = {
-                    onSaveChanges()
+                    onSaveChanges()git
                     upPress()
                     onDismiss()
                 },

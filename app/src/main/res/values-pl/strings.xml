@@ -37,4 +37,5 @@
     <string name="days">Dni</string>
     <string name="apply_language">Zmień język</string>
     <string name="change_mode">Zmień motyw</string>
+    <string name="pop_up_window">Czy chcesz zapisać zmiany?</string>
 </resources>
