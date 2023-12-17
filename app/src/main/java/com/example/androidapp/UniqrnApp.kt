@@ -2,8 +2,6 @@ package com.example.androidapp
 
 import android.app.Application
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavBackStackEntry
@@ -13,6 +11,8 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
 import com.example.androidapp.database.converter.LocalDateConverter
+import com.example.androidapp.database.importDatabase
+import com.example.androidapp.database.performBackup
 import com.example.androidapp.database.viewmodel.DayViewModel
 import com.example.androidapp.database.viewmodel.DayViewModelFactory
 import com.example.androidapp.navigation.CustomBottomNavigation
@@ -22,10 +22,9 @@ import com.example.androidapp.navigation.navigablescreen.AllNotes
 import com.example.androidapp.navigation.navigablescreen.CalendarScreen
 import com.example.androidapp.navigation.navigablescreen.CreateNote
 import com.example.androidapp.navigation.navigablescreen.DaysScreen
+import com.example.androidapp.navigation.navigablescreen.FilePicker
 import com.example.androidapp.navigation.navigablescreen.SettingsScreen
 import com.example.androidapp.navigation.rememberNavHostController
-import com.example.androidapp.ui.theme.AndroidAppTheme
-import com.example.androidapp.ui.theme.LanguageAwareScreen
 import java.time.LocalDate
 
 @Composable
@@ -35,25 +34,17 @@ fun UniqrnApp() {
         factory = DayViewModelFactory(LocalContext.current.applicationContext as Application)
     )
 
-    val themeViewModel: DayViewModel = viewModel()
-    val selectedLanguage by themeViewModel.selectedLanguage.observeAsState("en")
-    val isDarkTheme by themeViewModel.isDarkTheme.observeAsState(true)
-
-    AndroidAppTheme(isDarkTheme) {
-        LanguageAwareScreen(selectedLanguage) {
-            NavHost(
-                navController = navController.navController,
-                startDestination = ScreenRoutes.ALL_NOTES
-            ) {
-                unqirnNavGraph(
-                    onDaySelected = navController::navigateToDayDetail,
-                    onNoteSelected = navController::navigateToNoteEditor,
-                    upPress = navController::upPress,
-                    onNavigateToRoute = navController::navigateToBottomBarRoute,
-                    mDayViewModel = mDayViewModel
-                )
-            }
-        }
+    NavHost(
+        navController = navController.navController,
+        startDestination = ScreenRoutes.ALL_NOTES
+    ) {
+        unqirnNavGraph(
+            onDaySelected = navController::navigateToDayDetail,
+            onNoteSelected = navController::navigateToNoteEditor,
+            upPress = navController::upPress,
+            onNavigateToRoute = navController::navigateToBottomBarRoute,
+            mDayViewModel = mDayViewModel
+        )
     }
 }
 
@@ -81,8 +72,8 @@ private fun NavGraphBuilder.unqirnNavGraph(
             AllNotes(
                 mDayViewModel,
                 LocalDate.now(),
-                {noteId -> onNoteSelected(noteId, null, backStackEntry) }
-            ){date -> onDaySelected(date, backStackEntry)}, onNavigateToRoute
+                { noteId -> onNoteSelected(noteId, null, backStackEntry) }
+            ) { date -> onDaySelected(date, backStackEntry) }, onNavigateToRoute
         )
     }
 
@@ -128,9 +119,7 @@ private fun NavGraphBuilder.unqirnNavGraph(
         CustomBottomNavigation(
             tabs,
             ScreenRoutes.SETTINGS,
-            SettingsScreen(
-                mDayViewModel
-            ),
+            SettingsScreen (onNavigateToRoute),
             onNavigateToRoute
         )
     }
@@ -159,6 +148,24 @@ private fun NavGraphBuilder.unqirnNavGraph(
         )
             .ViewWithBackground()
     }
+
+    composable(route = ScreenRoutes.IMPORT_PICKER) { _ ->
+        FilePicker(
+            onFilePicked = { uri, context ->
+                importDatabase(context, uri)
+            },
+            upPress = upPress,
+            isExport = false
+        ).ViewWithBackground()
+    }
+
+    composable(route = ScreenRoutes.BACKUP_PICKER) { _ ->
+        FilePicker(
+            onFilePicked = { uri, context ->
+                performBackup(context, uri)
+            },
+            upPress = upPress,
+            isExport = true
+        ).ViewWithBackground()
+    }
 }
-
-
