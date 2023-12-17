@@ -2,6 +2,8 @@ package com.example.androidapp
 
 import android.app.Application
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavBackStackEntry
@@ -25,6 +27,8 @@ import com.example.androidapp.navigation.navigablescreen.DaysScreen
 import com.example.androidapp.navigation.navigablescreen.FilePicker
 import com.example.androidapp.navigation.navigablescreen.SettingsScreen
 import com.example.androidapp.navigation.rememberNavHostController
+import com.example.androidapp.ui.theme.AndroidAppTheme
+import com.example.androidapp.ui.theme.LanguageAwareScreen
 import java.time.LocalDate
 
 @Composable
@@ -34,17 +38,25 @@ fun UniqrnApp() {
         factory = DayViewModelFactory(LocalContext.current.applicationContext as Application)
     )
 
-    NavHost(
-        navController = navController.navController,
-        startDestination = ScreenRoutes.ALL_NOTES
-    ) {
-        unqirnNavGraph(
-            onDaySelected = navController::navigateToDayDetail,
-            onNoteSelected = navController::navigateToNoteEditor,
-            upPress = navController::upPress,
-            onNavigateToRoute = navController::navigateToBottomBarRoute,
-            mDayViewModel = mDayViewModel
-        )
+    val themeViewModel: DayViewModel = viewModel()
+    val selectedLanguage by themeViewModel.selectedLanguage.observeAsState("en")
+    val isDarkTheme by themeViewModel.isDarkTheme.observeAsState(true)
+
+    AndroidAppTheme(isDarkTheme) {
+        LanguageAwareScreen(selectedLanguage) {
+            NavHost(
+                navController = navController.navController,
+                startDestination = ScreenRoutes.ALL_NOTES
+            ) {
+                unqirnNavGraph(
+                    onDaySelected = navController::navigateToDayDetail,
+                    onNoteSelected = navController::navigateToNoteEditor,
+                    upPress = navController::upPress,
+                    onNavigateToRoute = navController::navigateToBottomBarRoute,
+                    mDayViewModel = mDayViewModel
+                )
+            }
+        }
     }
 }
 
@@ -119,7 +131,7 @@ private fun NavGraphBuilder.unqirnNavGraph(
         CustomBottomNavigation(
             tabs,
             ScreenRoutes.SETTINGS,
-            SettingsScreen (onNavigateToRoute),
+            SettingsScreen (mDayViewModel, onNavigateToRoute),
             onNavigateToRoute
         )
     }

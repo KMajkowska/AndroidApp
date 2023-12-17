@@ -3,11 +3,11 @@ package com.example.androidapp.database.viewmodel
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.example.androidapp.database.MyDatabaseConnection
-import com.example.androidapp.database.dao.MyDao
 import com.example.androidapp.database.model.DayEntity
 import com.example.androidapp.database.model.DayWithTodosAndEvents
 import com.example.androidapp.database.model.EventEntity
@@ -31,6 +31,20 @@ class DayViewModel(application: Application) : AndroidViewModel(application) {
     val allTodoEntities: LiveData<List<TodoEntity>> = repository.allTodoEntities
     val allEventEntities: LiveData<List<EventEntity>> = repository.allEventEntities
     val allNotes: LiveData<List<Note>> = repository.allNotes
+
+    private val _selectedLanguage = MutableLiveData<String>()
+    val selectedLanguage: LiveData<String> = _selectedLanguage
+
+    private val _isDarkTheme = MutableLiveData<Boolean>(false)
+    val isDarkTheme: LiveData<Boolean> = _isDarkTheme
+
+    fun setLanguage(language: String) {
+        _selectedLanguage.value = language
+    }
+
+    fun toggleTheme(isDark: Boolean) {
+        _isDarkTheme.value = isDark
+    }
 
     fun saveDayEntity(dayEntity: DayEntity) {
         return runBlocking {

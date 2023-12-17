@@ -1,8 +1,8 @@
 package com.example.androidapp.navigation.navigablescreen
 
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Text
@@ -11,10 +11,13 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.example.androidapp.DropDown
 import com.example.androidapp.HorizontalDivider
+import com.example.androidapp.R
 import com.example.androidapp.Toggle
+import com.example.androidapp.database.viewmodel.DayViewModel
 import com.example.androidapp.navigation.ScreenRoutes
 import com.example.androidapp.settings.FontSizeEnum
 import com.example.androidapp.settings.LanguageEnum
@@ -29,7 +32,7 @@ val fonts = SupportedFontEnum.entries.toTypedArray()
 val fontSizes = FontSizeEnum.entries.toTypedArray()
 val sortOptions = NoteSortOptionEnum.entries.toTypedArray()
 
-class SettingsScreen(private val navigateToFilePicker: (String) -> Unit): NavigableScreen() {
+class SettingsScreen(private val mDayViewModel: DayViewModel, private val navigateToFilePicker: (String) -> Unit): NavigableScreen() {
 
     // TODO: Add actual states of the application, make selecting actually call functions
     @Composable
@@ -41,57 +44,78 @@ class SettingsScreen(private val navigateToFilePicker: (String) -> Unit): Naviga
         val selectedFontSize = remember { mutableStateOf(fontSizes.first()) }
         val unicornModeEnabled = remember { mutableStateOf(false) }
         val selectedSortOption = remember { mutableStateOf(sortOptions.first()) }
-        Column(
+
+        LazyColumn(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(8.dp)
         ) {
-            DropDown(
-                dropdownName = "Language",
-                allOptions = languages,
-                selectedValueModifierFunction = selectedLanguage
-            )
+            item {
+                DropDown(
+                    dropdownName = stringResource(id = R.string.language),
+                    allOptions = languages,
+                    selectedValueModifierFunction = selectedLanguage
+                )
 
-            HorizontalDivider()
-            Toggle(toggleOption = notificationsEnabled, text = "Notifications")
+                Button(onClick = {
+                    mDayViewModel.setLanguage(selectedLanguage.value.code)
+                }) {
+                    Text(stringResource(id = R.string.apply_language))
+                }
 
-            HorizontalDivider()
-            DropDown(
-                dropdownName = "Modes",
-                allOptions = modes,
-                selectedValueModifierFunction = selectedMode
-            )
+                HorizontalDivider()
+                Toggle(toggleOption = notificationsEnabled, text = stringResource(id = R.string.notification))
 
-            HorizontalDivider()
-            DropDown(
-                dropdownName = "Font",
-                allOptions = fonts,
-                selectedValueModifierFunction = selectedFont
-            )
+                HorizontalDivider()
+                DropDown(
+                    dropdownName = stringResource(id = R.string.modes),
+                    allOptions = modes,
+                    selectedValueModifierFunction = selectedMode
+                )
 
-            HorizontalDivider()
-            DropDown(
-                dropdownName = "Font size",
-                allOptions = fontSizes,
-                selectedValueModifierFunction = selectedFontSize
-            )
 
-            HorizontalDivider()
-            DropDown(
-                dropdownName = "Sort option",
-                allOptions = sortOptions,
-                selectedValueModifierFunction = selectedSortOption
-            )
+                Button(onClick = {
+                    if(selectedMode.value.name == "DARK")
+                        mDayViewModel.toggleTheme(true)
+                    else
+                        mDayViewModel.toggleTheme(false)
+                }) {
+                    Text(stringResource(id = R.string.change_mode))
+                }
 
-            HorizontalDivider()
-            Toggle(toggleOption = unicornModeEnabled, text = "Unicorn mode")
 
-            HorizontalDivider()
-            BackupImportDialog(navigateToFilePicker)
+                HorizontalDivider()
+                DropDown(
+                    dropdownName = stringResource(id = R.string.font),
+                    allOptions = fonts,
+                    selectedValueModifierFunction = selectedFont
+                )
 
+                HorizontalDivider()
+                DropDown(
+                    dropdownName = stringResource(id = R.string.font_size),
+                    allOptions = fontSizes,
+                    selectedValueModifierFunction = selectedFontSize
+                )
+
+                HorizontalDivider()
+                DropDown(
+                    dropdownName = stringResource(id = R.string.sort_option),
+                    allOptions = sortOptions,
+                    selectedValueModifierFunction = selectedSortOption
+                )
+
+                HorizontalDivider()
+                Toggle(toggleOption = unicornModeEnabled, text = stringResource(id = R.string.unicorn))
+
+                HorizontalDivider()
+                BackupImportDialog(navigateToFilePicker)
+            }
         }
+
     }
 }
+
 
 @Composable
 fun BackupImportDialog(navigateTo: (String) -> Unit) {
