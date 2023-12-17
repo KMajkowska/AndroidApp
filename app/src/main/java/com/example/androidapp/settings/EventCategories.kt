@@ -3,6 +3,7 @@ package com.example.androidapp.settings
 import com.example.androidapp.R
 
 enum class EventCategories(val resourceId: Int) {
+
     GENERAL(R.string.event_category_general),
     PARTY(R.string.event_category_party),
     MEETING(R.string.event_category_meeting),

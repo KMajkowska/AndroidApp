@@ -41,6 +41,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -286,6 +287,7 @@ class DaysScreen(
         val newEventCategory = remember { mutableStateOf(setUpCategory) }
         var isEditing by remember { mutableStateOf(false) }
         var isDropdownExpanded by remember { mutableStateOf(false) }
+        val context = LocalContext.current
 
         Column(
             modifier = Modifier
@@ -321,11 +323,13 @@ class DaysScreen(
                             }
                             DropdownMenuItem(
                                 {
-                                    Text(text = stringResource(id = category.resourceId), Modifier.padding(8.dp))
+                                    Text(
+                                        text = stringResource(id = category.resourceId),
+                                        Modifier.padding(8.dp)
+                                    )
                                 },
                                 onClick = {
-                                    newEventCategory.value = category.name
-                                    hasDayEntityBeenChanged.value = true
+                                    newEventCategory.value = context.getString(category.resourceId)
                                     isDropdownExpanded = false
                                 }
                             )

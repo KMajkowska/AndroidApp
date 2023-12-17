@@ -3,6 +3,7 @@ package com.example.androidapp.database.viewmodel
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
@@ -24,6 +25,19 @@ class DayViewModel(application: Application) : AndroidViewModel(application) {
 
     private val myDao: MyDao = MyDatabaseConnection.getDatabase(application).myDao()
     private val repository: MyRepository = MyRepository(myDao)
+    private val _selectedLanguage = MutableLiveData<String>()
+    val selectedLanguage: LiveData<String> = _selectedLanguage
+
+    private val _isDarkTheme = MutableLiveData<Boolean>(false)
+    val isDarkTheme: LiveData<Boolean> = _isDarkTheme
+
+    fun setLanguage(language: String) {
+        _selectedLanguage.value = language
+    }
+
+    fun toggleTheme(isDark: Boolean) {
+        _isDarkTheme.value = isDark
+    }
 
     val allDayEntitiesSortedByDate: LiveData<List<DayEntity>> =
         repository.allDayEntitiesSortedByDate

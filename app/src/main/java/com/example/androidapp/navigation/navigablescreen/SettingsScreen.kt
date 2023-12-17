@@ -1,8 +1,5 @@
 package com.example.androidapp.navigation.navigablescreen
 
-import android.content.Context
-import android.content.Intent
-import android.content.SharedPreferences
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
@@ -12,7 +9,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.example.androidapp.Dialog
@@ -20,12 +16,12 @@ import com.example.androidapp.DropDown
 import com.example.androidapp.HorizontalDivider
 import com.example.androidapp.R
 import com.example.androidapp.Toggle
+import com.example.androidapp.database.viewmodel.DayViewModel
 import com.example.androidapp.settings.FontSizeEnum
 import com.example.androidapp.settings.LanguageEnum
 import com.example.androidapp.settings.NoteSortOptionEnum
 import com.example.androidapp.settings.StyleModeEnum
 import com.example.androidapp.settings.SupportedFontEnum
-import java.util.Locale
 
 
 val languages = LanguageEnum.values()
@@ -34,7 +30,7 @@ val fonts = SupportedFontEnum.values()
 val fontSizes = FontSizeEnum.values()
 val sortOptions = NoteSortOptionEnum.values()
 
-class SettingsScreen: NavigableScreen() {
+class SettingsScreen(private val mDayViewModel : DayViewModel): NavigableScreen() {
 
     // TODO: Add actual states of the application, make selecting actually call functions
     @Composable
@@ -46,9 +42,6 @@ class SettingsScreen: NavigableScreen() {
         val selectedFontSize = remember { mutableStateOf(fontSizes.first()) }
         val unicornModeEnabled = remember { mutableStateOf(false) }
         val selectedSortOption = remember { mutableStateOf(sortOptions.first()) }
-
-        val context = LocalContext.current
-        val sharedPreferences = context.getSharedPreferences("My_Lang", Context.MODE_PRIVATE)
 
         LazyColumn(
             modifier = Modifier
@@ -63,7 +56,7 @@ class SettingsScreen: NavigableScreen() {
                 )
 
                 Button(onClick = {
-                    setLocaleLang(selectedLanguage.value.code, context, sharedPreferences)
+                    mDayViewModel.setLanguage(selectedLanguage.value.code)
                 }) {
                     Text(stringResource(id = R.string.apply_language))
                 }
@@ -77,6 +70,17 @@ class SettingsScreen: NavigableScreen() {
                     allOptions = modes,
                     selectedValueModifierFunction = selectedMode
                 )
+
+
+                Button(onClick = {
+                    if(selectedMode.value.name == "DARK")
+                        mDayViewModel.toggleTheme(true)
+                    else
+                        mDayViewModel.toggleTheme(false)
+                }) {
+                    Text(stringResource(id = R.string.change_mode))
+                }
+
 
                 HorizontalDivider()
                 DropDown(
@@ -114,23 +118,4 @@ class SettingsScreen: NavigableScreen() {
         }
 
     }
-
-    private fun setLocaleLang(lang: String, context: Context, sharedPreferences: SharedPreferences) {
-        val locale = Locale(lang)
-        Locale.setDefault(locale)
-
-        val resources = context.resources
-        val configuration = resources.configuration
-        configuration.setLocale(locale)
-        resources.updateConfiguration(configuration, resources.displayMetrics)
-
-        val editor = sharedPreferences.edit()
-        editor.putString("My_Lang", lang)
-        editor.apply()
-
-        val intent = Intent("com.example.androidapp.LANGUAGE_CHANGED")
-        context.sendBroadcast(intent)
-
-    }
-
 }

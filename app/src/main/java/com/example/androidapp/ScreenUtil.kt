@@ -23,6 +23,7 @@ import androidx.compose.material3.Divider
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -60,7 +61,7 @@ fun AddBackgroundToComposables(vararg composables: @Composable () -> Unit) {
                 Card(
                     shape = RoundedCornerShape(8.dp),
                     colors = CardDefaults.cardColors(
-                        containerColor = Color.White
+                        containerColor = MaterialTheme.colorScheme.surface
                     ),
                     modifier = Modifier
                         .fillMaxSize()

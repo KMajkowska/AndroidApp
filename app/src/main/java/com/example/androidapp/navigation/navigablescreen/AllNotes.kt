@@ -43,10 +43,11 @@ class AllNotes(
     private val mDayViewModel: DayViewModel,
     private val localDate: LocalDate,
     private val onNoteClick: (Long) -> Unit,
-    private val onCalendarClick: (LocalDate) -> Unit
+    private val onCalendarClick: (LocalDate) -> Unit,
    ) : NavigableScreen() {
 
-    @Composable
+
+@Composable
     override fun View() {
         val notes = mDayViewModel.allNotes.observeAsState(initial = listOf()).value
 

@@ -36,4 +36,5 @@
     <string name="settings">Ustawienia</string>
     <string name="days">Dni</string>
     <string name="apply_language">Zmień język</string>
+    <string name="change_mode">Zmień motyw</string>
 </resources>
