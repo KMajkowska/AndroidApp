@@ -181,16 +181,14 @@ class DaysScreen(
                     },
                     modifier = Modifier.fillMaxSize(),
                     update = {
-                        if (localDate != null) {
-                            val calendar = Calendar.getInstance()
-                            val chosenDateInMillis: Long = calendar.apply {
-                                set(Calendar.YEAR, localDate.year)
-                                set(Calendar.MONTH, localDate.monthValue - 1)
-                                set(Calendar.DAY_OF_MONTH, localDate.dayOfMonth)
-                            }.timeInMillis
+                        val calendar = Calendar.getInstance()
+                        val chosenDateInMillis: Long = calendar.apply {
+                            set(Calendar.YEAR, localDate.year)
+                            set(Calendar.MONTH, localDate.monthValue - 1)
+                            set(Calendar.DAY_OF_MONTH, localDate.dayOfMonth)
+                        }.timeInMillis
 
-                            it.setDate(chosenDateInMillis, false, true)
-                        }
+                        it.setDate(chosenDateInMillis, false, true)
                         it.setOnDateChangeListener { _, year, month, dayOfMonth ->
                             onChangeDate(LocalDate.of(year, month + 1, dayOfMonth))
                         }
@@ -299,7 +297,7 @@ class DaysScreen(
 
         HorizontalDivider()
 
-        val categoryList = EventCategories.values()
+        val categoryList = EventCategories.entries.toTypedArray()
         if (isEditing) {
             Row(
                 verticalAlignment = Alignment.CenterVertically,

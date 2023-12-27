@@ -54,6 +54,7 @@ android {
 
 dependencies {
 
+    implementation("com.google.code.gson:gson:2.10")
     implementation("androidx.room:room-runtime:2.6.1")
     implementation("androidx.room:room-ktx:2.6.1")
     implementation("androidx.compose.runtime:runtime-livedata:1.5.4")

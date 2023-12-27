@@ -3,12 +3,14 @@ package com.example.androidapp.database.model
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey
+import com.google.gson.annotations.Expose
 import java.time.LocalDate
 
-@Entity(tableName="notes")
+@Entity(tableName = "notes")
 data class Note(
+    @Expose(serialize = false)
     @PrimaryKey(autoGenerate = true)
-    val noteId: Long=0,
+    var noteId: Long? = 0,
     val noteTitle: String = "",
     val content: String = "",
     var noteDate:LocalDate? = null,

@@ -22,7 +22,12 @@ import java.time.LocalDate
 
 class DayViewModel(application: Application) : AndroidViewModel(application) {
 
-    private val repository: MyRepository = MyRepository(MyDatabaseConnection.getDatabase(application).myDao())
+    private val repository: MyRepository = MyRepository(
+        MyDatabaseConnection.getDatabase(application).dayDao(),
+        MyDatabaseConnection.getDatabase(application).eventDao(),
+        MyDatabaseConnection.getDatabase(application).noteDao(),
+        MyDatabaseConnection.getDatabase(application).todoDao()
+    )
 
     val allDayEntitiesSortedByDate: LiveData<List<DayEntity>> =
         repository.allDayEntitiesSortedByDate
@@ -90,7 +95,7 @@ class DayViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
-    private fun getInnerDayByDate(date: LocalDate): DayEntity? {
+    fun getInnerDayByDate(date: LocalDate): DayEntity? {
         return runBlocking {
             withContext(Dispatchers.IO) {
                 repository.getDayByDate(date)
@@ -120,75 +125,75 @@ class DayViewModel(application: Application) : AndroidViewModel(application) {
     }
 
 
-        fun updateNote(note: Note) {
-            viewModelScope.launch(Dispatchers.IO) {
-                repository.updateNote(note)
-            }
-        }
-
-        fun deleteNote(note: Note) {
-            viewModelScope.launch(Dispatchers.IO) {
-                repository.deleteNote(note)
-            }
-        }
-
-        fun getNoteById(id: Long): Note? {
-            return runBlocking {
-                withContext(Dispatchers.IO) {
-                    repository.getNoteById(id)
-                }
-            }
-        }
-
-
-        fun getEventsByDayId(dayId: Long): LiveData<List<EventEntity>> {
-            return runBlocking {
-                withContext(Dispatchers.IO) {
-                    repository.getEventsByDayId(dayId)
-                }
-            }
-        }
-
-        fun getTodosByDayId(dayId: Long): LiveData<List<TodoEntity>> {
-            return runBlocking {
-                withContext(Dispatchers.IO) {
-                    repository.getTodosByDayId(dayId)
-                }
-            }
-        }
-
-        private fun getDayIdWithRelated(dayId: Long): DayWithTodosAndEvents? {
-            return runBlocking {
-                withContext(Dispatchers.IO) {
-                    repository.getDayIdWithRelated(dayId)
-                }
-            }
-        }
-
-        fun insertTodo(todo: TodoEntity) {
-            viewModelScope.launch {
-                repository.addNewTodo(todo)
-            }
-        }
-
-        fun deleteDayEntityIfEmpty(dayId: Long) {
-            val temp: DayWithTodosAndEvents? = getDayIdWithRelated(dayId)
-            if (temp?.events?.isEmpty() == true &&
-                temp.todos.isEmpty() &&
-                temp.dayEntity.dayTitle.trim().isEmpty()
-            )
-                deleteDayEntity(temp.dayEntity)
-        }
-
-    }
-
-    class DayViewModelFactory(private val application: Application) : ViewModelProvider.Factory {
-
-        override fun <T : ViewModel> create(modelClass: Class<T>): T {
-            if (modelClass.isAssignableFrom(DayViewModel::class.java)) {
-                @Suppress("UNCHECKED_CAST")
-                return DayViewModel(application) as T
-            }
-            throw IllegalArgumentException("Unknown ViewModel class")
+    fun updateNote(note: Note) {
+        viewModelScope.launch(Dispatchers.IO) {
+            repository.updateNote(note)
         }
     }
+
+    fun deleteNote(note: Note) {
+        viewModelScope.launch(Dispatchers.IO) {
+            repository.deleteNote(note)
+        }
+    }
+
+    fun getNoteById(id: Long): Note? {
+        return runBlocking {
+            withContext(Dispatchers.IO) {
+                repository.getNoteById(id)
+            }
+        }
+    }
+
+
+    fun getEventsByDayId(dayId: Long): LiveData<List<EventEntity>> {
+        return runBlocking {
+            withContext(Dispatchers.IO) {
+                repository.getEventsByDayId(dayId)
+            }
+        }
+    }
+
+    fun getTodosByDayId(dayId: Long): LiveData<List<TodoEntity>> {
+        return runBlocking {
+            withContext(Dispatchers.IO) {
+                repository.getTodosByDayId(dayId)
+            }
+        }
+    }
+
+    private fun getDayIdWithRelated(dayId: Long): DayWithTodosAndEvents? {
+        return runBlocking {
+            withContext(Dispatchers.IO) {
+                repository.getDayIdWithRelated(dayId)
+            }
+        }
+    }
+
+    fun insertTodo(todo: TodoEntity) {
+        viewModelScope.launch {
+            repository.addNewTodo(todo)
+        }
+    }
+
+    fun deleteDayEntityIfEmpty(dayId: Long) {
+        val temp: DayWithTodosAndEvents? = getDayIdWithRelated(dayId)
+        if (temp?.events?.isEmpty() == true &&
+            temp.todos.isEmpty() &&
+            temp.dayEntity.dayTitle.trim().isEmpty()
+        )
+            deleteDayEntity(temp.dayEntity)
+    }
+
+}
+
+class DayViewModelFactory(private val application: Application) : ViewModelProvider.Factory {
+
+    override fun <T : ViewModel> create(modelClass: Class<T>): T {
+        if (modelClass.isAssignableFrom(DayViewModel::class.java)) {
+            @Suppress("UNCHECKED_CAST")
+            return DayViewModel(application) as T
+        }
+        throw IllegalArgumentException("Unknown ViewModel class")
+    }
+}

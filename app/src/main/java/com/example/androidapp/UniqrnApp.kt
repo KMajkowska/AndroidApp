@@ -13,8 +13,6 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
 import com.example.androidapp.database.converter.LocalDateConverter
-import com.example.androidapp.database.importDatabase
-import com.example.androidapp.database.performBackup
 import com.example.androidapp.database.viewmodel.DayViewModel
 import com.example.androidapp.database.viewmodel.DayViewModelFactory
 import com.example.androidapp.navigation.CustomBottomNavigation
@@ -131,7 +129,7 @@ private fun NavGraphBuilder.unqirnNavGraph(
         CustomBottomNavigation(
             tabs,
             ScreenRoutes.SETTINGS,
-            SettingsScreen (mDayViewModel, onNavigateToRoute),
+            SettingsScreen(mDayViewModel, onNavigateToRoute),
             onNavigateToRoute
         )
     }
@@ -163,9 +161,7 @@ private fun NavGraphBuilder.unqirnNavGraph(
 
     composable(route = ScreenRoutes.IMPORT_PICKER) { _ ->
         FilePicker(
-            onFilePicked = { uri, context ->
-                importDatabase(context, uri)
-            },
+            mDayViewModel = mDayViewModel,
             upPress = upPress,
             isExport = false
         ).ViewWithBackground()
@@ -173,9 +169,8 @@ private fun NavGraphBuilder.unqirnNavGraph(
 
     composable(route = ScreenRoutes.BACKUP_PICKER) { _ ->
         FilePicker(
-            onFilePicked = { uri, context ->
-                performBackup(context, uri)
-            },
+            mDayViewModel = mDayViewModel,
+
             upPress = upPress,
             isExport = true
         ).ViewWithBackground()

@@ -1,7 +1,10 @@
 package com.example.androidapp.database.repository
 
 import androidx.lifecycle.LiveData
-import com.example.androidapp.database.dao.MyDao
+import com.example.androidapp.database.dao.DayDao
+import com.example.androidapp.database.dao.EventDao
+import com.example.androidapp.database.dao.NoteDao
+import com.example.androidapp.database.dao.TodoDao
 import com.example.androidapp.database.model.DayEntity
 import com.example.androidapp.database.model.DayWithTodosAndEvents
 import com.example.androidapp.database.model.EventEntity
@@ -9,85 +12,87 @@ import com.example.androidapp.database.model.Note
 import com.example.androidapp.database.model.TodoEntity
 import java.time.LocalDate
 
-class MyRepository(private val myDao: MyDao) {
+class MyRepository(
+    private val dayDao: DayDao,
+    private val eventDao: EventDao,
+    private val noteDao: NoteDao,
+    private val todoDao: TodoDao,
+) {
 
     val allDayEntitiesSortedByDate: LiveData<List<DayEntity>> =
-        myDao.getAllDayEntitiesSortedByDate()
+        dayDao.getAllDayEntitiesSortedByDate()
 
-    val allTodoEntities: LiveData<List<TodoEntity>> = myDao.getAllTodoEntities();
+    val allTodoEntities: LiveData<List<TodoEntity>> = todoDao.getAllTodoEntities();
 
-    val allEventEntities: LiveData<List<EventEntity>> = myDao.getAllEventEntities()
+    val allEventEntities: LiveData<List<EventEntity>> = eventDao.getAllEventEntities()
 
-    val allNotes: LiveData<List<Note>> = myDao.getAllNotes();
+    val allNotes: LiveData<List<Note>> = noteDao.getAllNotes();
 
-    val allDayEntitiesWithRelatedSortedByDate: LiveData<List<DayWithTodosAndEvents>> = myDao.getAllDayEntitiesWithRelatedSortedByDate()
+    val allDayEntitiesWithRelatedSortedByDate: LiveData<List<DayWithTodosAndEvents>> =
+        dayDao.getAllDayEntitiesWithRelatedSortedByDate()
 
     suspend fun saveDayEntity(newDayEntity: DayEntity) {
-        myDao.saveDayEntity(newDayEntity)
+        dayDao.saveDayEntity(newDayEntity)
     }
 
     suspend fun deleteDayEntity(dayEntity: DayEntity) {
-        myDao.deleteDayEntity(dayEntity)
+        dayDao.deleteDayEntity(dayEntity)
     }
 
     suspend fun saveTodoEntity(newTodoEntity: TodoEntity) {
-        myDao.saveTodoEntity(newTodoEntity)
+        todoDao.saveTodoEntity(newTodoEntity)
     }
 
     suspend fun saveEventEntity(newEventEntity: EventEntity) {
-        myDao.saveEventEntity(newEventEntity)
+        eventDao.saveEventEntity(newEventEntity)
     }
 
     suspend fun addNewNote(note: Note) {
-        myDao.addNewNote(note)
+        noteDao.addNewNote(note)
     }
 
     suspend fun updateNote(note: Note) {
-        myDao.updateNote(note)
+        noteDao.updateNote(note)
     }
 
     suspend fun deleteNote(note: Note) {
-        myDao.deleteNote(note)
+        noteDao.deleteNote(note)
     }
 
     fun getNoteById(noteId: Long): Note? {
-        return myDao.getNoteById(noteId)
+        return noteDao.getNoteById(noteId)
     }
 
     fun getNoteByDate(date: LocalDate): Note? {
-        return myDao.getNoteByDate(date)
+        return noteDao.getNoteByDate(date)
     }
 
     fun getDayByDate(date: LocalDate): DayEntity? {
-        return myDao.getDayByDate(date)
+        return dayDao.getDayByDate(date)
     }
 
     fun getEventsByDayId(dayId: Long): LiveData<List<EventEntity>> {
-        return myDao.getEventsByDayId(dayId)
+        return eventDao.getEventsByDayId(dayId)
     }
 
     fun getTodosByDayId(dayId: Long): LiveData<List<TodoEntity>> {
-        return myDao.getTodosByDayId(dayId)
-    }
-
-    fun getDayWithTodosByDate(date: LocalDate): LiveData<List<TodoEntity>> {
-        return myDao.getTodosByDay(date)
+        return todoDao.getTodosByDayId(dayId)
     }
 
     fun getDayIdWithRelated(dayId: Long): DayWithTodosAndEvents? {
-        return myDao.getDayIdWithRelated(dayId)
+        return dayDao.getDayIdWithRelated(dayId)
     }
 
     suspend fun addNewTodo(todo: TodoEntity) {
-        return myDao.addNewTodo(todo)
+        return todoDao.addNewTodo(todo)
     }
 
     suspend fun deleteTodoEntity(todo: TodoEntity) {
-        myDao.deleteTodoEntity(todo)
+        todoDao.deleteTodoEntity(todo)
     }
 
     suspend fun deleteEventEntity(event: EventEntity) {
-        myDao.deleteEventEntity(event)
+        eventDao.deleteEventEntity(event)
     }
 
 
