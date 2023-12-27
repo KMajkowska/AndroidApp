@@ -40,4 +40,12 @@
     <string name="pop_up_window">Czy chcesz zapisać zmiany?</string>
     <string name="success">Sukces</string>
     <string name="failure">Niepowodzenie</string>
+    <string name="yes">Tak</string>
+    <string name="no">Nie</string>
+    <string name="confirmation">Potwierdzenie</string>
+    <string name="continue_confirmation">Czy chcesz kontynuować?</string>
+    <string name="backup_or_import">Chciałbyś wgrać/zapisać istniejącą bazę danych?</string>
+    <string name="import_string">Zapisz</string>
+    <string name="choose_action">Wybierz akcję</string>
+    <string name="data">Dane</string>
 </resources>

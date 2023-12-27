@@ -8,6 +8,8 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
@@ -22,28 +24,25 @@ import com.example.androidapp.navigation.ScreenRoutes
 import com.example.androidapp.settings.FontSizeEnum
 import com.example.androidapp.settings.LanguageEnum
 import com.example.androidapp.settings.NoteSortOptionEnum
-import com.example.androidapp.settings.StyleModeEnum
-import com.example.androidapp.settings.SupportedFontEnum
+import com.example.androidapp.settings.SettingsViewModel
 
-// All these will be a language based enum (a map of enums maybe)
 val languages = LanguageEnum.entries.toTypedArray()
-val modes = StyleModeEnum.entries.toTypedArray()
-val fonts = SupportedFontEnum.entries.toTypedArray()
 val fontSizes = FontSizeEnum.entries.toTypedArray()
 val sortOptions = NoteSortOptionEnum.entries.toTypedArray()
 
-class SettingsScreen(private val mDayViewModel: DayViewModel, private val navigateToFilePicker: (String) -> Unit): NavigableScreen() {
-
-    // TODO: Add actual states of the application, make selecting actually call functions
+class SettingsScreen(
+    //private val mDayViewModel: DayViewModel,
+    private val navigateToFilePicker: (String) -> Unit,
+    private val settingsViewModel: SettingsViewModel
+) : NavigableScreen() {
     @Composable
     override fun View() {
-        val selectedLanguage = remember { mutableStateOf(languages.first()) }
-        val notificationsEnabled = remember { mutableStateOf(true) }
-        val selectedMode = remember { mutableStateOf(modes.first()) }
-        val selectedFont = remember { mutableStateOf(fonts.first()) }
-        val selectedFontSize = remember { mutableStateOf(fontSizes.first()) }
-        val unicornModeEnabled = remember { mutableStateOf(false) }
-        val selectedSortOption = remember { mutableStateOf(sortOptions.first()) }
+        val selectedLanguage by settingsViewModel.selectedLanguage.observeAsState(LanguageEnum.ENGLISH)
+        val notificationsEnabled by settingsViewModel.areNotificationsEnabled.observeAsState(false)
+        val isDarkModeEnabled by settingsViewModel.isDarkTheme.observeAsState(false)
+        val selectedFontSize by settingsViewModel.selectedFontSize.observeAsState(FontSizeEnum.NORMAL)
+        val unicornModeEnabled by settingsViewModel.isUniqrnModeEnabled.observeAsState(false)
+        val selectedSortOption by settingsViewModel.selectedSortOption.observeAsState(NoteSortOptionEnum.DESCENDING)
 
         LazyColumn(
             modifier = Modifier
@@ -54,59 +53,52 @@ class SettingsScreen(private val mDayViewModel: DayViewModel, private val naviga
                 DropDown(
                     dropdownName = stringResource(id = R.string.language),
                     allOptions = languages,
-                    selectedValueModifierFunction = selectedLanguage
-                )
-
-                Button(onClick = {
-                    mDayViewModel.setLanguage(selectedLanguage.value.code)
-                }) {
-                    Text(stringResource(id = R.string.apply_language))
+                    selectedValueModifier = selectedLanguage
+                ) { newLanguage ->
+                    settingsViewModel.setSelectedLanguage(newLanguage)
                 }
 
                 HorizontalDivider()
-                Toggle(toggleOption = notificationsEnabled, text = stringResource(id = R.string.notification))
-
-                HorizontalDivider()
-                DropDown(
-                    dropdownName = stringResource(id = R.string.modes),
-                    allOptions = modes,
-                    selectedValueModifierFunction = selectedMode
-                )
-
-
-                Button(onClick = {
-                    if(selectedMode.value.name == "DARK")
-                        mDayViewModel.toggleTheme(true)
-                    else
-                        mDayViewModel.toggleTheme(false)
-                }) {
-                    Text(stringResource(id = R.string.change_mode))
+                Toggle(
+                    toggleOption = notificationsEnabled,
+                    text = stringResource(id = R.string.notification)
+                ) { areNotificationsEnabled ->
+                    settingsViewModel.setNotificationsEnabled(areNotificationsEnabled)
                 }
 
-
                 HorizontalDivider()
-                DropDown(
-                    dropdownName = stringResource(id = R.string.font),
-                    allOptions = fonts,
-                    selectedValueModifierFunction = selectedFont
-                )
+                Toggle(
+                    toggleOption = isDarkModeEnabled,
+                    text = stringResource(id = R.string.modes)
+                ) { isDarkModeEnabled ->
+                    settingsViewModel.setDarkTheme(isDarkModeEnabled)
+                }
 
                 HorizontalDivider()
                 DropDown(
                     dropdownName = stringResource(id = R.string.font_size),
                     allOptions = fontSizes,
-                    selectedValueModifierFunction = selectedFontSize
-                )
+                    selectedValueModifier = selectedFontSize
+                ) { fontSize ->
+                    settingsViewModel.setSelectedFontSize(fontSize)
+                }
 
                 HorizontalDivider()
                 DropDown(
                     dropdownName = stringResource(id = R.string.sort_option),
                     allOptions = sortOptions,
-                    selectedValueModifierFunction = selectedSortOption
-                )
+                    selectedValueModifier = selectedSortOption
+                ) { sortOption ->
+                    settingsViewModel.setSeletectedSortOption(sortOption)
+                }
 
                 HorizontalDivider()
-                Toggle(toggleOption = unicornModeEnabled, text = stringResource(id = R.string.unicorn))
+                Toggle(
+                    toggleOption = unicornModeEnabled,
+                    text = stringResource(id = R.string.unicorn)
+                ) { isUniqrnModeEnabled ->
+                    settingsViewModel.setUniqrnMode(isUniqrnModeEnabled)
+                }
 
                 HorizontalDivider()
                 BackupImportDialog(navigateToFilePicker)
@@ -138,38 +130,43 @@ fun BackupImportDialog(navigateTo: (String) -> Unit) {
         showConfirmationDialog.value = false
     }
 
-    // Backup and Import options dialog
     if (showDialog.value) {
         AlertDialog(
             onDismissRequest = { showDialog.value = false },
-            title = { Text("Choose Action") },
-            text = { Text("Would you like to backup or import the database?") },
+            title = { Text(stringResource(id = R.string.choose_action)) },
+            text = { Text(stringResource(id = R.string.backup_or_import)) },
             confirmButton = {
-                TextButton(onClick = onBackup) { Text("Backup") }
+                TextButton(onClick = onBackup) { Text(stringResource(id = R.string.backup)) }
             },
             dismissButton = {
-                TextButton(onClick = onImport) { Text("Import") }
+                TextButton(onClick = onImport) { Text(stringResource(id = R.string.import_string)) }
             }
         )
     }
 
-    // Confirmation dialog
     if (showConfirmationDialog.value) {
         AlertDialog(
             onDismissRequest = { showConfirmationDialog.value = false },
-            title = { Text("Confirmation") },
-            text = { Text("Are you sure you want to ${if (isBackup.value) "backup" else "import"} the database?") },
+            title = { Text(stringResource(id = R.string.confirmation)) },
+            text = { Text(stringResource(id = R.string.continue_confirmation)) },
             confirmButton = {
-                TextButton(onClick = confirmAction) { Text("Yes") }
+                TextButton(onClick = confirmAction) { Text(stringResource(id = R.string.yes)) }
             },
             dismissButton = {
-                TextButton(onClick = { showConfirmationDialog.value = false }) { Text("No") }
+                TextButton(onClick = {
+                    showConfirmationDialog.value = false
+                }) { Text(stringResource(id = R.string.no)) }
             }
         )
     }
 
-    // Button to show the options dialog
     Button(onClick = { showDialog.value = true }) {
-        Text("Backup/Import Database")
+        Text(
+            "${stringResource(id = R.string.backup)}/${stringResource(id = R.string.import_string)} ${
+                stringResource(
+                    id = R.string.data
+                )
+            }"
+        )
     }
 }

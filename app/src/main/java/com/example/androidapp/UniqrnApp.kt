@@ -1,10 +1,12 @@
 package com.example.androidapp
 
 import android.app.Application
+import android.content.Context
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.platform.LocalContext
+import androidx.datastore.preferences.preferencesDataStore
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavGraphBuilder
@@ -25,6 +27,10 @@ import com.example.androidapp.navigation.navigablescreen.DaysScreen
 import com.example.androidapp.navigation.navigablescreen.FilePicker
 import com.example.androidapp.navigation.navigablescreen.SettingsScreen
 import com.example.androidapp.navigation.rememberNavHostController
+import com.example.androidapp.settings.LanguageEnum
+import com.example.androidapp.settings.SettingsRepository
+import com.example.androidapp.settings.SettingsViewModel
+import com.example.androidapp.settings.SettingsViewModelFactory
 import com.example.androidapp.ui.theme.AndroidAppTheme
 import com.example.androidapp.ui.theme.LanguageAwareScreen
 import java.time.LocalDate
@@ -36,12 +42,14 @@ fun UniqrnApp() {
         factory = DayViewModelFactory(LocalContext.current.applicationContext as Application)
     )
 
-    val themeViewModel: DayViewModel = viewModel()
-    val selectedLanguage by themeViewModel.selectedLanguage.observeAsState("en")
-    val isDarkTheme by themeViewModel.isDarkTheme.observeAsState(true)
+    val mSettingsViewModel: SettingsViewModel = viewModel(
+        factory = SettingsViewModelFactory(SettingsRepository(LocalContext.current))
+    )
 
+    val selectedLanguage by mSettingsViewModel.selectedLanguage.observeAsState(LanguageEnum.ENGLISH)
+    val isDarkTheme by mSettingsViewModel.isDarkTheme.observeAsState(true)
     AndroidAppTheme(isDarkTheme) {
-        LanguageAwareScreen(selectedLanguage) {
+        LanguageAwareScreen(selectedLanguage.code) {
             NavHost(
                 navController = navController.navController,
                 startDestination = ScreenRoutes.ALL_NOTES
@@ -51,7 +59,8 @@ fun UniqrnApp() {
                     onNoteSelected = navController::navigateToNoteEditor,
                     upPress = navController::upPress,
                     onNavigateToRoute = navController::navigateToBottomBarRoute,
-                    mDayViewModel = mDayViewModel
+                    mDayViewModel = mDayViewModel,
+                    mSettingsViewModel = mSettingsViewModel
                 )
             }
         }
@@ -59,6 +68,7 @@ fun UniqrnApp() {
 }
 
 private fun NavGraphBuilder.unqirnNavGraph(
+    mSettingsViewModel: SettingsViewModel,
     mDayViewModel: DayViewModel,
     onDaySelected: (LocalDate, NavBackStackEntry) -> Unit,
     onNoteSelected: (Long, LocalDate?, NavBackStackEntry) -> Unit,
@@ -129,7 +139,7 @@ private fun NavGraphBuilder.unqirnNavGraph(
         CustomBottomNavigation(
             tabs,
             ScreenRoutes.SETTINGS,
-            SettingsScreen(mDayViewModel, onNavigateToRoute),
+            SettingsScreen(onNavigateToRoute, mSettingsViewModel),
             onNavigateToRoute
         )
     }

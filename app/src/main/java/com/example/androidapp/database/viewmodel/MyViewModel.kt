@@ -37,6 +37,7 @@ class DayViewModel(application: Application) : AndroidViewModel(application) {
     val allEventEntities: LiveData<List<EventEntity>> = repository.allEventEntities
     val allNotes: LiveData<List<Note>> = repository.allNotes
 
+    /*
     private val _selectedLanguage = MutableLiveData<String>()
     val selectedLanguage: LiveData<String> = _selectedLanguage
 
@@ -50,6 +51,7 @@ class DayViewModel(application: Application) : AndroidViewModel(application) {
     fun toggleTheme(isDark: Boolean) {
         _isDarkTheme.value = isDark
     }
+    */
 
     fun saveDayEntity(dayEntity: DayEntity) {
         return runBlocking {
@@ -102,7 +104,6 @@ class DayViewModel(application: Application) : AndroidViewModel(application) {
             }
         }
     }
-
 
     fun saveEventEntity(eventEntity: EventEntity) {
         viewModelScope.launch(Dispatchers.IO) {
@@ -184,7 +185,6 @@ class DayViewModel(application: Application) : AndroidViewModel(application) {
         )
             deleteDayEntity(temp.dayEntity)
     }
-
 }
 
 class DayViewModelFactory(private val application: Application) : ViewModelProvider.Factory {

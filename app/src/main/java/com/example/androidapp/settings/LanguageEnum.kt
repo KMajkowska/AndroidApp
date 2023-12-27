@@ -6,7 +6,7 @@ enum class LanguageEnum(val code: String, val displayName: String) {
 
     companion object {
         fun fromCode(code: String): LanguageEnum? {
-            return values().find { it.code == code }
+            return entries.find { it.code == code }
         }
     }
 }

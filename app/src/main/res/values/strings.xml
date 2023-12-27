@@ -40,4 +40,12 @@
     <string name="pop_up_window">Do you want to save the changes in the note?</string>
     <string name="success">Success</string>
     <string name="failure">Failure</string>
+    <string name="yes">Yes</string>
+    <string name="no">No</string>
+    <string name="confirmation">Confirm</string>
+    <string name="continue_confirmation">Are you sure you want to continue?</string>
+    <string name="backup_or_import">Would you like to import or export the data?</string>
+    <string name="import_string">Import</string>
+    <string name="choose_action">Choose action</string>
+    <string name="data">Data</string>
 </resources>

@@ -70,7 +70,7 @@ class AllNotes(
                     for (note in notes) {
                         NoteItem(
                             note = note,
-                            onNoteClicked = { selectedNote -> onNoteClick(selectedNote.noteId) }
+                            onNoteClicked = { selectedNote -> onNoteClick(selectedNote.noteId!!) }
                         )
                         Spacer(modifier = Modifier.height(8.dp))
                     }

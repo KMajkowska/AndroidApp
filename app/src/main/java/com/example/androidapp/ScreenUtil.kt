@@ -135,8 +135,9 @@ fun Dialog(
 
 @Composable
 fun Toggle(
-    toggleOption: MutableState<Boolean>,
-    text: String
+    toggleOption: Boolean,
+    text: String,
+    toggleOptionChange: (Boolean) -> Unit
 ) {
     Column {
         Row(
@@ -145,8 +146,8 @@ fun Toggle(
         ) {
             Text(text = text)
             Switch(
-                checked = toggleOption.value,
-                onCheckedChange = { toggleOption.value = it })
+                checked = toggleOption,
+                onCheckedChange = { toggleOptionChange(it) })
         }
     }
 }
@@ -155,7 +156,8 @@ fun Toggle(
 fun <T> DropDown(
     dropdownName: String,
     allOptions: Array<T>,
-    selectedValueModifierFunction: MutableState<T>
+    selectedValueModifier: T,
+    onValueChange: (T) -> Unit
 ) {
     // Language Dropdown
     Column(
@@ -172,7 +174,7 @@ fun <T> DropDown(
             Column {
                 TextButton(onClick = { expanded = true }) {
                     Text(
-                        text = selectedValueModifierFunction.value.toString(),
+                        text = selectedValueModifier.toString(),
                         color = Color.Black
                     )
                     Icon(
@@ -189,7 +191,7 @@ fun <T> DropDown(
                         DropdownMenuItem(
                             text = { Text(option.toString()) },
                             onClick = {
-                                selectedValueModifierFunction.value = option
+                                onValueChange(option)
                                 expanded = false
                             }
                         )
