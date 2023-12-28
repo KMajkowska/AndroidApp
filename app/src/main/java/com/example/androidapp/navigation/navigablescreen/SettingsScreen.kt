@@ -13,6 +13,7 @@ import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.example.androidapp.DropDown
@@ -39,9 +40,11 @@ class SettingsScreen(
         val selectedLanguage by settingsViewModel.selectedLanguage.observeAsState(LanguageEnum.ENGLISH)
         val notificationsEnabled by settingsViewModel.areNotificationsEnabled.observeAsState(false)
         val isDarkModeEnabled by settingsViewModel.isDarkTheme.observeAsState(false)
-        val selectedFontSize by settingsViewModel.selectedFontSize.observeAsState(FontSizeEnum.NORMAL)
+        val selectedFontSize by settingsViewModel.selectedFontSize.observeAsState(FontSizeEnum.STANDARD)
         val unicornModeEnabled by settingsViewModel.isUniqrnModeEnabled.observeAsState(false)
         val selectedSortOption by settingsViewModel.selectedSortOption.observeAsState(NoteSortOptionEnum.ASCENDING)
+
+        val context = LocalContext.current
 
         LazyColumn(
             modifier = Modifier
@@ -52,6 +55,7 @@ class SettingsScreen(
                 DropDown(
                     dropdownName = stringResource(id = R.string.language),
                     allOptions = languages,
+                    valueFromOptionGetterFunction = { language -> language.toString()},
                     selectedValueModifier = selectedLanguage
                 ) { newLanguage ->
                     settingsViewModel.setSelectedLanguage(newLanguage)
@@ -68,7 +72,7 @@ class SettingsScreen(
                 HorizontalDivider()
                 Toggle(
                     toggleOption = isDarkModeEnabled,
-                    text = stringResource(id = R.string.modes)
+                    text = stringResource(id = R.string.dark_mode)
                 ) { isDarkModeEnabled ->
                     settingsViewModel.setDarkTheme(isDarkModeEnabled)
                 }
@@ -77,6 +81,7 @@ class SettingsScreen(
                 DropDown(
                     dropdownName = stringResource(id = R.string.font_size),
                     allOptions = fontSizes,
+                    valueFromOptionGetterFunction = { fontSize -> context.resources.getString(fontSize.resourceId)},
                     selectedValueModifier = selectedFontSize
                 ) { fontSize ->
                     settingsViewModel.setSelectedFontSize(fontSize)
@@ -86,6 +91,7 @@ class SettingsScreen(
                 DropDown(
                     dropdownName = stringResource(id = R.string.sort_option),
                     allOptions = sortOptions,
+                    valueFromOptionGetterFunction = { sortOption -> context.resources.getString(sortOption.resourceId)},
                     selectedValueModifier = selectedSortOption
                 ) { sortOption ->
                     settingsViewModel.setSeletectedSortOption(sortOption)
