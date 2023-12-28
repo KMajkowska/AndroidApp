@@ -156,25 +156,26 @@ fun Toggle(
 fun <T> DropDown(
     dropdownName: String,
     allOptions: Array<T>,
+    valueFromOptionGetterFunction: (T) -> String,
     selectedValueModifier: T,
     onValueChange: (T) -> Unit
 ) {
     // Language Dropdown
     Column(
-        verticalArrangement = Arrangement.Center, // Align children vertically at the center
-        horizontalAlignment = Alignment.Start, // Align children horizontally at the center
-        modifier = Modifier.fillMaxWidth() // Fill the available width
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.Start,
+        modifier = Modifier.fillMaxWidth()
     ) {
         Row(
-            verticalAlignment = Alignment.CenterVertically, // Align children vertically at the center
-            horizontalArrangement = Arrangement.spacedBy(4.dp) // Add spacing between children
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(4.dp)
         ) {
             var expanded by remember { mutableStateOf(false) }
             Text(text = dropdownName)
             Column {
                 TextButton(onClick = { expanded = true }) {
                     Text(
-                        text = selectedValueModifier.toString(),
+                        text = valueFromOptionGetterFunction(selectedValueModifier),
                         color = Color.Black
                     )
                     Icon(
@@ -189,7 +190,7 @@ fun <T> DropDown(
                 ) {
                     allOptions.forEach { option ->
                         DropdownMenuItem(
-                            text = { Text(option.toString()) },
+                            text = { Text(valueFromOptionGetterFunction(option)) },
                             onClick = {
                                 onValueChange(option)
                                 expanded = false

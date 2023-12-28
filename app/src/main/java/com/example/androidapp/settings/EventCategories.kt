@@ -2,7 +2,7 @@ package com.example.androidapp.settings
 
 import com.example.androidapp.R
 
-enum class EventCategories(val resourceId: Int) {
+enum class EventCategories(resourceId: Int) {
 
     GENERAL(R.string.event_category_general),
     PARTY(R.string.event_category_party),
@@ -11,4 +11,6 @@ enum class EventCategories(val resourceId: Int) {
     FOOD(R.string.event_category_food),
     ENTERTAINMENT(R.string.event_category_entertainment);
 
+    val resourceId = resourceId
+        get() = field
 }

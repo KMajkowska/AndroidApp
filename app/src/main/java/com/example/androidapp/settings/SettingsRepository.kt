@@ -53,7 +53,7 @@ class SettingsRepository(private val context: Context) {
     }
     val selectedFontSize: Flow<FontSizeEnum> = context.dataStore.data
         .map { preferences ->
-            FontSizeEnum.valueOf(preferences[PreferencesKeys.SELECTED_FONT_SIZE] ?: FontSizeEnum.NORMAL.toString())
+            FontSizeEnum.valueOf(preferences[PreferencesKeys.SELECTED_FONT_SIZE] ?: FontSizeEnum.STANDARD.toString())
         }
 
     suspend fun setSelectedFontSize(fontSize: FontSizeEnum) {
