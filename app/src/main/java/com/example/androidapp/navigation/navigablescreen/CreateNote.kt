@@ -254,4 +254,3 @@ fun CloseNotePopUp(upPress: () -> Unit, onSaveChanges: () -> Unit, onDismiss: ()
         shape = MaterialTheme.shapes.medium
     )
 }
-

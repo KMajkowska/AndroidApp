@@ -19,7 +19,6 @@ import com.example.androidapp.DropDown
 import com.example.androidapp.HorizontalDivider
 import com.example.androidapp.R
 import com.example.androidapp.Toggle
-import com.example.androidapp.database.viewmodel.DayViewModel
 import com.example.androidapp.navigation.ScreenRoutes
 import com.example.androidapp.settings.FontSizeEnum
 import com.example.androidapp.settings.LanguageEnum
@@ -42,7 +41,7 @@ class SettingsScreen(
         val isDarkModeEnabled by settingsViewModel.isDarkTheme.observeAsState(false)
         val selectedFontSize by settingsViewModel.selectedFontSize.observeAsState(FontSizeEnum.NORMAL)
         val unicornModeEnabled by settingsViewModel.isUniqrnModeEnabled.observeAsState(false)
-        val selectedSortOption by settingsViewModel.selectedSortOption.observeAsState(NoteSortOptionEnum.DESCENDING)
+        val selectedSortOption by settingsViewModel.selectedSortOption.observeAsState(NoteSortOptionEnum.ASCENDING)
 
         LazyColumn(
             modifier = Modifier
