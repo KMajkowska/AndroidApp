@@ -83,6 +83,10 @@ class MyRepository(
         return dayDao.getDayIdWithRelated(dayId)
     }
 
+    suspend fun getDayIdWithRelatedByDate(date: LocalDate): DayWithTodosAndEvents? {
+        return dayDao.getDayIdWithRelatedByDate(date)
+    }
+
     suspend fun addNewTodo(todo: TodoEntity) {
         return todoDao.addNewTodo(todo)
     }

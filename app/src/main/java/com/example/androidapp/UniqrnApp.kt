@@ -5,6 +5,7 @@ import android.content.Context
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalContext
 import androidx.datastore.preferences.preferencesDataStore
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -27,6 +28,7 @@ import com.example.androidapp.navigation.navigablescreen.DaysScreen
 import com.example.androidapp.navigation.navigablescreen.FilePicker
 import com.example.androidapp.navigation.navigablescreen.SettingsScreen
 import com.example.androidapp.navigation.rememberNavHostController
+import com.example.androidapp.notifications.NotificationHelper
 import com.example.androidapp.settings.LanguageEnum
 import com.example.androidapp.settings.SettingsRepository
 import com.example.androidapp.settings.SettingsViewModel
@@ -38,9 +40,6 @@ import java.time.LocalDate
 @Composable
 fun UniqrnApp() {
     val navController = rememberNavHostController()
-    val mDayViewModel: DayViewModel = viewModel(
-        factory = DayViewModelFactory(LocalContext.current.applicationContext as Application)
-    )
 
     val mSettingsViewModel: SettingsViewModel = viewModel(
         factory = SettingsViewModelFactory(SettingsRepository(LocalContext.current))
@@ -48,6 +47,13 @@ fun UniqrnApp() {
 
     val selectedLanguage by mSettingsViewModel.selectedLanguage.observeAsState(LanguageEnum.ENGLISH)
     val isDarkTheme by mSettingsViewModel.isDarkTheme.observeAsState(true)
+    val areNotificationsEnabled by mSettingsViewModel.areNotificationsEnabled.observeAsState(true)
+
+    val notificationHelper = NotificationHelper(LocalContext.current, areNotificationsEnabled)
+    val mDayViewModel: DayViewModel = viewModel(
+        factory = DayViewModelFactory(LocalContext.current.applicationContext as Application, notificationHelper)
+    )
+
     AndroidAppTheme(isDarkTheme) {
         LanguageAwareScreen(selectedLanguage.code) {
             NavHost(

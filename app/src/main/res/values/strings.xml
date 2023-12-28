@@ -48,4 +48,8 @@
     <string name="import_string">Import</string>
     <string name="choose_action">Choose action</string>
     <string name="data">Data</string>
+    <string name="notification_title">Planned for today</string>
+    <string name="title">Title</string>
+    <string name="events">Events</string>
+    <string name="todos">To dos</string>
 </resources>

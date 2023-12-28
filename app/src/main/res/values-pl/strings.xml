@@ -48,4 +48,9 @@
     <string name="import_string">Zapisz</string>
     <string name="choose_action">Wybierz akcję</string>
     <string name="data">Dane</string>
+    <string name="notification_title">Zaplanowane na dziś</string>
+    <string name="title">Tytuł</string>
+    <string name="events">Wydarzenia</string>
+    <string name="todos">Do zrobienia</string>
+
 </resources>

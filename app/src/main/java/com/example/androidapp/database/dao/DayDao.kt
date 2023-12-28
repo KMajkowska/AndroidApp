@@ -37,6 +37,10 @@ interface DayDao {
     fun getDayIdWithRelated(dayId: Long): DayWithTodosAndEvents?
 
     @Transaction
+    @Query("SELECT * FROM day_data WHERE date = :date")
+    suspend fun getDayIdWithRelatedByDate(date: LocalDate): DayWithTodosAndEvents?
+
+    @Transaction
     @Query("SELECT * FROM day_data ORDER BY date ASC")
     fun getAllDayEntitiesWithRelatedSortedByDate(): LiveData<List<DayWithTodosAndEvents>>
 

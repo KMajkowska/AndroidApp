@@ -1,6 +1,7 @@
 package com.example.androidapp.database.viewmodel
 
 import android.app.Application
+import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -14,13 +15,14 @@ import com.example.androidapp.database.model.EventEntity
 import com.example.androidapp.database.model.Note
 import com.example.androidapp.database.model.TodoEntity
 import com.example.androidapp.database.repository.MyRepository
+import com.example.androidapp.notifications.NotificationHelper
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 import java.time.LocalDate
 
-class DayViewModel(application: Application) : AndroidViewModel(application) {
+class DayViewModel(application: Application, private val notificationHelper: NotificationHelper) : AndroidViewModel(application) {
 
     private val repository: MyRepository = MyRepository(
         MyDatabaseConnection.getDatabase(application).dayDao(),
@@ -29,34 +31,23 @@ class DayViewModel(application: Application) : AndroidViewModel(application) {
         MyDatabaseConnection.getDatabase(application).todoDao()
     )
 
-    val allDayEntitiesSortedByDate: LiveData<List<DayEntity>> =
-        repository.allDayEntitiesSortedByDate
-    val allDayEntitiesWithRelatedSortedByDate: LiveData<List<DayWithTodosAndEvents>> =
-        repository.allDayEntitiesWithRelatedSortedByDate
+
+    val allDayEntitiesSortedByDate: LiveData<List<DayEntity>> = repository.allDayEntitiesSortedByDate
+    val allDayEntitiesWithRelatedSortedByDate: LiveData<List<DayWithTodosAndEvents>> = repository.allDayEntitiesWithRelatedSortedByDate
     val allTodoEntities: LiveData<List<TodoEntity>> = repository.allTodoEntities
     val allEventEntities: LiveData<List<EventEntity>> = repository.allEventEntities
     val allNotes: LiveData<List<Note>> = repository.allNotes
 
-    /*
-    private val _selectedLanguage = MutableLiveData<String>()
-    val selectedLanguage: LiveData<String> = _selectedLanguage
-
-    private val _isDarkTheme = MutableLiveData<Boolean>(false)
-    val isDarkTheme: LiveData<Boolean> = _isDarkTheme
-
-    fun setLanguage(language: String) {
-        _selectedLanguage.value = language
+    private fun scheduleNotification(date: LocalDate) {
+        viewModelScope.launch(Dispatchers.IO) {
+            notificationHelper.scheduleNotification(repository.getDayIdWithRelatedByDate(date))
+        }
     }
-
-    fun toggleTheme(isDark: Boolean) {
-        _isDarkTheme.value = isDark
-    }
-    */
-
     fun saveDayEntity(dayEntity: DayEntity) {
         return runBlocking {
             withContext(Dispatchers.IO) {
                 repository.saveDayEntity(dayEntity)
+                scheduleNotification(dayEntity.date)
             }
         }
     }
@@ -64,6 +55,7 @@ class DayViewModel(application: Application) : AndroidViewModel(application) {
     private fun deleteDayEntity(dayEntity: DayEntity) {
         viewModelScope.launch(Dispatchers.IO) {
             repository.deleteDayEntity(dayEntity)
+            notificationHelper.unscheduleNotification(dayEntity.dayId)
         }
     }
 
@@ -187,12 +179,12 @@ class DayViewModel(application: Application) : AndroidViewModel(application) {
     }
 }
 
-class DayViewModelFactory(private val application: Application) : ViewModelProvider.Factory {
+class DayViewModelFactory(private val application: Application, private val notificationHelper: NotificationHelper) : ViewModelProvider.Factory {
 
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         if (modelClass.isAssignableFrom(DayViewModel::class.java)) {
             @Suppress("UNCHECKED_CAST")
-            return DayViewModel(application) as T
+            return DayViewModel(application, notificationHelper) as T
         }
         throw IllegalArgumentException("Unknown ViewModel class")
     }
