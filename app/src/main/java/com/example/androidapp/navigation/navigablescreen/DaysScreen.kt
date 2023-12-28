@@ -1,5 +1,6 @@
 package com.example.androidapp.navigation.navigablescreen
 
+import android.util.Log
 import android.view.ViewGroup
 import android.widget.CalendarView
 import androidx.compose.foundation.border
@@ -77,12 +78,12 @@ class DaysScreen(
     @Composable
     override fun ViewWithBackground() {
         var dayEntity by remember { mutableStateOf(mDayViewModel.getDayByDate(localDate)) }
-        var selectedNote by remember { mutableStateOf(mDayViewModel.getNoteByDate(dayEntity.date))}
+        var selectedNote by remember { mutableStateOf(mDayViewModel.getNoteByDate(localDate))}
 
         AddBackgroundToComposables({
             View { chosenDate ->
                 dayEntity = mDayViewModel.getDayByDate(chosenDate)
-                selectedNote = mDayViewModel.getNoteByDate(dayEntity.date)
+                selectedNote = mDayViewModel.getNoteByDate(chosenDate)
             }
         }, {
             DayDataView(dayEntity, selectedNote)
@@ -129,8 +130,6 @@ class DaysScreen(
                     }
                 }
             }
-
-
 
             item {
                 HorizontalDivider()
