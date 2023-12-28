@@ -10,7 +10,7 @@ import java.time.LocalDate
 data class Note(
     @Expose(serialize = false)
     @PrimaryKey(autoGenerate = true)
-    var noteId: Long? = 0,
+    var noteId: Long? = null,
     val noteTitle: String = "",
     val content: String = "",
     var noteDate:LocalDate? = null,

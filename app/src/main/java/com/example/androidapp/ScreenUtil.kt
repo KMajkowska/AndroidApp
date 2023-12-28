@@ -188,6 +188,11 @@ fun <T> DropDown(
     selectedValueModifier: T,
     onValueChange: (T) -> Unit
 ) {
+
+    val mSettingsViewModel: SettingsViewModel = viewModel(
+        factory = SettingsViewModelFactory(SettingsRepository(LocalContext.current))
+    )
+    val isDarkMode by mSettingsViewModel.isDarkTheme.observeAsState(false)
     // Language Dropdown
     Column(
         verticalArrangement = Arrangement.Center, // Align children vertically at the center
@@ -204,7 +209,7 @@ fun <T> DropDown(
                 TextButton(onClick = { expanded = true }) {
                     Text(
                         text = selectedValueModifier.toString(),
-                        color = Color.Black
+                        color = if (!isDarkMode) Color.Black else Color.Gray
                     )
                     Icon(
                         Icons.Default.MoreVert,

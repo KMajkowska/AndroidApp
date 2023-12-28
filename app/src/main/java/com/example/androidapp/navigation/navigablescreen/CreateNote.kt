@@ -59,10 +59,7 @@ class CreateNote(
         val note: Note? = mDayViewModel.getNoteById(noteId)
         var titleValue by remember { mutableStateOf(note?.noteTitle ?: "") }
         var noteValue by remember { mutableStateOf(note?.content ?: "") }
-        var openDialog by remember {
-            mutableStateOf(false)
-        }
-
+        var openDialog by remember { mutableStateOf(false) }
 
         Column(
             modifier = Modifier
@@ -76,7 +73,7 @@ class CreateNote(
             ) {
                 IconButton(
                     onClick = {
-                              openDialog = true
+                        openDialog = true
                     },
                     modifier = Modifier
                         .size(40.dp),
@@ -90,6 +87,7 @@ class CreateNote(
                 if (openDialog) {
                     CloseNotePopUp(upPress, onSaveChanges = {
                         if (note == null) {
+
                             val newNote = Note(
                                 noteTitle = titleValue,
                                 content = noteValue
@@ -103,7 +101,8 @@ class CreateNote(
                                 content = noteValue
                             )
                             mDayViewModel.updateNote(updatedNote)
-                        }}) {
+                        }
+                    }) {
                         openDialog = false
                     }
                 }
@@ -254,4 +253,3 @@ fun CloseNotePopUp(upPress: () -> Unit, onSaveChanges: () -> Unit, onDismiss: ()
         shape = MaterialTheme.shapes.medium
     )
 }
-
