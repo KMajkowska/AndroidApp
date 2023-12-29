@@ -1,6 +1,6 @@
 package com.example.androidapp.navigation.navigablescreen
 
-import android.util.Log
+import android.view.ContextThemeWrapper
 import android.view.ViewGroup
 import android.widget.CalendarView
 import androidx.compose.foundation.border
@@ -176,11 +176,16 @@ class DaysScreen(
         )
         val isDarkMode by mSettingsViewModel.isDarkTheme.observeAsState(false)
 
+
         LazyColumn(modifier = Modifier.fillMaxSize()){
             item{
                 AndroidView(
                     factory = { context ->
-                        CalendarView(context).apply {
+                        val themedContext = ContextThemeWrapper(
+                            context,
+                            if (isDarkMode) R.style.CalendarTextAppearance_Dark else R.style.CalendarTextAppearance_Light
+                        )
+                        CalendarView(themedContext).apply {
                             layoutParams = ViewGroup.LayoutParams(
                                 ViewGroup.LayoutParams.MATCH_PARENT,
                                 ViewGroup.LayoutParams.MATCH_PARENT,
@@ -200,13 +205,6 @@ class DaysScreen(
                         calendarView.setOnDateChangeListener { _, year, month, dayOfMonth ->
                             onChangeDate(LocalDate.of(year, month + 1, dayOfMonth))
                         }
-
-                        val textAppearanceResId = if (isDarkMode)
-                            R.style.CalendarTextAppearance_Dark
-                        else
-                            R.style.CalendarTextAppearance_Light
-
-                        calendarView.dateTextAppearance = textAppearanceResId
                     }
                 )
             }
