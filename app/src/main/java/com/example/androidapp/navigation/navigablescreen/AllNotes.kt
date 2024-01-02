@@ -22,20 +22,27 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.androidapp.R
 import com.example.androidapp.database.model.Note
 import com.example.androidapp.database.viewmodel.DayViewModel
+import com.example.androidapp.settings.NoteSortOptionEnum
+import com.example.androidapp.settings.SettingsRepository
+import com.example.androidapp.settings.SettingsViewModel
+import com.example.androidapp.settings.SettingsViewModelFactory
 import com.example.androidapp.ui.theme.Blue
 import java.time.LocalDate
 
@@ -49,7 +56,15 @@ class AllNotes(
 
 @Composable
     override fun View() {
-        val notes = mDayViewModel.allNotes.observeAsState(initial = listOf()).value
+        var notes = mDayViewModel.allNotes.observeAsState(initial = listOf()).value
+
+        val mSettingsViewModel: SettingsViewModel = viewModel(
+            factory = SettingsViewModelFactory(SettingsRepository(LocalContext.current))
+        )
+        val sortOption by mSettingsViewModel.selectedSortOption.observeAsState(NoteSortOptionEnum.ASCENDING)
+
+        if (sortOption == NoteSortOptionEnum.DESCENDING)
+            notes = notes.reversed()
 
         Box(
             modifier = Modifier
@@ -70,7 +85,7 @@ class AllNotes(
                     for (note in notes) {
                         NoteItem(
                             note = note,
-                            onNoteClicked = { selectedNote -> onNoteClick(selectedNote.noteId) }
+                            onNoteClicked = { selectedNote -> onNoteClick(selectedNote.noteId!!) }
                         )
                         Spacer(modifier = Modifier.height(8.dp))
                     }

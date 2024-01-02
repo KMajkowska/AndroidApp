@@ -1,6 +1,7 @@
 package com.example.androidapp.database.viewmodel
 
 import android.app.Application
+import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -14,42 +15,39 @@ import com.example.androidapp.database.model.EventEntity
 import com.example.androidapp.database.model.Note
 import com.example.androidapp.database.model.TodoEntity
 import com.example.androidapp.database.repository.MyRepository
+import com.example.androidapp.notifications.NotificationHelper
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 import java.time.LocalDate
 
-class DayViewModel(application: Application) : AndroidViewModel(application) {
+class DayViewModel(application: Application, private val notificationHelper: NotificationHelper) : AndroidViewModel(application) {
 
-    private val repository: MyRepository = MyRepository(MyDatabaseConnection.getDatabase(application).myDao())
+    private val repository: MyRepository = MyRepository(
+        MyDatabaseConnection.getDatabase(application).dayDao(),
+        MyDatabaseConnection.getDatabase(application).eventDao(),
+        MyDatabaseConnection.getDatabase(application).noteDao(),
+        MyDatabaseConnection.getDatabase(application).todoDao()
+    )
 
-    val allDayEntitiesSortedByDate: LiveData<List<DayEntity>> =
-        repository.allDayEntitiesSortedByDate
-    val allDayEntitiesWithRelatedSortedByDate: LiveData<List<DayWithTodosAndEvents>> =
-        repository.allDayEntitiesWithRelatedSortedByDate
+
+    val allDayEntitiesSortedByDate: LiveData<List<DayEntity>> = repository.allDayEntitiesSortedByDate
+    val allDayEntitiesWithRelatedSortedByDate: LiveData<List<DayWithTodosAndEvents>> = repository.allDayEntitiesWithRelatedSortedByDate
     val allTodoEntities: LiveData<List<TodoEntity>> = repository.allTodoEntities
     val allEventEntities: LiveData<List<EventEntity>> = repository.allEventEntities
     val allNotes: LiveData<List<Note>> = repository.allNotes
 
-    private val _selectedLanguage = MutableLiveData<String>()
-    val selectedLanguage: LiveData<String> = _selectedLanguage
-
-    private val _isDarkTheme = MutableLiveData<Boolean>(false)
-    val isDarkTheme: LiveData<Boolean> = _isDarkTheme
-
-    fun setLanguage(language: String) {
-        _selectedLanguage.value = language
+    private fun scheduleNotification(date: LocalDate) {
+        viewModelScope.launch(Dispatchers.IO) {
+            notificationHelper.scheduleNotification(repository.getDayIdWithRelatedByDate(date))
+        }
     }
-
-    fun toggleTheme(isDark: Boolean) {
-        _isDarkTheme.value = isDark
-    }
-
     fun saveDayEntity(dayEntity: DayEntity) {
         return runBlocking {
             withContext(Dispatchers.IO) {
                 repository.saveDayEntity(dayEntity)
+                scheduleNotification(dayEntity.date)
             }
         }
     }
@@ -57,6 +55,7 @@ class DayViewModel(application: Application) : AndroidViewModel(application) {
     private fun deleteDayEntity(dayEntity: DayEntity) {
         viewModelScope.launch(Dispatchers.IO) {
             repository.deleteDayEntity(dayEntity)
+            notificationHelper.unscheduleNotification(dayEntity.dayId)
         }
     }
 
@@ -90,14 +89,13 @@ class DayViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
-    private fun getInnerDayByDate(date: LocalDate): DayEntity? {
+    fun getInnerDayByDate(date: LocalDate): DayEntity? {
         return runBlocking {
             withContext(Dispatchers.IO) {
                 repository.getDayByDate(date)
             }
         }
     }
-
 
     fun saveEventEntity(eventEntity: EventEntity) {
         viewModelScope.launch(Dispatchers.IO) {
@@ -120,75 +118,74 @@ class DayViewModel(application: Application) : AndroidViewModel(application) {
     }
 
 
-        fun updateNote(note: Note) {
-            viewModelScope.launch(Dispatchers.IO) {
-                repository.updateNote(note)
-            }
-        }
-
-        fun deleteNote(note: Note) {
-            viewModelScope.launch(Dispatchers.IO) {
-                repository.deleteNote(note)
-            }
-        }
-
-        fun getNoteById(id: Long): Note? {
-            return runBlocking {
-                withContext(Dispatchers.IO) {
-                    repository.getNoteById(id)
-                }
-            }
-        }
-
-
-        fun getEventsByDayId(dayId: Long): LiveData<List<EventEntity>> {
-            return runBlocking {
-                withContext(Dispatchers.IO) {
-                    repository.getEventsByDayId(dayId)
-                }
-            }
-        }
-
-        fun getTodosByDayId(dayId: Long): LiveData<List<TodoEntity>> {
-            return runBlocking {
-                withContext(Dispatchers.IO) {
-                    repository.getTodosByDayId(dayId)
-                }
-            }
-        }
-
-        private fun getDayIdWithRelated(dayId: Long): DayWithTodosAndEvents? {
-            return runBlocking {
-                withContext(Dispatchers.IO) {
-                    repository.getDayIdWithRelated(dayId)
-                }
-            }
-        }
-
-        fun insertTodo(todo: TodoEntity) {
-            viewModelScope.launch {
-                repository.addNewTodo(todo)
-            }
-        }
-
-        fun deleteDayEntityIfEmpty(dayId: Long) {
-            val temp: DayWithTodosAndEvents? = getDayIdWithRelated(dayId)
-            if (temp?.events?.isEmpty() == true &&
-                temp.todos.isEmpty() &&
-                temp.dayEntity.dayTitle.trim().isEmpty()
-            )
-                deleteDayEntity(temp.dayEntity)
-        }
-
-    }
-
-    class DayViewModelFactory(private val application: Application) : ViewModelProvider.Factory {
-
-        override fun <T : ViewModel> create(modelClass: Class<T>): T {
-            if (modelClass.isAssignableFrom(DayViewModel::class.java)) {
-                @Suppress("UNCHECKED_CAST")
-                return DayViewModel(application) as T
-            }
-            throw IllegalArgumentException("Unknown ViewModel class")
+    fun updateNote(note: Note) {
+        viewModelScope.launch(Dispatchers.IO) {
+            repository.updateNote(note)
         }
     }
+
+    fun deleteNote(note: Note) {
+        viewModelScope.launch(Dispatchers.IO) {
+            repository.deleteNote(note)
+        }
+    }
+
+    fun getNoteById(id: Long): Note? {
+        return runBlocking {
+            withContext(Dispatchers.IO) {
+                repository.getNoteById(id)
+            }
+        }
+    }
+
+
+    fun getEventsByDayId(dayId: Long): LiveData<List<EventEntity>> {
+        return runBlocking {
+            withContext(Dispatchers.IO) {
+                repository.getEventsByDayId(dayId)
+            }
+        }
+    }
+
+    fun getTodosByDayId(dayId: Long): LiveData<List<TodoEntity>> {
+        return runBlocking {
+            withContext(Dispatchers.IO) {
+                repository.getTodosByDayId(dayId)
+            }
+        }
+    }
+
+    private fun getDayIdWithRelated(dayId: Long): DayWithTodosAndEvents? {
+        return runBlocking {
+            withContext(Dispatchers.IO) {
+                repository.getDayIdWithRelated(dayId)
+            }
+        }
+    }
+
+    fun insertTodo(todo: TodoEntity) {
+        viewModelScope.launch {
+            repository.addNewTodo(todo)
+        }
+    }
+
+    fun deleteDayEntityIfEmpty(dayId: Long) {
+        val temp: DayWithTodosAndEvents? = getDayIdWithRelated(dayId)
+        if (temp?.events?.isEmpty() == true &&
+            temp.todos.isEmpty() &&
+            temp.dayEntity.dayTitle.trim().isEmpty()
+        )
+            deleteDayEntity(temp.dayEntity)
+    }
+}
+
+class DayViewModelFactory(private val application: Application, private val notificationHelper: NotificationHelper) : ViewModelProvider.Factory {
+
+    override fun <T : ViewModel> create(modelClass: Class<T>): T {
+        if (modelClass.isAssignableFrom(DayViewModel::class.java)) {
+            @Suppress("UNCHECKED_CAST")
+            return DayViewModel(application, notificationHelper) as T
+        }
+        throw IllegalArgumentException("Unknown ViewModel class")
+    }
+}

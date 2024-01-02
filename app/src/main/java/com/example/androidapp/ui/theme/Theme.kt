@@ -20,16 +20,21 @@ import java.util.Locale
 private val DarkColorScheme = darkColorScheme(
     primary = Purple80,
     secondary = PurpleGrey80,
-    tertiary = Pink80
+    tertiary = Pink80,
+    onSurface = Color.Gray,
+    surface = Color.Gray
 )
 
 private val LightColorScheme = lightColorScheme(
     primary = Purple40,
     secondary = PurpleGrey40,
     tertiary = Pink40,
+    onSurface = Color.Black,
+    surface = Color.Black,
 
     //Other default colors to override
     background = Color(0xFFFFFBFE)
+
 
     /*surface = Color(0xFFFFFBFE),
     onPrimary = Color.White,

@@ -16,7 +16,7 @@
     <string name="notification">Powiadomienie</string>
     <string name="font">Czcionka</string>
     <string name="font_size">Rozmiar czcionki</string>
-    <string name="modes">Tryb</string>
+    <string name="dark_mode">Tryb ciemny</string>
     <string name="sort_option">Opcja sortowania</string>
     <string name="backup">Kopia zapasowa</string>
     <string name="sign_out">Wyloguj się</string>
@@ -38,4 +38,23 @@
     <string name="apply_language">Zmień język</string>
     <string name="change_mode">Zmień motyw</string>
     <string name="pop_up_window">Czy chcesz zapisać zmiany?</string>
+    <string name="success">Sukces</string>
+    <string name="failure">Niepowodzenie</string>
+    <string name="yes">Tak</string>
+    <string name="no">Nie</string>
+    <string name="confirmation">Potwierdzenie</string>
+    <string name="continue_confirmation">Czy chcesz kontynuować?</string>
+    <string name="backup_or_import">Chciałbyś wgrać/zapisać istniejącą bazę danych?</string>
+    <string name="import_string">Zapisz</string>
+    <string name="choose_action">Wybierz akcję</string>
+    <string name="data">Dane</string>
+    <string name="notification_title">Zaplanowane na dziś</string>
+    <string name="title">Tytuł</string>
+    <string name="events">Wydarzenia</string>
+    <string name="todos">Do zrobienia</string>
+    <string name="ascending">Rosnąco</string>
+    <string name="descending">Malejąco</string>
+    <string name="small">Mały</string>
+    <string name="standard">Standardowy</string>
+    <string name="big">Duży</string>
 </resources>

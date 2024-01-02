@@ -18,7 +18,7 @@
     <string name="notification">Notification</string>
     <string name="font">Font</string>
     <string name="font_size">Font size</string>
-    <string name="modes">Mode</string>
+    <string name="dark_mode">Dark mode</string>
     <string name="sort_option">Sort option</string>
     <string name="backup">Backup</string>
     <string name="sign_out">Sign out</string>
@@ -38,4 +38,23 @@
     <string name="apply_language">Apply language</string>
     <string name="change_mode">Change mode</string>
     <string name="pop_up_window">Do you want to save the changes in the note?</string>
+    <string name="success">Success</string>
+    <string name="failure">Failure</string>
+    <string name="yes">Yes</string>
+    <string name="no">No</string>
+    <string name="confirmation">Confirm</string>
+    <string name="continue_confirmation">Are you sure you want to continue?</string>
+    <string name="backup_or_import">Would you like to import or export the data?</string>
+    <string name="import_string">Import</string>
+    <string name="choose_action">Choose action</string>
+    <string name="data">Data</string>
+    <string name="notification_title">Planned for today</string>
+    <string name="title">Title</string>
+    <string name="events">Events</string>
+    <string name="todos">To dos</string>
+    <string name="ascending">Ascending</string>
+    <string name="descending">Descending</string>
+    <string name="small">Small</string>
+    <string name="standard">Standard</string>
+    <string name="big">Big</string>
 </resources>

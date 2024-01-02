@@ -1,10 +1,13 @@
 package com.example.androidapp
 
 import android.app.Application
+import android.content.Context
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalContext
+import androidx.datastore.preferences.preferencesDataStore
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavGraphBuilder
@@ -13,8 +16,6 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
 import com.example.androidapp.database.converter.LocalDateConverter
-import com.example.androidapp.database.importDatabase
-import com.example.androidapp.database.performBackup
 import com.example.androidapp.database.viewmodel.DayViewModel
 import com.example.androidapp.database.viewmodel.DayViewModelFactory
 import com.example.androidapp.navigation.CustomBottomNavigation
@@ -27,6 +28,11 @@ import com.example.androidapp.navigation.navigablescreen.DaysScreen
 import com.example.androidapp.navigation.navigablescreen.FilePicker
 import com.example.androidapp.navigation.navigablescreen.SettingsScreen
 import com.example.androidapp.navigation.rememberNavHostController
+import com.example.androidapp.notifications.NotificationHelper
+import com.example.androidapp.settings.LanguageEnum
+import com.example.androidapp.settings.SettingsRepository
+import com.example.androidapp.settings.SettingsViewModel
+import com.example.androidapp.settings.SettingsViewModelFactory
 import com.example.androidapp.ui.theme.AndroidAppTheme
 import com.example.androidapp.ui.theme.LanguageAwareScreen
 import java.time.LocalDate
@@ -34,16 +40,22 @@ import java.time.LocalDate
 @Composable
 fun UniqrnApp() {
     val navController = rememberNavHostController()
-    val mDayViewModel: DayViewModel = viewModel(
-        factory = DayViewModelFactory(LocalContext.current.applicationContext as Application)
+
+    val mSettingsViewModel: SettingsViewModel = viewModel(
+        factory = SettingsViewModelFactory(SettingsRepository(LocalContext.current))
     )
 
-    val themeViewModel: DayViewModel = viewModel()
-    val selectedLanguage by themeViewModel.selectedLanguage.observeAsState("en")
-    val isDarkTheme by themeViewModel.isDarkTheme.observeAsState(true)
+    val selectedLanguage by mSettingsViewModel.selectedLanguage.observeAsState(LanguageEnum.ENGLISH)
+    val isDarkTheme by mSettingsViewModel.isDarkTheme.observeAsState(true)
+    val areNotificationsEnabled by mSettingsViewModel.areNotificationsEnabled.observeAsState(true)
+
+    val notificationHelper = NotificationHelper(LocalContext.current, areNotificationsEnabled)
+    val mDayViewModel: DayViewModel = viewModel(
+        factory = DayViewModelFactory(LocalContext.current.applicationContext as Application, notificationHelper)
+    )
 
     AndroidAppTheme(isDarkTheme) {
-        LanguageAwareScreen(selectedLanguage) {
+        LanguageAwareScreen(selectedLanguage.code) {
             NavHost(
                 navController = navController.navController,
                 startDestination = ScreenRoutes.ALL_NOTES
@@ -53,7 +65,8 @@ fun UniqrnApp() {
                     onNoteSelected = navController::navigateToNoteEditor,
                     upPress = navController::upPress,
                     onNavigateToRoute = navController::navigateToBottomBarRoute,
-                    mDayViewModel = mDayViewModel
+                    mDayViewModel = mDayViewModel,
+                    mSettingsViewModel = mSettingsViewModel
                 )
             }
         }
@@ -61,6 +74,7 @@ fun UniqrnApp() {
 }
 
 private fun NavGraphBuilder.unqirnNavGraph(
+    mSettingsViewModel: SettingsViewModel,
     mDayViewModel: DayViewModel,
     onDaySelected: (LocalDate, NavBackStackEntry) -> Unit,
     onNoteSelected: (Long, LocalDate?, NavBackStackEntry) -> Unit,
@@ -131,7 +145,7 @@ private fun NavGraphBuilder.unqirnNavGraph(
         CustomBottomNavigation(
             tabs,
             ScreenRoutes.SETTINGS,
-            SettingsScreen (mDayViewModel, onNavigateToRoute),
+            SettingsScreen(onNavigateToRoute, mSettingsViewModel),
             onNavigateToRoute
         )
     }
@@ -163,9 +177,7 @@ private fun NavGraphBuilder.unqirnNavGraph(
 
     composable(route = ScreenRoutes.IMPORT_PICKER) { _ ->
         FilePicker(
-            onFilePicked = { uri, context ->
-                importDatabase(context, uri)
-            },
+            mDayViewModel = mDayViewModel,
             upPress = upPress,
             isExport = false
         ).ViewWithBackground()
@@ -173,9 +185,8 @@ private fun NavGraphBuilder.unqirnNavGraph(
 
     composable(route = ScreenRoutes.BACKUP_PICKER) { _ ->
         FilePicker(
-            onFilePicked = { uri, context ->
-                performBackup(context, uri)
-            },
+            mDayViewModel = mDayViewModel,
+
             upPress = upPress,
             isExport = true
         ).ViewWithBackground()
