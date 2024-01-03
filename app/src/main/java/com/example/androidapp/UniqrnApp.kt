@@ -47,6 +47,7 @@ fun UniqrnApp() {
 
     val selectedLanguage by mSettingsViewModel.selectedLanguage.observeAsState(LanguageEnum.ENGLISH)
     val isDarkTheme by mSettingsViewModel.isDarkTheme.observeAsState(true)
+    val isUniqrnTheme by mSettingsViewModel.isUniqrnModeEnabled.observeAsState(true)
     val areNotificationsEnabled by mSettingsViewModel.areNotificationsEnabled.observeAsState(true)
 
     val notificationHelper = NotificationHelper(LocalContext.current, areNotificationsEnabled)
@@ -54,7 +55,7 @@ fun UniqrnApp() {
         factory = DayViewModelFactory(LocalContext.current.applicationContext as Application, notificationHelper)
     )
 
-    AndroidAppTheme(isDarkTheme) {
+    AndroidAppTheme(isDarkTheme, isUniqrnTheme) {
         LanguageAwareScreen(selectedLanguage.code) {
             NavHost(
                 navController = navController.navController,

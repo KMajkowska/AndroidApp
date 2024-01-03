@@ -81,13 +81,13 @@ fun CustomBottomNavigation(
                         Icon(
                             imageVector = tab.icon,
                             contentDescription = stringResource(id = tab.title),
-                            tint = if (tab == currentSection) MaterialTheme.colorScheme.onSecondary else MaterialTheme.colorScheme.onPrimaryContainer
+                            tint = if (tab == currentSection) MaterialTheme.colorScheme.onSecondary else MaterialTheme.colorScheme.onSecondaryContainer
                         )
                     },
                     label = {
                         Text(
                             text = stringResource(id = tab.title),
-                            color = if (tab == currentSection) MaterialTheme.colorScheme.onSecondary else MaterialTheme.colorScheme.onPrimaryContainer
+                            color = if (tab == currentSection) MaterialTheme.colorScheme.onSecondary else MaterialTheme.colorScheme.onSecondaryContainer
                         )
                     },
                     selected = tab == currentSection,

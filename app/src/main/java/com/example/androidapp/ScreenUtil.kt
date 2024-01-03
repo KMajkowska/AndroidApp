@@ -1,6 +1,7 @@
 package com.example.androidapp
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -43,6 +44,10 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.androidapp.settings.SettingsRepository
 import com.example.androidapp.settings.SettingsViewModel
 import com.example.androidapp.settings.SettingsViewModelFactory
+import com.example.androidapp.ui.theme.Blue
+import com.example.androidapp.ui.theme.DarkerPurple
+import com.example.androidapp.ui.theme.Pink
+import com.example.androidapp.ui.theme.Purple
 
 @Composable
 fun AddBackgroundToComposables(vararg composables: @Composable () -> Unit) {
@@ -50,6 +55,7 @@ fun AddBackgroundToComposables(vararg composables: @Composable () -> Unit) {
         factory = SettingsViewModelFactory(SettingsRepository(LocalContext.current))
     )
     val isUniqrnTheme by mSettingsViewModel.isUniqrnModeEnabled.observeAsState(false)
+    val isDarkTheme by mSettingsViewModel.isDarkTheme.observeAsState(false)
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -64,20 +70,31 @@ fun AddBackgroundToComposables(vararg composables: @Composable () -> Unit) {
                             Color.hsv(180F, 1F, 1F),
                             Color.hsv(240F, 1F, 1F),
                             Color.hsv(270F, 1F, 1F),
-                            Color.hsv(300F, 1F, 1F)
+                            Pink
                         ),
                         startY = 0.0f,
                         endY = Float.POSITIVE_INFINITY
                     )
                 } else {
-                    Brush.verticalGradient(
-                        colors = listOf(
-                            Color.hsv(242F, 0.729F, 1F),
-                            Color.hsv(209F, 0.683F, 0.953F)
-                        ),
-                        startY = 0.0f,
-                        endY = Float.POSITIVE_INFINITY
-                    )
+                    if (isDarkTheme){
+                        Brush.verticalGradient(
+                            colors = listOf(
+                                DarkerPurple,
+                                Purple
+                            ),
+                            startY = 0.0f,
+                            endY = Float.POSITIVE_INFINITY
+                        )
+                    } else {
+                        Brush.verticalGradient(
+                            colors = listOf(
+                                Color.hsv(242F, 0.729F, 1F),
+                                Blue
+                            ),
+                            startY = 0.0f,
+                            endY = Float.POSITIVE_INFINITY
+                        )
+                    }
                 }
             )
     ) {

@@ -73,7 +73,7 @@ class AllNotes(
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(20.dp)
+                .padding(16.dp)
         ) {
             Column(
                 modifier = Modifier
@@ -108,8 +108,7 @@ class AllNotes(
                     modifier = Modifier
                         .size(66.dp)
                         .shadow(2.dp, CircleShape)
-                        .background(MaterialTheme.colorScheme.primary
-                        , shape = CircleShape)
+                        .background(MaterialTheme.colorScheme.primary, shape = CircleShape)
                         .padding(16.dp)
                 ) {
                     Icon(
@@ -125,18 +124,19 @@ class AllNotes(
     }
     @Composable
     fun NoteItem(note: Note, onNoteClicked: (Note) -> Unit) {
-
-
         Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(8.dp)
+                .padding(6.dp, 0.dp, 6.dp, 6.dp)
+                .background(MaterialTheme.colorScheme.surface)
                 .clickable { onNoteClicked(note) }
         ) {
             Column {
                 Text(
                     text = note.noteTitle,
-                    style = TextStyle(fontSize = 18.sp, fontWeight = FontWeight.Bold)
+                    style = TextStyle(fontSize = 18.sp, fontWeight = FontWeight.Bold),
+                    modifier = Modifier
+                        .padding(10.dp,2.dp,10.dp,2.dp)
                 )
                 val lines = note.content.lines().take(2)
                 lines.forEachIndexed { index, line ->
@@ -144,7 +144,9 @@ class AllNotes(
                         text = if (index == 1 && lines.size > 1) "$line..." else line,
                         style = TextStyle(fontSize = 16.sp),
                         maxLines = 1,  // Limit to one line
-                        overflow = TextOverflow.Ellipsis  // Indicate that the text might be truncated
+                        overflow = TextOverflow.Ellipsis,  // Indicate that the text might be truncated
+                        modifier = Modifier
+                            .padding(10.dp,0.dp,10.dp,0.dp)
                     )
                 }
                 if (note.noteDate != null) {
@@ -154,8 +156,10 @@ class AllNotes(
                     ) {
                         Text(
                             text = "${note.noteDate}",
-                            style = TextStyle(fontSize = 12.sp),
-                            modifier = Modifier.weight(1f)
+                            style = TextStyle(fontSize = 14.sp),
+                            modifier = Modifier
+                                .weight(1f)
+                                .padding(10.dp,0.dp,10.dp,0.dp)
                         )
 
                         // Add calendar icon for notes with a date
@@ -167,26 +171,27 @@ class AllNotes(
                                         date -> onCalendarClick(date)
                                     }
                                 },
-                                modifier = Modifier.size(20.dp)
+                                modifier = Modifier
+                                    .size(20.dp)
                             ) {
                                 Icon(
                                     imageVector = Icons.Default.CalendarMonth,
                                     contentDescription = null,
-                                    tint = MaterialTheme.colorScheme.onBackground
+                                    tint = MaterialTheme.colorScheme.onBackground,
                                 )
                             }
                         }
                     }
                 }
             }
-            Divider(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(bottom=20.dp)
-                    .height(1.dp), // Adjust the thickness of the line
-                color = MaterialTheme.colorScheme.onBackground
-            )
-        }
-    }
 
+        }
+        Divider(
+            modifier = Modifier
+                .height(1.dp)
+                .background(MaterialTheme.colorScheme.onBackground)
+                .fillMaxWidth()
+        )
+    }
 }
+

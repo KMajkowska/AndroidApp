@@ -1,13 +1,9 @@
 package com.example.androidapp.ui.theme
 
 import android.app.Activity
-import android.os.Build
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.contentColorFor
 import androidx.compose.material3.darkColorScheme
-import androidx.compose.material3.dynamicDarkColorScheme
-import androidx.compose.material3.dynamicLightColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.SideEffect
@@ -21,45 +17,56 @@ import java.util.Locale
 private val DarkColorScheme = darkColorScheme(
     primary = Purple,
     secondary = DarkerPurple,
-    onSurface = Color.White,
+    onSurface = White,
     surface = Black,
     background = Black,
-    onBackground = Color.White,
+    onBackground = White,
     onPrimary = Color.Black,
-    onSecondary = Color.White,
+    onSecondary = White,
     primaryContainer = LighterPurple,
     secondaryContainer = LighterPurple,
-    onPrimaryContainer = Color.Gray,
-    onSecondaryContainer = Color.Gray
+    onPrimaryContainer =  Black,
+    onSecondaryContainer = Color.Gray,
+    tertiary = Red,
+    onTertiary = White
 
 )
 
 private val LightColorScheme =
     lightColorScheme(
         primary = Blue,
-        onPrimary = Color.White,
+        onPrimary = White,
         secondary = darkerBlue,
-        onSecondary = Color.White,
-        background = Color.White,
+        onSecondary = White,
+        background = White,
         onBackground = Color.Black,
         onSurface = Color.Black,
-        surface = Color.White,
+        surface = White,
         primaryContainer = LighterBlue,
         secondaryContainer = LighterBlue,
-        onPrimaryContainer = Color.Gray,
-        onSecondaryContainer = Color.Gray
-
-    //Other default colors to override
-
-
-    /*surface = Color(0xFFFFFBFE),
-    onPrimary = Color.White,
-    onSecondary = Color.White,
-    onTertiary = Color.White,
-    onBackground = Color(0xFF1C1B1F),
-    onSurface = Color(0xFF1C1B1F),
-    */
+        onPrimaryContainer = White,
+        onSecondaryContainer = darkGray,
+        tertiary = Red,
+        onTertiary = White
 )
+
+private val UnicornColorScheme =
+    lightColorScheme(
+        primary = Pink,
+        onPrimary = White,
+        secondary = darkerPink,
+        onSecondary = White,
+        background = White,
+        onBackground = Color.Black,
+        onSurface = Color.Black,
+        surface = White,
+        primaryContainer = LighterPink,
+        secondaryContainer = LighterPink,
+        onPrimaryContainer = Color.Black,
+        onSecondaryContainer = darkGray,
+        tertiary = Red,
+        onTertiary = White
+    )
 
 @Composable
 fun LanguageAwareScreen(selectedLanguage: String, content: @Composable () -> Unit) {
@@ -77,22 +84,15 @@ fun LanguageAwareScreen(selectedLanguage: String, content: @Composable () -> Uni
 @Composable
 fun AndroidAppTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
-    // Dynamic color is available on Android 12+
-    dynamicColor: Boolean = true,
+    uniqrnTheme: Boolean = false,
     content: @Composable () -> Unit
 ) {
-//    val colorScheme = when {
-//        dynamicColor && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> {
-//            val context = LocalContext.current
-//            if (darkTheme) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)
-//        }
-//
-//        darkTheme -> DarkColorScheme
-//        else -> LightColorScheme
-//    }
     var colorScheme = LightColorScheme
     if(darkTheme){
         colorScheme = DarkColorScheme
+    }
+    if(uniqrnTheme){
+        colorScheme = UnicornColorScheme
     }
     val view = LocalView.current
     if (!view.isInEditMode) {
