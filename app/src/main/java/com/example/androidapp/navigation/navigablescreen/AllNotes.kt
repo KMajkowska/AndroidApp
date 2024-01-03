@@ -18,15 +18,19 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CalendarMonth
 import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material3.Divider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
@@ -104,13 +108,14 @@ class AllNotes(
                     modifier = Modifier
                         .size(66.dp)
                         .shadow(2.dp, CircleShape)
-                        .background(Blue, shape = CircleShape)
+                        .background(MaterialTheme.colorScheme.primary
+                        , shape = CircleShape)
                         .padding(16.dp)
                 ) {
                     Icon(
                         imageVector = Icons.Default.Edit,
                         contentDescription = null,
-                        tint = Color.White,
+                        tint = MaterialTheme.colorScheme.onPrimary,
                         modifier = Modifier
                             .size(20.dp)
                     )
@@ -125,7 +130,6 @@ class AllNotes(
         Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .border(1.dp, Color.Gray)
                 .padding(8.dp)
                 .clickable { onNoteClicked(note) }
         ) {
@@ -168,13 +172,20 @@ class AllNotes(
                                 Icon(
                                     imageVector = Icons.Default.CalendarMonth,
                                     contentDescription = null,
-                                    tint = Color.Gray
+                                    tint = MaterialTheme.colorScheme.onBackground
                                 )
                             }
                         }
                     }
                 }
             }
+            Divider(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(bottom=20.dp)
+                    .height(1.dp), // Adjust the thickness of the line
+                color = MaterialTheme.colorScheme.onBackground
+            )
         }
     }
 

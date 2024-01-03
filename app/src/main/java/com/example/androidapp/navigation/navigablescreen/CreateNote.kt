@@ -82,7 +82,7 @@ class CreateNote(
                     Icon(
                         imageVector = Icons.Default.Close,
                         contentDescription = null,
-                        tint = Color.Black
+                        tint = MaterialTheme.colorScheme.onBackground
                     )
                 }
                 if (openDialog) {
@@ -180,7 +180,7 @@ class CreateNote(
                         },
                         modifier = Modifier
                             .size(56.dp)
-                            .background(Blue, CircleShape)
+                            .background(MaterialTheme.colorScheme.primary, CircleShape)
                             .padding(16.dp)
                             .clip(CircleShape)
                             .shadow(4.dp, CircleShape)
@@ -188,7 +188,7 @@ class CreateNote(
                         Icon(
                             imageVector = Icons.Default.Done,
                             contentDescription = null,
-                            tint = Color.White
+                            tint = MaterialTheme.colorScheme.onPrimary
                         )
                     }
 
@@ -210,7 +210,7 @@ class CreateNote(
                         Icon(
                             imageVector = Icons.Default.Delete,
                             contentDescription = null,
-                            tint = Color.White
+                            tint = MaterialTheme.colorScheme.onPrimary
                         )
                     }
                 }

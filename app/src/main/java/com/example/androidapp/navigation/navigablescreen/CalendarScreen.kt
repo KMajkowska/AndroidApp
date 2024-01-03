@@ -61,17 +61,42 @@ class CalendarScreen(
             if (index >= 0)
                 lazyListState.scrollToItem(index)
         }
-        LazyColumn(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(16.dp),
-            state = lazyListState
-        ) {
-            items(groupedByYearMonth.entries.toList()) { (yearMonth, objects) ->
-                YearSquare(yearMonth, objects, currentYearMonth, onDaySelected)
+//        LazyColumn(
+//            modifier = Modifier
+//                .fillMaxSize()
+//                .padding(16.dp),
+//            state = lazyListState
+//        ) {
+//            items(groupedByYearMonth.entries.toList()) { (yearMonth, objects) ->
+//                YearSquare(yearMonth, objects, currentYearMonth, onDaySelected)
+//            }
+//        }
+//    }
+            LazyColumn(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(16.dp),
+                state = lazyListState
+            ) {
+                var previousYear: Int? = null
+
+                items(groupedByYearMonth.entries.toList()) { (yearMonth, objects) ->
+                    if (previousYear == null || yearMonth.year != previousYear) {
+                        YearSquare(yearMonth, objects, currentYearMonth, onDaySelected)
+                    } else {
+                        Column(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(8.dp)
+                        ) {
+                        MonthSquare(yearMonth, objects, currentYearMonth, onDaySelected)
+                    }
+                    }
+
+                    previousYear = yearMonth.year
+                }
             }
         }
-    }
 }
 
 @Composable
@@ -85,17 +110,17 @@ fun YearSquare(
         modifier = Modifier
             .fillMaxWidth()
             .padding(8.dp)
-            .background(MaterialTheme.colorScheme.surface)
+            .background(MaterialTheme.colorScheme.background)
             .clip(RoundedCornerShape(16.dp)),
     ) {
         Text(
             text = yearMonth.year.toString(),
             modifier = Modifier
                 .fillMaxWidth()
-                .background(MaterialTheme.colorScheme.primary)
+                .background(MaterialTheme.colorScheme.secondary)
                 .padding(8.dp)
                 .clip(RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp)),
-            color = Color.White
+            color = MaterialTheme.colorScheme.onSecondary
         )
         Spacer(modifier = Modifier.height(4.dp))
 
@@ -116,7 +141,7 @@ fun MonthSquare(
         modifier = Modifier
             .fillMaxWidth()
             .padding(8.dp)
-            .background(color = Color.hsv(227F, 0.939F, 0.961F, 0.22F))
+            .background(MaterialTheme.colorScheme.primary)
             .clip(RoundedCornerShape(16.dp)),
     ) {
         Text(
@@ -125,7 +150,7 @@ fun MonthSquare(
                 .fillMaxWidth()
                 .padding(8.dp)
                 .clip(RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp)),
-            color = Color.White
+            color = MaterialTheme.colorScheme.onPrimary
         )
         Spacer(modifier = Modifier.height(4.dp))
 
