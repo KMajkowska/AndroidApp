@@ -1,8 +1,12 @@
 package com.example.androidapp.navigation.navigablescreen
 
+import android.media.MediaDrm.LogMessage
+import android.os.Build
+import android.util.Log
 import android.view.ContextThemeWrapper
 import android.view.ViewGroup
 import android.widget.CalendarView
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -29,6 +33,7 @@ import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
@@ -79,10 +84,11 @@ class DaysScreen(
         TODO("Not yet implemented")
     }
 
+    @RequiresApi(Build.VERSION_CODES.S)
     @Composable
     override fun ViewWithBackground() {
         var dayEntity by remember { mutableStateOf(mDayViewModel.getDayByDate(localDate)) }
-        var selectedNote by remember { mutableStateOf(mDayViewModel.getNoteByDate(localDate))}
+        var selectedNote by remember { mutableStateOf(mDayViewModel.getNoteByDate(localDate)) }
 
         AddBackgroundToComposables({
             View { chosenDate ->
@@ -94,6 +100,7 @@ class DaysScreen(
         })
     }
 
+    @RequiresApi(Build.VERSION_CODES.S)
     @Composable
     fun DayDataView(dayEntity: DayEntity, selectedNote: Note?) {
         val hasDayEntityBeenChanged = remember { mutableStateOf(false) }
@@ -101,7 +108,12 @@ class DaysScreen(
         var currentDayTitle by remember { mutableStateOf(dayEntity.dayTitle) }
         val hasDayTitleChanged = remember { mutableStateOf(false) }
 
-        DisposableEffect(dayEntity, selectedNote, hasDayEntityBeenChanged.value, hasNoteBeenChanged) {
+        DisposableEffect(
+            dayEntity,
+            selectedNote,
+            hasDayEntityBeenChanged.value,
+            hasNoteBeenChanged
+        ) {
             onDispose {
                 if (hasDayEntityBeenChanged.value) {
                     mDayViewModel.saveDayEntity(dayEntity)
@@ -151,6 +163,7 @@ class DaysScreen(
                     dayEntity.dayId!!,
                     hasDayEntityBeenChanged = hasDayEntityBeenChanged,
                 )
+                HorizontalDivider()
             }
             item {
                 EventView(
@@ -175,15 +188,18 @@ class DaysScreen(
             factory = SettingsViewModelFactory(SettingsRepository(LocalContext.current))
         )
         val isDarkMode by mSettingsViewModel.isDarkTheme.observeAsState(false)
+        val isUniqrnMode by mSettingsViewModel.isUniqrnModeEnabled.observeAsState(false)
 
 
-        LazyColumn(modifier = Modifier.fillMaxSize()){
-            item{
+        LazyColumn(modifier = Modifier.fillMaxSize()) {
+            item {
                 AndroidView(
                     factory = { context ->
                         val themedContext = ContextThemeWrapper(
                             context,
-                            if (isDarkMode) R.style.CalendarTextAppearance_Dark else R.style.CalendarTextAppearance_Light
+                            if (isUniqrnMode) R.style.CalendarTextAppearance_Unicorn else {
+                                if (isDarkMode) R.style.CalendarTextAppearance_Dark else R.style.CalendarTextAppearance_Light
+                            }
                         )
                         CalendarView(themedContext).apply {
                             layoutParams = ViewGroup.LayoutParams(
@@ -210,7 +226,6 @@ class DaysScreen(
             }
         }
     }
-
 
 
     @Composable
@@ -257,10 +272,12 @@ class DaysScreen(
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.SpaceBetween,
-                    modifier = Modifier.padding(16.dp)
+                    modifier = Modifier.padding(18.dp, 0.dp, 0.dp, 0.dp)
                 ) {
                     Row(
                         verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                        modifier = Modifier.weight(1f)
                     ) {
                         Checkbox(
                             checked = isChecked,
@@ -271,10 +288,9 @@ class DaysScreen(
                                 hasDayEntityBeenChanged.value = true
                             }
                         )
-                        Text(text = todo.title)
+                        Spacer(modifier = Modifier.width(8.dp)) // Add some spacing between Checkbox and Text
+                        Text(text = todo.title, modifier = Modifier.weight(1f))
                     }
-
-                    // Added delete button
                     IconButton(
                         onClick = { mDayViewModel.deleteTodoEntity(todo) }
                     ) {
@@ -287,6 +303,7 @@ class DaysScreen(
         }
     }
 
+    @RequiresApi(Build.VERSION_CODES.S)
     @Composable
     fun EventView(
         dayId: Long,
@@ -306,122 +323,129 @@ class DaysScreen(
                 .padding(8.dp)
         ) {
             Text(stringResource(id = R.string.event_list))
-        }
 
-        HorizontalDivider()
-
-        val categoryList = EventCategories.entries.toTypedArray()
-        if (isEditing) {
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                Box(
-                    modifier = Modifier
-                        .clickable {
-                            isDropdownExpanded = !isDropdownExpanded
-                        }
-                ) {
-                    DropdownMenu(
-                        expanded = isDropdownExpanded,
-                        onDismissRequest = {
-                            isDropdownExpanded = false
-                        }
-                    ) {
-
-                        categoryList.forEach { category ->
-                            if (category.name == newEventCategory.value) {
-                                return@forEach
-                            }
-                            DropdownMenuItem(
-                                {
-                                    Text(
-                                        text = stringResource(id = category.resourceId),
-                                        Modifier.padding(8.dp)
-                                    )
-                                },
-                                onClick = {
-                                    newEventCategory.value = context.getString(category.resourceId)
-                                    isDropdownExpanded = false
-                                }
-                            )
-                        }
-                    }
-                    Text(newEventCategory.value)
-                }
-
-                Spacer(modifier = Modifier.width(8.dp))
-
-                InlineTextEditor(
-                    data = "",
-                    hasDayEntityBeenChanged = hasDayEntityBeenChanged
-                ) { possibleNewEventTitle ->
-                    if (possibleNewEventTitle.isNotEmpty()) {
-                        mDayViewModel.saveEventEntity(
-                            EventEntity(
-                                dayForeignId = dayId,
-                                title = possibleNewEventTitle,
-                                category = newEventCategory.value
-                            )
-                        )
-                    }
-                    isEditing = false
-                    newEventCategory.value = categoryList[0].toString()
-                }
-
-
-            }
-        } else {
-            IconButton(onClick = {
-                isEditing = true
-            }) {
-                Icon(
-                    imageVector = Icons.Default.Add,
-                    contentDescription = "Add new event"
-                )
-            }
-        }
-
-        eventList.forEach { event ->
-            val eventCategory by remember { mutableStateOf(event.category) }
-
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.SpaceBetween,
-                modifier = Modifier.padding(16.dp)
-            ) {
+            val categoryList = EventCategories.entries.toTypedArray()
+            if (isEditing) {
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
-                    val icon = getCategoryIcon(eventCategory)
-                    Icon(imageVector = icon, contentDescription = null)
-                    Text(event.title)
-                }
+                    Box(
+                        modifier = Modifier
+                            .clickable {
+                                isDropdownExpanded = !isDropdownExpanded
+                            }
+                    ) {
+                        DropdownMenu(
+                            expanded = isDropdownExpanded,
+                            onDismissRequest = {
+                                isDropdownExpanded = false
+                            }
+                        ) {
 
-                IconButton(
-                    onClick = { mDayViewModel.deleteEventEntity(event) }
-                ) {
-                    Icon(Icons.Default.Delete, contentDescription = "Delete")
-                    hasDayEntityBeenChanged.value = true
+                            categoryList.forEach { category ->
+                                if (category.name == newEventCategory.value) {
+                                    return@forEach
+                                }
+                                DropdownMenuItem(
+                                    {
+                                        Text(
+                                            text = stringResource(id = category.resourceId),
+                                            Modifier.padding(8.dp)
+                                        )
+                                    },
+                                    onClick = {
+                                        newEventCategory.value =
+                                            context.getString(category.resourceId)
+                                        isDropdownExpanded = false
+                                    }
+                                )
+                            }
+                        }
+                        Text(newEventCategory.value)
+                    }
+
+                    Spacer(modifier = Modifier.width(8.dp))
+
+                    InlineTextEditor(
+                        data = "",
+                        hasDayEntityBeenChanged = hasDayEntityBeenChanged
+                    ) { possibleNewEventTitle ->
+                        if (possibleNewEventTitle.isNotEmpty()) {
+                            mDayViewModel.saveEventEntity(
+                                EventEntity(
+                                    dayForeignId = dayId,
+                                    title = possibleNewEventTitle,
+                                    category = newEventCategory.value
+                                )
+                            )
+                        }
+                        isEditing = false
+                        newEventCategory.value = categoryList[0].toString()
+                    }
+
+
+                }
+            } else {
+                IconButton(onClick = {
+                    isEditing = true
+                }) {
+                    Icon(
+                        imageVector = Icons.Default.Add,
+                        contentDescription = "Add new event"
+                    )
                 }
             }
 
+            eventList.forEach { event ->
+                val eventCategory by remember { mutableStateOf(event.category) }
+
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    modifier = Modifier.padding(18.dp, 0.dp, 0.dp, 18.dp)
+                ) {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                        modifier = Modifier.weight(1f)
+                    ) {
+                        val icon = getCategoryIcon(eventCategory)
+                        Icon(
+                            imageVector = icon,
+                            contentDescription = null,
+                            modifier = Modifier.padding(18.dp, 0.dp, 0.dp, 0.dp)
+                        )
+                        Text(
+                            text = event.title,
+                            modifier = Modifier.weight(1f)
+                        )
+                    }
+
+                    IconButton(
+                        onClick = { mDayViewModel.deleteEventEntity(event) }
+                    ) {
+                        Icon(Icons.Default.Delete, contentDescription = "Delete")
+                        hasDayEntityBeenChanged.value = true
+                    }
+                }
+            }
         }
     }
-
 }
 
 @Composable
 fun getCategoryIcon(category: String): ImageVector {
     return when (category) {
 
-        EventCategories.GENERAL.name -> Icons.Default.CalendarMonth
-        EventCategories.PARTY.name -> Icons.Default.Celebration
-        EventCategories.SPORT.name -> Icons.Default.SportsBasketball
-        EventCategories.MEETING.name -> Icons.Default.Groups
-        EventCategories.FOOD.name -> Icons.Default.Fastfood
-        EventCategories.ENTERTAINMENT.name -> Icons.Default.Games
+        stringResource(EventCategories.GENERAL.resourceId) -> Icons.Default.CalendarMonth
+        stringResource(EventCategories.PARTY.resourceId) -> Icons.Default.Celebration
+        stringResource(EventCategories.SPORT.resourceId) -> Icons.Default.SportsBasketball
+        stringResource(EventCategories.MEETING.resourceId) -> Icons.Default.Groups
+        stringResource(EventCategories.FOOD.resourceId) -> Icons.Default.Fastfood
+        stringResource(EventCategories.ENTERTAINMENT.resourceId) -> Icons.Default.Games
         else -> Icons.Default.CalendarMonth
     }
+
 }
 
 @Composable
@@ -429,7 +453,6 @@ fun NoteItem(note: Note?, onNoteClicked: (Note?) -> Unit) {
     Box(
         modifier = Modifier
             .fillMaxWidth()
-            .border(1.dp, Color.Gray)
             .padding(8.dp)
             .clickable { onNoteClicked(note) }
     ) {

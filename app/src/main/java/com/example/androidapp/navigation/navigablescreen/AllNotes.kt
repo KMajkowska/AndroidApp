@@ -18,15 +18,19 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CalendarMonth
 import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material3.Divider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
@@ -69,7 +73,7 @@ class AllNotes(
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(20.dp)
+                .padding(16.dp)
         ) {
             Column(
                 modifier = Modifier
@@ -104,13 +108,13 @@ class AllNotes(
                     modifier = Modifier
                         .size(66.dp)
                         .shadow(2.dp, CircleShape)
-                        .background(Blue, shape = CircleShape)
+                        .background(MaterialTheme.colorScheme.primary, shape = CircleShape)
                         .padding(16.dp)
                 ) {
                     Icon(
                         imageVector = Icons.Default.Edit,
                         contentDescription = null,
-                        tint = Color.White,
+                        tint = MaterialTheme.colorScheme.onPrimary,
                         modifier = Modifier
                             .size(20.dp)
                     )
@@ -120,19 +124,19 @@ class AllNotes(
     }
     @Composable
     fun NoteItem(note: Note, onNoteClicked: (Note) -> Unit) {
-
-
         Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .border(1.dp, Color.Gray)
-                .padding(8.dp)
+                .padding(6.dp, 0.dp, 6.dp, 6.dp)
+                .background(MaterialTheme.colorScheme.surface)
                 .clickable { onNoteClicked(note) }
         ) {
             Column {
                 Text(
                     text = note.noteTitle,
-                    style = TextStyle(fontSize = 18.sp, fontWeight = FontWeight.Bold)
+                    style = TextStyle(fontSize = 18.sp, fontWeight = FontWeight.Bold),
+                    modifier = Modifier
+                        .padding(10.dp,2.dp,10.dp,2.dp)
                 )
                 val lines = note.content.lines().take(2)
                 lines.forEachIndexed { index, line ->
@@ -140,7 +144,9 @@ class AllNotes(
                         text = if (index == 1 && lines.size > 1) "$line..." else line,
                         style = TextStyle(fontSize = 16.sp),
                         maxLines = 1,  // Limit to one line
-                        overflow = TextOverflow.Ellipsis  // Indicate that the text might be truncated
+                        overflow = TextOverflow.Ellipsis,  // Indicate that the text might be truncated
+                        modifier = Modifier
+                            .padding(10.dp,0.dp,10.dp,0.dp)
                     )
                 }
                 if (note.noteDate != null) {
@@ -150,8 +156,10 @@ class AllNotes(
                     ) {
                         Text(
                             text = "${note.noteDate}",
-                            style = TextStyle(fontSize = 12.sp),
-                            modifier = Modifier.weight(1f)
+                            style = TextStyle(fontSize = 14.sp),
+                            modifier = Modifier
+                                .weight(1f)
+                                .padding(10.dp,0.dp,10.dp,0.dp)
                         )
 
                         // Add calendar icon for notes with a date
@@ -163,19 +171,27 @@ class AllNotes(
                                         date -> onCalendarClick(date)
                                     }
                                 },
-                                modifier = Modifier.size(20.dp)
+                                modifier = Modifier
+                                    .size(20.dp)
                             ) {
                                 Icon(
                                     imageVector = Icons.Default.CalendarMonth,
                                     contentDescription = null,
-                                    tint = Color.Gray
+                                    tint = MaterialTheme.colorScheme.onBackground,
                                 )
                             }
                         }
                     }
                 }
             }
-        }
-    }
 
+        }
+        Divider(
+            modifier = Modifier
+                .height(1.dp)
+                .background(MaterialTheme.colorScheme.onBackground)
+                .fillMaxWidth()
+        )
+    }
 }
+

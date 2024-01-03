@@ -1,6 +1,9 @@
 package com.example.androidapp.navigation
 
 import androidx.annotation.StringRes
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -10,7 +13,9 @@ import androidx.compose.material.icons.filled.AddAlarm
 import androidx.compose.material.icons.filled.AddCircle
 import androidx.compose.material.icons.filled.CalendarMonth
 import androidx.compose.material.icons.outlined.Settings
+import androidx.compose.material.ripple.rememberRipple
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
@@ -20,8 +25,11 @@ import androidx.compose.runtime.Stable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.unit.dp
 import androidx.lifecycle.Lifecycle
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavDestination
@@ -64,18 +72,40 @@ fun CustomBottomNavigation(
     val currentSection = tabs.first { it.route == currentRoute }
 
     Scaffold(bottomBar = {
-        NavigationBar {
+        NavigationBar(
+            containerColor = MaterialTheme.colorScheme.secondary
+        ) {
             tabs.forEach { tab ->
                 NavigationBarItem(
                     icon = {
                         Icon(
                             imageVector = tab.icon,
                             contentDescription = stringResource(id = tab.title),
+                            tint = if (tab == currentSection) MaterialTheme.colorScheme.onSecondary else MaterialTheme.colorScheme.onSecondaryContainer
                         )
                     },
-                    label = { Text(stringResource(id = tab.title)) },
+                    label = {
+                        Text(
+                            text = stringResource(id = tab.title),
+                            color = if (tab == currentSection) MaterialTheme.colorScheme.onSecondary else MaterialTheme.colorScheme.onSecondaryContainer
+                        )
+                    },
                     selected = tab == currentSection,
                     onClick = { navigateToRoute(tab.route) },
+                    modifier = Modifier
+                        .weight(1f)
+                        .pointerInput(Unit) {
+                            detectTapGestures {
+                                navigateToRoute(tab.route)
+                            }
+                        }
+                        .background(
+                            if (tab == currentSection) {
+                                MaterialTheme.colorScheme.primary// Set the background color for the selected item
+                            } else {
+                                Color.Transparent // Set a transparent background for unselected items
+                            }
+                        )
                 )
             }
         }
@@ -83,6 +113,7 @@ fun CustomBottomNavigation(
         Column(
             modifier = Modifier
                 .fillMaxSize()
+                .background(MaterialTheme.colorScheme.secondary)
                 .padding(padding),
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally,

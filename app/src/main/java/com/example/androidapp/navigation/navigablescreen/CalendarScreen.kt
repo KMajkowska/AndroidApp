@@ -28,10 +28,14 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.example.androidapp.database.model.DayWithTodosAndEvents
 import com.example.androidapp.database.viewmodel.DayViewModel
 import java.time.LocalDate
+import java.time.Year
 import java.time.YearMonth
 
 class CalendarScreen(
@@ -46,122 +50,132 @@ class CalendarScreen(
         val allDayEntitiesWithRelatedSortedByDate =
             mDayViewModel.allDayEntitiesWithRelatedSortedByDate.observeAsState(initial = listOf()).value
 
-        val groupedByYearMonth =
+        val groupedByYear =
             allDayEntitiesWithRelatedSortedByDate.groupBy { dayEntityWithRelated ->
-                YearMonth.from(
+                Year.from(
                     dayEntityWithRelated.dayEntity.date
                 )
             }
-
         var currentYearMonth by remember { mutableStateOf(YearMonth.now()) }
         val lazyListState = rememberLazyListState()
 
-        LaunchedEffect(currentYearMonth) {
-            val index = groupedByYearMonth.keys.indexOf(currentYearMonth)
-            if (index >= 0)
-                lazyListState.scrollToItem(index)
-        }
         LazyColumn(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(16.dp),
             state = lazyListState
         ) {
-            items(groupedByYearMonth.entries.toList()) { (yearMonth, objects) ->
-                YearSquare(yearMonth, objects, currentYearMonth, onDaySelected)
+            items(groupedByYear.entries.toList()) { (year, objects) ->
+                YearSquare(year, objects, currentYearMonth, onDaySelected)
             }
         }
     }
-}
 
 @Composable
 fun YearSquare(
-    yearMonth: YearMonth,
+    year: Year,
     objects: List<DayWithTodosAndEvents>,
     currentYearMonth: YearMonth,
     onDaySelected: (LocalDate) -> Unit
 ) {
+    var isYearExpanded by remember { mutableStateOf(true) }
     Column(
         modifier = Modifier
-            .fillMaxWidth()
-            .padding(8.dp)
+            .padding(16.dp)
             .background(MaterialTheme.colorScheme.surface)
             .clip(RoundedCornerShape(16.dp)),
     ) {
         Text(
-            text = yearMonth.year.toString(),
+            text = year.toString(),
+            style = TextStyle(fontSize = 18.sp, fontWeight = FontWeight.Bold),
             modifier = Modifier
                 .fillMaxWidth()
-                .background(MaterialTheme.colorScheme.primary)
-                .padding(8.dp)
+                .background(MaterialTheme.colorScheme.secondary)
+                .padding(16.dp)
+                .clickable { isYearExpanded = !isYearExpanded }
                 .clip(RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp)),
-            color = Color.White
+            color = MaterialTheme.colorScheme.onSecondary
         )
         Spacer(modifier = Modifier.height(4.dp))
-
-        MonthSquare(yearMonth, objects, currentYearMonth, onDaySelected)
-    }
-}
-
-@Composable
-fun MonthSquare(
-    yearMonth: YearMonth,
-    objects: List<DayWithTodosAndEvents>,
-    currentYearMonth: YearMonth,
-    onDaySelected: (LocalDate) -> Unit
-) {
-    val isCurrentYearMonth = yearMonth == currentYearMonth
-
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(8.dp)
-            .background(color = Color.hsv(227F, 0.939F, 0.961F, 0.22F))
-            .clip(RoundedCornerShape(16.dp)),
-    ) {
-        Text(
-            text = yearMonth.month.toString(),
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(8.dp)
-                .clip(RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp)),
-            color = Color.White
-        )
-        Spacer(modifier = Modifier.height(4.dp))
-
-        objects.forEach { obj ->
-            ObjectItem(obj, onDaySelected)
+        if (isYearExpanded) {
+            val groupedByYearMonth =
+                objects.groupBy { dayEntityWithRelated ->
+                    YearMonth.from(
+                        dayEntityWithRelated.dayEntity.date
+                    )
+                }
+            groupedByYearMonth.forEach { (yearMonth, days) ->
+                MonthSquare(yearMonth, days, onDaySelected)
+            }
         }
     }
 }
-
-@Composable
-fun ObjectItem(obj: DayWithTodosAndEvents, onDaySelected: (LocalDate) -> Unit) {
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(8.dp)
-            .background(MaterialTheme.colorScheme.background)
-            .clip(RoundedCornerShape(16.dp))
-            .clickable { onDaySelected(obj.dayEntity.date) }
+    @Composable
+    fun MonthSquare(
+        yearMonth: YearMonth,
+        objects: List<DayWithTodosAndEvents>,
+        onDaySelected: (LocalDate) -> Unit
     ) {
-        Spacer(modifier = Modifier.height(4.dp))
-        Text(text = "${obj.dayEntity.date.dayOfMonth},  ${obj.dayEntity.dayTitle}")
-        Spacer(modifier = Modifier.height(4.dp))
-        //display events planned for the day
-        Column {
-            obj.events.forEach { event ->
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    Spacer(modifier = Modifier.width(12.dp))
-                    val icon = getCategoryIcon(event.category)
-                    Icon(imageVector = icon, contentDescription = null)
-                    Spacer(modifier = Modifier.width(8.dp))
-                    Text(event.title)
+        var isMonthExpanded by remember { mutableStateOf(true) }
+
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(10.dp)
+                .background(MaterialTheme.colorScheme.primaryContainer),
+        ) {
+            Text(
+                text = yearMonth.month.toString(),
+                style = TextStyle(fontSize = 16.sp, fontWeight = FontWeight.Bold),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(8.dp)
+                    .clickable { isMonthExpanded = !isMonthExpanded }
+                    .clip(RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp)),
+                color = MaterialTheme.colorScheme.onPrimaryContainer,
+                
+            )
+
+            if(isMonthExpanded) {
+                objects.forEach { obj ->
+                    ObjectItem(obj, onDaySelected)
                 }
-                Spacer(modifier = Modifier.height(8.dp))
+            }
+        }
+    }
+
+    @Composable
+    fun ObjectItem(obj: DayWithTodosAndEvents, onDaySelected: (LocalDate) -> Unit) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(8.dp)
+                .background(MaterialTheme.colorScheme.background)
+                .clickable { onDaySelected(obj.dayEntity.date) }
+        ) {
+            Spacer(modifier = Modifier.height(4.dp))
+            Text(
+                text = "${obj.dayEntity.date.dayOfMonth},  ${obj.dayEntity.dayTitle}",
+                modifier = Modifier
+                    .padding(10.dp, 4.dp, 10.dp, 4.dp))
+            Spacer(modifier = Modifier.height(4.dp))
+            //display events planned for the day
+            Column {
+                obj.events.forEach { event ->
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(4.dp)
+                    ) {
+                        Spacer(modifier = Modifier.width(12.dp))
+                        val icon = getCategoryIcon(event.category)
+                        Icon(imageVector = icon, contentDescription = null)
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Text(event.title)
+                    }
+                    Spacer(modifier = Modifier.height(8.dp))
+                }
             }
         }
     }
