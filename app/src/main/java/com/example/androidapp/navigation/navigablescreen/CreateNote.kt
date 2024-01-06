@@ -1,8 +1,13 @@
 package com.example.androidapp.navigation.navigablescreen
 
 import android.util.Log
+import android.view.ViewGroup.LayoutParams.MATCH_PARENT
+import android.view.ViewGroup.LayoutParams.WRAP_CONTENT
+import android.widget.LinearLayout
+import android.widget.ScrollView
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -29,8 +34,10 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.Divider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
@@ -46,6 +53,7 @@ import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
+import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -53,6 +61,7 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.viewinterop.AndroidView
 import com.example.androidapp.HorizontalDivider
 import com.example.androidapp.R
 import com.example.androidapp.database.model.Note
@@ -72,156 +81,34 @@ class CreateNote(
         val note: Note? = mDayViewModel.getNoteById(noteId)
         var titleValue by remember { mutableStateOf(note?.noteTitle ?: "") }
         var noteValue by remember { mutableStateOf(note?.content ?: "") }
-        var openDialog by remember { mutableStateOf(false) }
+        var openDialogClose by remember { mutableStateOf(false) }
+        var openDialogDelete by remember { mutableStateOf(false) }
 
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(16.dp)
-        ) {
-            Box(
+
+        Surface(){
+            Column(
                 modifier = Modifier
-                    .fillMaxWidth(),
-                contentAlignment = Alignment.TopEnd
+                    .fillMaxSize()
+                    .padding(16.dp)
             ) {
-                IconButton(
-                    onClick = {
-                        openDialog = true
-                    },
-                    modifier = Modifier
-                        .size(40.dp),
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.Close,
-                        contentDescription = null,
-                        tint = MaterialTheme.colorScheme.onBackground
-                    )
-                }
-                if (openDialog) {
-                    CloseNotePopUp(upPress, onSaveChanges = {
-                        if (note == null) {
-
-                            val newNote = Note(
-                                noteTitle = titleValue,
-                                content = noteValue
-                            )
-                            if (localDate != null)
-                                newNote.noteDate = localDate
-                            mDayViewModel.addNewNote(newNote)
-                        } else {
-                            val updatedNote = note.copy(
-                                noteTitle = titleValue,
-                                content = noteValue
-                            )
-                            mDayViewModel.updateNote(updatedNote)
-                        }
-                    }) {
-                        openDialog = false
-                    }
-                }
-            }
-
-            Spacer(modifier = Modifier.width(16.dp))
-
-
-
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .fillMaxHeight()
-            ) {
-
-                LazyColumn(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .background(MaterialTheme.colorScheme.background)
-                        .padding(8.dp)
-                ) {
-                    item {
-                        BasicTextField(
-                            value = titleValue,
-                            onValueChange = {
-                                val filteredText = it.replace("\n", "")
-                                titleValue = filteredText.take(100)
-                            },
-                            textStyle = TextStyle(
-                                fontWeight = FontWeight.Bold,
-                                fontSize = 20.sp,
-                                color = MaterialTheme.colorScheme.onBackground
-                            ),
-                            singleLine = false,
-                            keyboardOptions = KeyboardOptions(
-                                keyboardType = KeyboardType.Text,
-                                imeAction = ImeAction.Done
-                            ),
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .background(MaterialTheme.colorScheme.background)
-                                .padding(4.dp)
-                                .clip(MaterialTheme.shapes.small),
-                            cursorBrush = SolidColor(MaterialTheme.colorScheme.onBackground),
-                            decorationBox = { innerTextField ->
-                                Box(
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                ) {
-                                    if (titleValue.isEmpty()) {
-                                        Text(
-                                            text =  stringResource(id = R.string.note_title),
-                                            fontSize = 18.sp,
-                                            fontWeight = FontWeight.Normal,
-                                            color = MaterialTheme.colorScheme.onSecondaryContainer
-                                        )
-                                    }
-                                    innerTextField()
-                                }
-                            }
-                        )
-                    }
-                    item{HorizontalDivider()}
-
-                    item {
-                        BasicTextField(
-                            value = noteValue,
-                            onValueChange = { noteValue = it },
-                            textStyle = TextStyle(
-                                fontSize = 18.sp,
-                                color = MaterialTheme.colorScheme.onBackground
-                            ),
-                            keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Text),
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(bottom = 65.dp)
-                                .background(MaterialTheme.colorScheme.background)
-                                .padding(4.dp),
-                            cursorBrush = SolidColor(MaterialTheme.colorScheme.onBackground),
-                            decorationBox = { innerTextField ->
-                                Box(
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                ) {
-                                    if (noteValue.isEmpty()) {
-                                        Text(
-                                            text =  stringResource(id = R.string.note_content),
-                                            fontSize = 18.sp,
-                                            fontWeight = FontWeight.Normal,
-                                            color = MaterialTheme.colorScheme.onSecondaryContainer
-                                        )
-                                    }
-                                    innerTextField()
-                                }
-                            }
-                        )
-                    }
-                }
-                Spacer(modifier = Modifier.height(32.dp))
-
                 Row(
                     modifier = Modifier
-                        .fillMaxWidth()
-                        .align(Alignment.BottomEnd),
+                        .fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.End
                 ) {
-
+                    IconButton(
+                        onClick = {
+                            openDialogDelete = true
+                        },
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Delete,
+                            contentDescription = null,
+                            tint = MaterialTheme.colorScheme.onBackground
+                        )
+                    }
+                    Spacer(modifier = Modifier.width(8.dp))
                     IconButton(
                         onClick = {
                             if (note == null) {
@@ -243,51 +130,165 @@ class CreateNote(
                             }
                             upPress()
                         },
-                        modifier = Modifier
-                            .size(56.dp)
-                            .background(MaterialTheme.colorScheme.primary, CircleShape)
-                            .padding(16.dp)
-                    ) {
+
+                        ) {
                         Icon(
                             imageVector = Icons.Default.Done,
                             contentDescription = null,
-                            tint = MaterialTheme.colorScheme.onPrimary
+                            tint = MaterialTheme.colorScheme.onBackground
                         )
                     }
-
-                    Spacer(modifier = Modifier.width(16.dp))
-
+                    Spacer(modifier = Modifier.width(8.dp))
                     IconButton(
                         onClick = {
-                            if (note != null)
-                                mDayViewModel.deleteNote(note)
-                            upPress()
+                            openDialogClose = true
                         },
                         modifier = Modifier
-                            .size(56.dp)
-                            .background(MaterialTheme.colorScheme.tertiary, CircleShape)
-                            .padding(16.dp)
-                            .clip(CircleShape)
-                            .shadow(4.dp, CircleShape)
+                            .size(40.dp)
                     ) {
                         Icon(
-                            imageVector = Icons.Default.Delete,
+                            imageVector = Icons.Default.Close,
                             contentDescription = null,
-                            tint = MaterialTheme.colorScheme.onTertiary
+                            tint = MaterialTheme.colorScheme.onBackground
                         )
+                    }
+                    if (openDialogClose) {
+                        CloseNotePopUp(upPress, text = stringResource(id = R.string.pop_up_window), onSaveChanges = {
+                            if (note == null) {
+
+                                val newNote = Note(
+                                    noteTitle = titleValue,
+                                    content = noteValue
+                                )
+                                if (localDate != null)
+                                    newNote.noteDate = localDate
+                                mDayViewModel.addNewNote(newNote)
+                            } else {
+                                val updatedNote = note.copy(
+                                    noteTitle = titleValue,
+                                    content = noteValue
+                                )
+                                mDayViewModel.updateNote(updatedNote)
+                            }
+                        }) {
+                            openDialogClose = false
+                        }
+                    }
+                    if (openDialogDelete) {
+                        CloseNotePopUp(upPress, text = stringResource(id = R.string.pop_up_delete_window), onSaveChanges = {  if (note != null)
+                            mDayViewModel.deleteNote(note) }) {
+                            openDialogDelete = false
+                        }
+                    }
+                }
+
+                Spacer(modifier = Modifier.width(16.dp))
+
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .fillMaxHeight()
+                ) {
+
+
+                    LazyColumn(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .background(MaterialTheme.colorScheme.background)
+                            .padding(8.dp)
+                    ) {
+                        item {
+                            BasicTextField(
+                                value = titleValue,
+                                onValueChange = {
+                                    val filteredText = it.replace("\n", "")
+                                    titleValue = filteredText.take(100)
+                                },
+                                textStyle = TextStyle(
+                                    fontWeight = FontWeight.Bold,
+                                    fontSize = 20.sp,
+                                    color = MaterialTheme.colorScheme.onBackground
+                                ),
+                                singleLine = false,
+                                keyboardOptions = KeyboardOptions(
+                                    keyboardType = KeyboardType.Text,
+                                    imeAction = ImeAction.Done
+                                ),
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .background(MaterialTheme.colorScheme.background)
+                                    .padding(4.dp)
+                                    .clip(MaterialTheme.shapes.small),
+                                cursorBrush = SolidColor(MaterialTheme.colorScheme.onBackground),
+                                decorationBox = { innerTextField ->
+                                    Box(
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                    ) {
+                                        if (titleValue.isEmpty()) {
+                                            Text(
+                                                text =  stringResource(id = R.string.note_title),
+                                                fontSize = 18.sp,
+                                                fontWeight = FontWeight.Normal,
+                                                style = LocalTextStyle.current.copy(color = MaterialTheme.colorScheme.onSecondaryContainer)
+                                            )
+                                        }
+                                        innerTextField()
+                                    }
+                                }
+                            )
+                        }
+                        item{HorizontalDivider()}
+
+                        item {
+                            BasicTextField(
+                                value = noteValue,
+                                onValueChange = { noteValue = it },
+                                textStyle = TextStyle(
+                                    fontSize = 18.sp,
+                                    color = MaterialTheme.colorScheme.onBackground
+                                ),
+                                keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Text),
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(bottom = 65.dp)
+                                    .background(MaterialTheme.colorScheme.background)
+                                    .padding(4.dp),
+                                cursorBrush = SolidColor(MaterialTheme.colorScheme.onBackground),
+                                decorationBox = { innerTextField ->
+                                    Box(
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                    ) {
+                                        if (noteValue.isEmpty()) {
+                                            Text(
+                                                text =  stringResource(id = R.string.note_content),
+                                                fontSize = 18.sp,
+                                                fontWeight = FontWeight.Normal,
+                                                color = MaterialTheme.colorScheme.onSecondaryContainer
+                                            )
+                                        }
+                                        innerTextField()
+                                    }
+                                }
+                            )
+                        }
                     }
                 }
             }
         }
+
     }
+
 }
 
 @Composable
-fun CloseNotePopUp(upPress: () -> Unit, onSaveChanges: () -> Unit, onDismiss: () -> Unit) {
+fun CloseNotePopUp(upPress: () -> Unit, text: String, onSaveChanges: () -> Unit, onDismiss: () -> Unit) {
     AlertDialog(
         onDismissRequest = { onDismiss() },
         title = {
-            Text(stringResource(id = R.string.pop_up_window))
+            Text(text = text,
+                style = LocalTextStyle.current.copy(color = MaterialTheme.colorScheme.onBackground))
         },
         confirmButton = {
             Button(
@@ -317,3 +318,7 @@ fun CloseNotePopUp(upPress: () -> Unit, onSaveChanges: () -> Unit, onDismiss: ()
         shape = MaterialTheme.shapes.medium
     )
 }
+
+
+
+

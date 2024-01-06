@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -46,69 +47,72 @@ class SettingsScreen(
 
         val context = LocalContext.current
 
-        LazyColumn(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(8.dp)
-        ) {
-            item {
-                DropDown(
-                    dropdownName = stringResource(id = R.string.language),
-                    allOptions = languages,
-                    valueFromOptionGetterFunction = { language -> language.toString()},
-                    selectedValueModifier = selectedLanguage
-                ) { newLanguage ->
-                    settingsViewModel.setSelectedLanguage(newLanguage)
-                }
+        Surface(){
+            LazyColumn(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(24.dp)
+            ) {
+                item {
+                    DropDown(
+                        dropdownName = stringResource(id = R.string.language),
+                        allOptions = languages,
+                        valueFromOptionGetterFunction = { language -> language.toString()},
+                        selectedValueModifier = selectedLanguage
+                    ) { newLanguage ->
+                        settingsViewModel.setSelectedLanguage(newLanguage)
+                    }
 
-                HorizontalDivider()
-                Toggle(
-                    toggleOption = notificationsEnabled,
-                    text = stringResource(id = R.string.notification)
-                ) { areNotificationsEnabled ->
-                    settingsViewModel.setNotificationsEnabled(areNotificationsEnabled)
-                }
+                    HorizontalDivider()
+                    Toggle(
+                        toggleOption = notificationsEnabled,
+                        text = stringResource(id = R.string.notification)
+                    ) { areNotificationsEnabled ->
+                        settingsViewModel.setNotificationsEnabled(areNotificationsEnabled)
+                    }
 
-                HorizontalDivider()
-                Toggle(
-                    toggleOption = isDarkModeEnabled,
-                    text = stringResource(id = R.string.dark_mode)
-                ) { isDarkModeEnabled ->
-                    settingsViewModel.setDarkTheme(isDarkModeEnabled)
-                }
+                    HorizontalDivider()
+                    Toggle(
+                        toggleOption = isDarkModeEnabled,
+                        text = stringResource(id = R.string.dark_mode),
+                    ) { isDarkModeEnabled ->
+                        settingsViewModel.setDarkTheme(isDarkModeEnabled)
+                    }
 
-                HorizontalDivider()
-                DropDown(
-                    dropdownName = stringResource(id = R.string.font_size),
-                    allOptions = fontSizes,
-                    valueFromOptionGetterFunction = { fontSize -> context.resources.getString(fontSize.resourceId)},
-                    selectedValueModifier = selectedFontSize
-                ) { fontSize ->
-                    settingsViewModel.setSelectedFontSize(fontSize)
-                }
+                    HorizontalDivider()
+                    DropDown(
+                        dropdownName = stringResource(id = R.string.font_size),
+                        allOptions = fontSizes,
+                        valueFromOptionGetterFunction = { fontSize -> context.resources.getString(fontSize.resourceId)},
+                        selectedValueModifier = selectedFontSize
+                    ) { fontSize ->
+                        settingsViewModel.setSelectedFontSize(fontSize)
+                    }
 
-                HorizontalDivider()
-                DropDown(
-                    dropdownName = stringResource(id = R.string.sort_option),
-                    allOptions = sortOptions,
-                    valueFromOptionGetterFunction = { sortOption -> context.resources.getString(sortOption.resourceId)},
-                    selectedValueModifier = selectedSortOption
-                ) { sortOption ->
-                    settingsViewModel.setSeletectedSortOption(sortOption)
-                }
+                    HorizontalDivider()
+                    DropDown(
+                        dropdownName = stringResource(id = R.string.sort_option),
+                        allOptions = sortOptions,
+                        valueFromOptionGetterFunction = { sortOption -> context.resources.getString(sortOption.resourceId)},
+                        selectedValueModifier = selectedSortOption
+                    ) { sortOption ->
+                        settingsViewModel.setSeletectedSortOption(sortOption)
+                    }
 
-                HorizontalDivider()
-                Toggle(
-                    toggleOption = unicornModeEnabled,
-                    text = stringResource(id = R.string.unicorn)
-                ) { isUniqrnModeEnabled ->
-                    settingsViewModel.setUniqrnMode(isUniqrnModeEnabled)
-                }
+                    HorizontalDivider()
+                    Toggle(
+                        toggleOption = unicornModeEnabled,
+                        text = stringResource(id = R.string.unicorn)
+                    ) { isUniqrnModeEnabled ->
+                        settingsViewModel.setUniqrnMode(isUniqrnModeEnabled)
+                    }
 
-                HorizontalDivider()
-                BackupImportDialog(navigateToFilePicker)
+                    HorizontalDivider()
+                    BackupImportDialog(navigateToFilePicker)
+                }
             }
         }
+
 
     }
 }

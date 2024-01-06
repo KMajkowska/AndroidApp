@@ -11,7 +11,7 @@
     <string name="invalid_password">Hasło musi mieć więcej niż 5 znaków</string>
     <string name="login_failed">"Logowanie nieudane"</string>
     <string name="title_activity_main">MainActivity</string>
-    <string name="all_notes">Wszystkie notatki</string>
+    <string name="all_notes">Notatki</string>
     <string name="language">Język</string>
     <string name="notification">Powiadomienie</string>
     <string name="font">Czcionka</string>
@@ -38,6 +38,7 @@
     <string name="apply_language">Zmień język</string>
     <string name="change_mode">Zmień motyw</string>
     <string name="pop_up_window">Czy chcesz zapisać zmiany?</string>
+    <string name="pop_up_delete_window">Czy chcesz usunąć tę notatkę?</string>
     <string name="success">Sukces</string>
     <string name="failure">Niepowodzenie</string>
     <string name="yes">Tak</string>

@@ -21,7 +21,9 @@ import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.Divider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -70,57 +72,61 @@ class AllNotes(
         if (sortOption == NoteSortOptionEnum.DESCENDING)
             notes = notes.reversed()
 
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(16.dp)
-        ) {
-            Column(
+        Surface(){
+            Box(
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .verticalScroll(rememberScrollState())
+                    .fillMaxSize()
+                    .padding(16.dp)
             ) {
-                if (notes.isEmpty()) {
-                    Text(
-                        text = stringResource(id = R.string.all_notes),
-                        style = TextStyle(fontSize = 24.sp)
-                    )
-                } else {
-                    for (note in notes) {
-                        NoteItem(
-                            note = note,
-                            onNoteClicked = { selectedNote -> onNoteClick(selectedNote.noteId!!) }
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .verticalScroll(rememberScrollState())
+                ) {
+                    if (notes.isEmpty()) {
+                        Text(
+                            text = stringResource(id = R.string.all_notes),
+                            style = TextStyle(fontSize = 24.sp)
                         )
-                        Spacer(modifier = Modifier.height(8.dp))
+                    } else {
+                        for (note in notes) {
+                            NoteItem(
+                                note = note,
+                                onNoteClicked = { selectedNote -> onNoteClick(selectedNote.noteId!!) }
+                            )
+                            Spacer(modifier = Modifier.height(8.dp))
+                        }
+                    }
+                }
+
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize(),
+                    contentAlignment = Alignment.BottomEnd
+                ) {
+                    IconButton(
+                        onClick = {
+                            onNoteClick(-1) // negative value means that no note will be found!
+                        },
+                        modifier = Modifier
+                            .size(66.dp)
+                            .shadow(2.dp, CircleShape)
+                            .background(MaterialTheme.colorScheme.primary, shape = CircleShape)
+                            .padding(16.dp)
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Edit,
+                            contentDescription = null,
+                            tint = MaterialTheme.colorScheme.onPrimary,
+                            modifier = Modifier
+                                .size(20.dp)
+                        )
                     }
                 }
             }
 
-            Box(
-                modifier = Modifier
-                    .fillMaxSize(),
-                contentAlignment = Alignment.BottomEnd
-            ) {
-                IconButton(
-                    onClick = {
-                        onNoteClick(-1) // negative value means that no note will be found!
-                    },
-                    modifier = Modifier
-                        .size(66.dp)
-                        .shadow(2.dp, CircleShape)
-                        .background(MaterialTheme.colorScheme.primary, shape = CircleShape)
-                        .padding(16.dp)
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.Edit,
-                        contentDescription = null,
-                        tint = MaterialTheme.colorScheme.onPrimary,
-                        modifier = Modifier
-                            .size(20.dp)
-                    )
-                }
-            }
         }
+
     }
     @Composable
     fun NoteItem(note: Note, onNoteClicked: (Note) -> Unit) {
@@ -134,7 +140,7 @@ class AllNotes(
             Column {
                 Text(
                     text = note.noteTitle,
-                    style = TextStyle(fontSize = 18.sp, fontWeight = FontWeight.Bold),
+                    style = LocalTextStyle.current.copy(color = MaterialTheme.colorScheme.onBackground, fontSize = 18.sp, fontWeight = FontWeight.Bold),
                     modifier = Modifier
                         .padding(10.dp,2.dp,10.dp,2.dp)
                 )
@@ -142,7 +148,7 @@ class AllNotes(
                 lines.forEachIndexed { index, line ->
                     Text(
                         text = if (index == 1 && lines.size > 1) "$line..." else line,
-                        style = TextStyle(fontSize = 16.sp),
+                        style = LocalTextStyle.current.copy(color = MaterialTheme.colorScheme.onBackground, fontSize = 16.sp),
                         maxLines = 1,  // Limit to one line
                         overflow = TextOverflow.Ellipsis,  // Indicate that the text might be truncated
                         modifier = Modifier
@@ -156,7 +162,7 @@ class AllNotes(
                     ) {
                         Text(
                             text = "${note.noteDate}",
-                            style = TextStyle(fontSize = 14.sp),
+                            style = LocalTextStyle.current.copy(color = MaterialTheme.colorScheme.onBackground, fontSize = 14.sp),
                             modifier = Modifier
                                 .weight(1f)
                                 .padding(10.dp,0.dp,10.dp,0.dp)

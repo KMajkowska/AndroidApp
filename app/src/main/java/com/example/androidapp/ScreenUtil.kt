@@ -107,7 +107,7 @@ fun AddBackgroundToComposables(vararg composables: @Composable () -> Unit) {
                 Card(
                     shape = RoundedCornerShape(8.dp),
                     colors = CardDefaults.cardColors(
-                        containerColor = MaterialTheme.colorScheme.surface
+                        containerColor = MaterialTheme.colorScheme.background
                     ),
                     modifier = Modifier
                         .fillMaxSize()

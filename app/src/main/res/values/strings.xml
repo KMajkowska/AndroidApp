@@ -38,6 +38,7 @@
     <string name="apply_language">Apply language</string>
     <string name="change_mode">Change mode</string>
     <string name="pop_up_window">Do you want to save the changes in the note?</string>
+    <string name="pop_up_delete_window">Do you want to delete this note?</string>
     <string name="success">Success</string>
     <string name="failure">Failure</string>
     <string name="yes">Yes</string>

@@ -15,7 +15,9 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
+import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -59,15 +61,18 @@ class CalendarScreen(
         var currentYearMonth by remember { mutableStateOf(YearMonth.now()) }
         val lazyListState = rememberLazyListState()
 
-        LazyColumn(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(16.dp),
-            state = lazyListState
-        ) {
-            items(groupedByYear.entries.toList()) { (year, objects) ->
-                YearSquare(year, objects, currentYearMonth, onDaySelected)
-            }
+        Surface(){
+            LazyColumn(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(16.dp),
+                state = lazyListState
+            ) {
+                items(groupedByYear.entries.toList()) { (year, objects) ->
+                    YearSquare(year, objects, currentYearMonth, onDaySelected)
+                }
+        }
+
         }
     }
 
@@ -87,7 +92,7 @@ fun YearSquare(
     ) {
         Text(
             text = year.toString(),
-            style = TextStyle(fontSize = 18.sp, fontWeight = FontWeight.Bold),
+            style = LocalTextStyle.current.copy(color = MaterialTheme.colorScheme.onBackground, fontSize = 18.sp, fontWeight = FontWeight.Bold),
             modifier = Modifier
                 .fillMaxWidth()
                 .background(MaterialTheme.colorScheme.secondary)
@@ -126,7 +131,7 @@ fun YearSquare(
         ) {
             Text(
                 text = yearMonth.month.toString(),
-                style = TextStyle(fontSize = 16.sp, fontWeight = FontWeight.Bold),
+                style = LocalTextStyle.current.copy(color = MaterialTheme.colorScheme.onBackground, fontSize = 16.sp, fontWeight = FontWeight.Bold),
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(8.dp)
@@ -156,6 +161,7 @@ fun YearSquare(
             Spacer(modifier = Modifier.height(4.dp))
             Text(
                 text = "${obj.dayEntity.date.dayOfMonth},  ${obj.dayEntity.dayTitle}",
+                style = LocalTextStyle.current.copy(color = MaterialTheme.colorScheme.onBackground),
                 modifier = Modifier
                     .padding(10.dp, 4.dp, 10.dp, 4.dp))
             Spacer(modifier = Modifier.height(4.dp))
@@ -172,7 +178,8 @@ fun YearSquare(
                         val icon = getCategoryIcon(event.category)
                         Icon(imageVector = icon, contentDescription = null)
                         Spacer(modifier = Modifier.width(8.dp))
-                        Text(event.title)
+                        Text(text = event.title,
+                            style = LocalTextStyle.current.copy(color = MaterialTheme.colorScheme.onBackground))
                     }
                     Spacer(modifier = Modifier.height(8.dp))
                 }

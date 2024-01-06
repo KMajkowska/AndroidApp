@@ -33,7 +33,9 @@ import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
@@ -90,14 +92,16 @@ class DaysScreen(
         var dayEntity by remember { mutableStateOf(mDayViewModel.getDayByDate(localDate)) }
         var selectedNote by remember { mutableStateOf(mDayViewModel.getNoteByDate(localDate)) }
 
-        AddBackgroundToComposables({
-            View { chosenDate ->
-                dayEntity = mDayViewModel.getDayByDate(chosenDate)
-                selectedNote = mDayViewModel.getNoteByDate(chosenDate)
-            }
-        }, {
-            DayDataView(dayEntity, selectedNote)
-        })
+        Surface(){
+            AddBackgroundToComposables({
+                View { chosenDate ->
+                    dayEntity = mDayViewModel.getDayByDate(chosenDate)
+                    selectedNote = mDayViewModel.getNoteByDate(chosenDate)
+                }
+            }, {
+                DayDataView(dayEntity, selectedNote)
+            })
+        }
     }
 
     @RequiresApi(Build.VERSION_CODES.S)
@@ -197,8 +201,11 @@ class DaysScreen(
                     factory = { context ->
                         val themedContext = ContextThemeWrapper(
                             context,
-                            if (isUniqrnMode) R.style.CalendarTextAppearance_Unicorn else {
-                                if (isDarkMode) R.style.CalendarTextAppearance_Dark else R.style.CalendarTextAppearance_Light
+                            if (isUniqrnMode && isDarkMode) R.style.CalendarTextAppearance_DarkUnicorn
+                            else if (isDarkMode) R.style.CalendarTextAppearance_Dark
+                            else if(isUniqrnMode) R.style.CalendarTextAppearance_Unicorn
+                            else {
+                                R.style.CalendarTextAppearance_Light
                             }
                         )
                         CalendarView(themedContext).apply {
@@ -241,12 +248,12 @@ class DaysScreen(
                 .fillMaxSize()
                 .padding(8.dp)
         ) {
-            Text("To do")
+            Text("To do", style = LocalTextStyle.current.copy(color = MaterialTheme.colorScheme.onBackground))
 
             if (isEditing) {
                 InlineTextEditor(
                     data = "",
-                    hasDayEntityBeenChanged = hasDayEntityBeenChanged
+                    hasDayEntityBeenChanged = hasDayEntityBeenChanged,
                 ) { possiblyChangedData ->
                     if (possiblyChangedData.isNotEmpty()) {
                         mDayViewModel.saveTodoEntity(
@@ -289,7 +296,7 @@ class DaysScreen(
                             }
                         )
                         Spacer(modifier = Modifier.width(8.dp)) // Add some spacing between Checkbox and Text
-                        Text(text = todo.title, modifier = Modifier.weight(1f))
+                        Text(text = todo.title, modifier = Modifier.weight(1f), style = LocalTextStyle.current.copy(color = MaterialTheme.colorScheme.onBackground))
                     }
                     IconButton(
                         onClick = { mDayViewModel.deleteTodoEntity(todo) }
@@ -322,7 +329,7 @@ class DaysScreen(
                 .fillMaxSize()
                 .padding(8.dp)
         ) {
-            Text(stringResource(id = R.string.event_list))
+            Text(stringResource(id = R.string.event_list), style = LocalTextStyle.current.copy(color = MaterialTheme.colorScheme.onBackground))
 
             val categoryList = EventCategories.entries.toTypedArray()
             if (isEditing) {
@@ -350,7 +357,7 @@ class DaysScreen(
                                     {
                                         Text(
                                             text = stringResource(id = category.resourceId),
-                                            Modifier.padding(8.dp)
+                                            Modifier.padding(8.dp),
                                         )
                                     },
                                     onClick = {
@@ -361,7 +368,7 @@ class DaysScreen(
                                 )
                             }
                         }
-                        Text(newEventCategory.value)
+                        Text(newEventCategory.value, style = LocalTextStyle.current.copy(color = MaterialTheme.colorScheme.onBackground))
                     }
 
                     Spacer(modifier = Modifier.width(8.dp))
@@ -417,6 +424,7 @@ class DaysScreen(
                         )
                         Text(
                             text = event.title,
+                            style = LocalTextStyle.current.copy(color = MaterialTheme.colorScheme.onBackground),
                             modifier = Modifier.weight(1f)
                         )
                     }
