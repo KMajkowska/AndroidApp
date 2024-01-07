@@ -72,7 +72,7 @@ class AllNotes(
         if (sortOption == NoteSortOptionEnum.DESCENDING)
             notes = notes.reversed()
 
-        Surface(){
+        Surface {
             Box(
                 modifier = Modifier
                     .fillMaxSize()

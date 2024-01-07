@@ -7,5 +7,4 @@ enum class NoteSortOptionEnum(resourceId: Int) {
     DESCENDING(R.string.descending);
 
     val resourceId = resourceId
-        get() = field
 }

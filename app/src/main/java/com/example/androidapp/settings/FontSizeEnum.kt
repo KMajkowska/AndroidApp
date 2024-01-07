@@ -8,5 +8,4 @@ enum class FontSizeEnum(resourceId: Int) {
     BIG(R.string.big);
 
     val resourceId = resourceId
-        get() = field
 }

@@ -5,7 +5,7 @@ import androidx.compose.runtime.Composable
 
 import com.example.androidapp.AddBackgroundToComposables
 
-abstract class NavigableScreen() : ComponentActivity() {
+abstract class NavigableScreen : ComponentActivity() {
 
     @Composable
     open fun ViewWithBackground() {

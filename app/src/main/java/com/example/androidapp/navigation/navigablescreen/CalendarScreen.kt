@@ -61,7 +61,7 @@ class CalendarScreen(
         var currentYearMonth by remember { mutableStateOf(YearMonth.now()) }
         val lazyListState = rememberLazyListState()
 
-        Surface(){
+        Surface {
             LazyColumn(
                 modifier = Modifier
                     .fillMaxSize()

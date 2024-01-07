@@ -85,7 +85,7 @@ class CreateNote(
         var openDialogDelete by remember { mutableStateOf(false) }
 
 
-        Surface(){
+        Surface {
             Column(
                 modifier = Modifier
                     .fillMaxSize()

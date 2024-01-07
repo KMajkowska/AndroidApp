@@ -12,5 +12,4 @@ enum class EventCategories(resourceId: Int) {
     ENTERTAINMENT(R.string.event_category_entertainment);
 
     val resourceId = resourceId
-        get() = field
 }

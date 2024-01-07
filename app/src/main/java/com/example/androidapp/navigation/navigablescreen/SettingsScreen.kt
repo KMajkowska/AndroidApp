@@ -47,7 +47,7 @@ class SettingsScreen(
 
         val context = LocalContext.current
 
-        Surface(){
+        Surface {
             LazyColumn(
                 modifier = Modifier
                     .fillMaxSize()

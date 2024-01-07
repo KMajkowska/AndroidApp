@@ -22,11 +22,11 @@ class MyRepository(
     val allDayEntitiesSortedByDate: LiveData<List<DayEntity>> =
         dayDao.getAllDayEntitiesSortedByDate()
 
-    val allTodoEntities: LiveData<List<TodoEntity>> = todoDao.getAllTodoEntities();
+    val allTodoEntities: LiveData<List<TodoEntity>> = todoDao.getAllTodoEntities()
 
     val allEventEntities: LiveData<List<EventEntity>> = eventDao.getAllEventEntities()
 
-    val allNotes: LiveData<List<Note>> = noteDao.getAllNotes();
+    val allNotes: LiveData<List<Note>> = noteDao.getAllNotes()
 
     val allDayEntitiesWithRelatedSortedByDate: LiveData<List<DayWithTodosAndEvents>> =
         dayDao.getAllDayEntitiesWithRelatedSortedByDate()

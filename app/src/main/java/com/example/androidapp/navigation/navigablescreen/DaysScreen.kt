@@ -92,7 +92,7 @@ class DaysScreen(
         var dayEntity by remember { mutableStateOf(mDayViewModel.getDayByDate(localDate)) }
         var selectedNote by remember { mutableStateOf(mDayViewModel.getNoteByDate(localDate)) }
 
-        Surface(){
+        Surface {
             AddBackgroundToComposables({
                 View { chosenDate ->
                     dayEntity = mDayViewModel.getDayByDate(chosenDate)
