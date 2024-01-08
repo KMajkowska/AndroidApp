@@ -242,7 +242,7 @@ class DaysScreen(
                 .fillMaxSize()
                 .padding(8.dp)
         ) {
-            Text("To do", style = LocalTextStyle.current.copy(color = MaterialTheme.colorScheme.onBackground))
+            Text(stringResource(id = R.string.todos), style = LocalTextStyle.current.copy(color = MaterialTheme.colorScheme.onBackground))
 
             if (isEditing) {
                 InlineTextEditor(

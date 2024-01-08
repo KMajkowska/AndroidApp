@@ -22,17 +22,14 @@ import com.example.androidapp.HorizontalDivider
 import com.example.androidapp.R
 import com.example.androidapp.Toggle
 import com.example.androidapp.navigation.ScreenRoutes
-import com.example.androidapp.settings.FontSizeEnum
 import com.example.androidapp.settings.LanguageEnum
 import com.example.androidapp.settings.NoteSortOptionEnum
 import com.example.androidapp.settings.SettingsViewModel
 
 val languages = LanguageEnum.entries.toTypedArray()
-val fontSizes = FontSizeEnum.entries.toTypedArray()
 val sortOptions = NoteSortOptionEnum.entries.toTypedArray()
 
 class SettingsScreen(
-    //private val mDayViewModel: DayViewModel,
     private val navigateToFilePicker: (String) -> Unit,
     private val settingsViewModel: SettingsViewModel
 ) : NavigableScreen() {
@@ -41,7 +38,6 @@ class SettingsScreen(
         val selectedLanguage by settingsViewModel.selectedLanguage.observeAsState(LanguageEnum.ENGLISH)
         val notificationsEnabled by settingsViewModel.areNotificationsEnabled.observeAsState(false)
         val isDarkModeEnabled by settingsViewModel.isDarkTheme.observeAsState(false)
-        val selectedFontSize by settingsViewModel.selectedFontSize.observeAsState(FontSizeEnum.STANDARD)
         val unicornModeEnabled by settingsViewModel.isUniqrnModeEnabled.observeAsState(false)
         val selectedSortOption by settingsViewModel.selectedSortOption.observeAsState(NoteSortOptionEnum.ASCENDING)
 
@@ -78,16 +74,6 @@ class SettingsScreen(
                     ) { isDarkModeEnabled ->
                         settingsViewModel.setDarkTheme(isDarkModeEnabled)
                     }
-
-//                    HorizontalDivider()
-//                    DropDown(
-//                        dropdownName = stringResource(id = R.string.font_size),
-//                        allOptions = fontSizes,
-//                        valueFromOptionGetterFunction = { fontSize -> context.resources.getString(fontSize.resourceId)},
-//                        selectedValueModifier = selectedFontSize
-//                    ) { fontSize ->
-//                        settingsViewModel.setSelectedFontSize(fontSize)
-//                    }
 
                     HorizontalDivider()
                     DropDown(

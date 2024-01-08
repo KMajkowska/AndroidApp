@@ -51,16 +51,7 @@ class SettingsRepository(private val context: Context) {
             preferences[PreferencesKeys.IS_UNIQRN_MODE_ENABLED] = isUniqrnModeEnabled
         }
     }
-    val selectedFontSize: Flow<FontSizeEnum> = context.dataStore.data
-        .map { preferences ->
-            FontSizeEnum.valueOf(preferences[PreferencesKeys.SELECTED_FONT_SIZE] ?: FontSizeEnum.STANDARD.toString())
-        }
 
-    suspend fun setSelectedFontSize(fontSize: FontSizeEnum) {
-        context.dataStore.edit { preferences ->
-            preferences[PreferencesKeys.SELECTED_FONT_SIZE] = fontSize.toString()
-        }
-    }
     val selectedSortOption: Flow<NoteSortOptionEnum> = context.dataStore.data
         .map { preferences ->
             NoteSortOptionEnum.valueOf(preferences[PreferencesKeys.SELECTED_SORT_OPTION] ?: NoteSortOptionEnum.DESCENDING.toString())

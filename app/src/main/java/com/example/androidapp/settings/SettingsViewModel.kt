@@ -1,19 +1,15 @@
 package com.example.androidapp.settings
 
-import android.app.Application
-import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.asLiveData
 import androidx.lifecycle.viewModelScope
-import com.example.androidapp.database.viewmodel.DayViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 class SettingsViewModel(private val repository: SettingsRepository) : ViewModel() {
     val selectedLanguage = repository.selectedLanguage.asLiveData()
     val isDarkTheme = repository.isDarkTheme.asLiveData()
-    val selectedFontSize = repository.selectedFontSize.asLiveData()
     val isUniqrnModeEnabled = repository.isUniqrnModeEnabled.asLiveData()
     val areNotificationsEnabled = repository.areNotificationsEnabled.asLiveData()
     val selectedSortOption = repository.selectedSortOption.asLiveData()
@@ -27,12 +23,6 @@ class SettingsViewModel(private val repository: SettingsRepository) : ViewModel(
     fun setDarkTheme(isDark: Boolean) {
         viewModelScope.launch(Dispatchers.IO) {
             repository.setDarkTheme(isDark)
-        }
-    }
-
-    fun setSelectedFontSize(fontSize: FontSizeEnum) {
-        viewModelScope.launch(Dispatchers.IO) {
-            repository.setSelectedFontSize(fontSize)
         }
     }
 

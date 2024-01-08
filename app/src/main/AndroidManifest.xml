@@ -36,18 +36,6 @@
             android:name=".navigation.navigablescreen.SettingsScreen"
             android:exported="false" />
         <activity
-            android:name=".authorizationscreen.Login"
-            android:exported="true"
-            android:label="@string/title_activity_login"
-            android:theme="@style/Theme.AndroidApp">
-        </activity>
-        <activity
-            android:name=".authorizationscreen.SignUp"
-            android:exported="false"/>
-        <activity
-            android:name=".authorizationscreen.RestorePassword"
-            android:exported="false" />
-        <activity
             android:name=".navigation.navigablescreen.CreateNote"
             android:exported="false" />
         <activity
@@ -57,16 +45,6 @@
             android:name=".navigation.navigablescreen.CalendarScreen"
             android:exported="false" />
         <receiver android:name=".notifications.NotificationHelper$AlarmReceiver"/>
-
-<!--
-        <receiver
-            android:name=".receivers.LanguageChangeReceiver"
-            android:exported="false">
-            <intent-filter>
-                <action android:name="com.example.androidapp.LANGUAGE_CHANGED" />
-            </intent-filter>
-        </receiver>
--->
     </application>
 
 </manifest>
