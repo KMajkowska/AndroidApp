@@ -79,15 +79,15 @@ class SettingsScreen(
                         settingsViewModel.setDarkTheme(isDarkModeEnabled)
                     }
 
-                    HorizontalDivider()
-                    DropDown(
-                        dropdownName = stringResource(id = R.string.font_size),
-                        allOptions = fontSizes,
-                        valueFromOptionGetterFunction = { fontSize -> context.resources.getString(fontSize.resourceId)},
-                        selectedValueModifier = selectedFontSize
-                    ) { fontSize ->
-                        settingsViewModel.setSelectedFontSize(fontSize)
-                    }
+//                    HorizontalDivider()
+//                    DropDown(
+//                        dropdownName = stringResource(id = R.string.font_size),
+//                        allOptions = fontSizes,
+//                        valueFromOptionGetterFunction = { fontSize -> context.resources.getString(fontSize.resourceId)},
+//                        selectedValueModifier = selectedFontSize
+//                    ) { fontSize ->
+//                        settingsViewModel.setSelectedFontSize(fontSize)
+//                    }
 
                     HorizontalDivider()
                     DropDown(

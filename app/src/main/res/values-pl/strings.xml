@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Uniqrn</string>
+    <string name="app_name">Uniqrn Notes</string>
     <string name="button">Utwórz notatkę</string>
     <string name="title_activity_login">LoginActivity</string>
     <string name="prompt_email">E-mail</string>
@@ -10,7 +10,7 @@
     <string name="invalid_username">Nieprawidłowa nazwa użytkownika</string>
     <string name="invalid_password">Hasło musi mieć więcej niż 5 znaków</string>
     <string name="login_failed">"Logowanie nieudane"</string>
-    <string name="title_activity_main">Uniqrn</string>
+    <string name="title_activity_main">Uniqrn Notes</string>
     <string name="all_notes">Notatki</string>
     <string name="language">Język</string>
     <string name="notification">Powiadomienie</string>
