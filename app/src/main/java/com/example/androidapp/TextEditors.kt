@@ -25,7 +25,11 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontStyle
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 
 @Composable
@@ -38,7 +42,7 @@ fun TextPreview(data: String, onEditClick: () -> Unit) {
     ) {
         Text(
             text = data,
-            style = MaterialTheme.typography.bodyMedium,
+            style = TextStyle(fontSize = 16.sp),
             modifier = Modifier.wrapContentSize()
         )
     }

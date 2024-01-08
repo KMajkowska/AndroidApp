@@ -37,6 +37,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -101,7 +102,8 @@ class AllNotes(
 
                 Box(
                     modifier = Modifier
-                        .fillMaxSize(),
+                        .fillMaxSize()
+                        .padding(20.dp),
                     contentAlignment = Alignment.BottomEnd
                 ) {
                     IconButton(
@@ -109,10 +111,9 @@ class AllNotes(
                             onNoteClick(-1) // negative value means that no note will be found!
                         },
                         modifier = Modifier
-                            .size(66.dp)
+                            .size(70.dp)
                             .shadow(2.dp, CircleShape)
                             .background(MaterialTheme.colorScheme.primary, shape = CircleShape)
-                            .padding(16.dp)
                     ) {
                         Icon(
                             imageVector = Icons.Default.Edit,
@@ -162,7 +163,7 @@ class AllNotes(
                     ) {
                         Text(
                             text = "${note.noteDate}",
-                            style = LocalTextStyle.current.copy(color = MaterialTheme.colorScheme.onBackground, fontSize = 14.sp),
+                            style = LocalTextStyle.current.copy(color = MaterialTheme.colorScheme.onBackground, fontSize = 14.sp, fontStyle = FontStyle.Italic),
                             modifier = Modifier
                                 .weight(1f)
                                 .padding(10.dp,0.dp,10.dp,0.dp)
