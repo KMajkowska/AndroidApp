@@ -6,6 +6,7 @@ import androidx.lifecycle.asLiveData
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 
 class SettingsViewModel(private val repository: SettingsRepository) : ViewModel() {
     val selectedLanguage = repository.selectedLanguage.asLiveData()
@@ -15,37 +16,50 @@ class SettingsViewModel(private val repository: SettingsRepository) : ViewModel(
     val selectedSortOption = repository.selectedSortOption.asLiveData()
 
     fun setSelectedLanguage(language: LanguageEnum) {
-        viewModelScope.launch(Dispatchers.IO) {
-            repository.setSelectedLanguage(language)
+        runBlocking {
+            viewModelScope.launch(Dispatchers.IO) {
+                repository.setSelectedLanguage(language)
+            }
         }
     }
 
     fun setDarkTheme(isDark: Boolean) {
-        viewModelScope.launch(Dispatchers.IO) {
-            repository.setDarkTheme(isDark)
+        runBlocking {
+            viewModelScope.launch(Dispatchers.IO) {
+                repository.setDarkTheme(isDark)
+            }
         }
     }
 
     fun setUniqrnMode(isUniqrnModeEnabled: Boolean) {
-        viewModelScope.launch(Dispatchers.IO) {
-            repository.setUniqrnMode(isUniqrnModeEnabled)
+        runBlocking {
+            viewModelScope.launch(Dispatchers.IO) {
+                repository.setUniqrnMode(isUniqrnModeEnabled)
+            }
+
         }
     }
 
     fun setNotificationsEnabled(areNotificationsEnabled: Boolean) {
-        viewModelScope.launch(Dispatchers.IO) {
-            repository.setNotificationsEnabled(areNotificationsEnabled)
+        runBlocking {
+            viewModelScope.launch(Dispatchers.IO) {
+                repository.setNotificationsEnabled(areNotificationsEnabled)
+            }
         }
     }
 
     fun setSeletectedSortOption(selectedSortOption: NoteSortOptionEnum) {
-        viewModelScope.launch(Dispatchers.IO) {
-            repository.setSelectedSortOption(selectedSortOption)
+        runBlocking {
+
+            viewModelScope.launch(Dispatchers.IO) {
+                repository.setSelectedSortOption(selectedSortOption)
+            }
         }
     }
 }
 
-class SettingsViewModelFactory(private val repository: SettingsRepository) : ViewModelProvider.Factory {
+class SettingsViewModelFactory(private val repository: SettingsRepository) :
+    ViewModelProvider.Factory {
 
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         if (modelClass.isAssignableFrom(SettingsViewModel::class.java)) {
