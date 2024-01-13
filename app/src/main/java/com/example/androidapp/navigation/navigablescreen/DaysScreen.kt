@@ -128,6 +128,7 @@ class DaysScreen(
             }
         }
 
+        //add placeholder here to name a day
         LazyColumn(
             modifier = Modifier
                 .fillMaxSize()
