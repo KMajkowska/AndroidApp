@@ -47,7 +47,9 @@ android {
     }
     packaging {
         resources {
-            excludes += "/META-INF/{AL2.0,LGPL2.1}"
+//            excludes += "/META-INF/{AL2.0,LGPL2.1}"
+            exclude( "META-INF/LICENSE.md")
+            exclude ("META-INF/LICENSE-notice.md")
         }
     }
 }
@@ -98,4 +100,10 @@ dependencies {
     testImplementation("junit:junit:4.13.2")
     androidTestImplementation("androidx.test.ext:junit:1.1.5")
     androidTestImplementation("androidx.test.espresso:espresso-core:3.5.1")
+    androidTestImplementation("androidx.test:runner:1.5.2")
+    androidTestImplementation("androidx.test:rules:1.5.0")
+    androidTestImplementation ("org.mockito:mockito-core:3.12.4")
+    androidTestImplementation ("org.mockito:mockito-inline:3.12.4")
+    androidTestImplementation("io.mockk:mockk-android:1.13.9")
+
 }

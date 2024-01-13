@@ -56,7 +56,7 @@ private val UnicornColorScheme = lightColorScheme(
     primaryContainer = LighterPink,
     secondaryContainer = LighterPink,
     onPrimaryContainer = Color.Black,
-    onSecondaryContainer = Color.Gray,
+    onSecondaryContainer = Color.Black,
     )
 
 private val DarkUnicornScheme = darkColorScheme(
@@ -71,7 +71,7 @@ private val DarkUnicornScheme = darkColorScheme(
     primaryContainer = LighterPink,
     secondaryContainer = LighterPink,
     onPrimaryContainer =  Black,
-    onSecondaryContainer = Color.Gray,
+    onSecondaryContainer = Color.White,
 )
 
 
