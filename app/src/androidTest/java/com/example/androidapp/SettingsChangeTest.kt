@@ -3,7 +3,6 @@ package com.example.androidapp
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithText
-import androidx.compose.ui.test.performClick
 import androidx.test.espresso.action.ViewActions.*
 import androidx.test.espresso.matcher.ViewMatchers.*
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -13,8 +12,7 @@ import com.example.androidapp.navigation.ScreenRoutes
 import com.example.androidapp.navigation.navigablescreen.SettingsScreen
 import com.example.androidapp.settings.SettingsRepository
 import com.example.androidapp.settings.SettingsViewModel
-import junit.framework.Assert.assertTrue
-import org.junit.Before
+import com.example.androidapp.ui.theme.LanguageAwareScreen
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -26,29 +24,39 @@ import org.junit.runner.RunWith
  * See [testing documentation](http://d.android.com/tools/testing).
  */
 @RunWith(AndroidJUnit4 ::class)
-class LanguageChangeTest {
+class SettingsChangeTest {
 
     @get:Rule
     val composeTestRule = createComposeRule()
 
-    @Before
-    fun setup() {
+
+    @Test
+    fun testEnglishLocale() {
         composeTestRule.setContent {
+            LanguageAwareScreen("en") {
                 CustomBottomNavigation(
                     listOf(NavItem.ALL_NOTES, NavItem.CALENDAR, NavItem.DAYS, NavItem.SETTINGS),
                     ScreenRoutes.SETTINGS,
                     SettingsScreen({  }, SettingsViewModel(SettingsRepository(context = LocalContext.current)))
                 ) { }
+            }
         }
+
+        composeTestRule.onNodeWithText("Language").assertExists()
     }
+
     @Test
-    fun `changeLanguageSettingTest`() {
+    fun testPolishLocale() {
+        composeTestRule.setContent {
+            LanguageAwareScreen("pl") {
+                CustomBottomNavigation(
+                    listOf(NavItem.ALL_NOTES, NavItem.CALENDAR, NavItem.DAYS, NavItem.SETTINGS),
+                    ScreenRoutes.SETTINGS,
+                    SettingsScreen({  }, SettingsViewModel(SettingsRepository(context = LocalContext.current)))
+                ) { }
+            }
+        }
 
-        composeTestRule.onNodeWithText("ENGLISH", ignoreCase = true).performClick()
-        composeTestRule.onNodeWithText("POLSKI", ignoreCase = true).performClick()
-
-        composeTestRule.onNodeWithText("DESCENDING", ignoreCase = true).performClick()
-        assertTrue(true)
+        composeTestRule.onNodeWithText("Język").assertExists()
     }
-
 }
