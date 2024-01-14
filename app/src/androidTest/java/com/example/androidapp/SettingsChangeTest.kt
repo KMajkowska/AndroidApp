@@ -59,4 +59,5 @@ class SettingsChangeTest {
 
         composeTestRule.onNodeWithText("Język").assertExists()
     }
+
 }
