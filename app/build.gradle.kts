@@ -45,9 +45,22 @@ android {
     composeOptions {
         kotlinCompilerExtensionVersion = "1.5.3"
     }
-    packaging {
-        resources {
-            excludes += "/META-INF/{AL2.0,LGPL2.1}"
+    packagingOptions {
+        exclude("META-INF/LICENSE-notice.md")
+        exclude("migrateToAndroidx/migration.xml")
+        exclude("META-INF/LICENSE.md")
+        exclude("META-INF/DEPENDENCIES")
+        exclude("META-INF/NOTICE")
+        exclude("META-INF/LICENSE")
+        exclude("META-INF/LICENSE.txt")
+        exclude("META-INF/NOTICE.txt")
+    }
+
+    testOptions {
+        packagingOptions {
+            jniLibs {
+                useLegacyPackaging = true
+            }
         }
     }
 }
@@ -55,6 +68,7 @@ android {
 dependencies {
 
     implementation("androidx.datastore:datastore-preferences:1.0.0")
+    implementation("com.android.tools.build:gradle:3.5.1")
     implementation("com.google.code.gson:gson:2.10")
     implementation("androidx.room:room-runtime:2.6.1")
     implementation("androidx.room:room-ktx:2.6.1")
@@ -98,4 +112,16 @@ dependencies {
     testImplementation("junit:junit:4.13.2")
     androidTestImplementation("androidx.test.ext:junit:1.1.5")
     androidTestImplementation("androidx.test.espresso:espresso-core:3.5.1")
+    androidTestImplementation("androidx.test:runner:1.5.2")
+    androidTestImplementation("androidx.test:rules:1.5.0")
+    androidTestImplementation ("org.mockito:mockito-core:3.12.4")
+    androidTestImplementation ("org.mockito:mockito-inline:3.12.4")
+    androidTestImplementation("io.mockk:mockk-android:1.13.9")
+    testImplementation("io.mockk:mockk-agent-jvm:1.13.9")
+    testImplementation("org.mockito:mockito-core:4.0.0") // Use the latest version
+    testImplementation("org.mockito:mockito-inline:4.0.0") // For mocking final classes
+    testImplementation("org.junit.jupiter:junit-jupiter-api:5.7.0") // JUnit 5
+    testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine")
+
+
 }
