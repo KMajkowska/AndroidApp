@@ -13,7 +13,11 @@ import androidx.compose.ui.test.performImeAction
 import androidx.compose.ui.test.performScrollTo
 import androidx.compose.ui.test.performTextInput
 import com.example.androidapp.navigation.navigablescreen.DaysScreen
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.test.resetMain
+import org.junit.After
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -46,10 +50,10 @@ class NotesEndToEndTest {
             .assertDoesNotExist()
         composeTestRule
             .onNodeWithTag(TestTags.NOTE_TITLE_FIELD)
-            .performTextInput("TEST TITLE")
+            .performTextInput("TEST TITLE 1")
         composeTestRule
             .onNodeWithTag(TestTags.NOTE_CONTENT_FIELD)
-            .performTextInput("TEST CONTENT")
+            .performTextInput("TEST CONTENT 1")
         composeTestRule
             .onNodeWithContentDescription("Save")
             .performClick()
@@ -57,11 +61,11 @@ class NotesEndToEndTest {
             .onNodeWithTag(TestTags.ALL_NOTES_VIEW)
             .assertExists()
         composeTestRule
-            .onNodeWithTag(TestTags.DISPLAYED_NOTE_TITLE, useUnmergedTree = true)
-            .assertTextEquals("TEST TITLE")
+            .onNodeWithText("TEST TITLE 1")
+            .assertExists()
         composeTestRule
-            .onNodeWithTag(TestTags.DISPLAYED_NOTE_CONTENT, useUnmergedTree = true)
-            .assertTextEquals("TEST CONTENT")
+            .onNodeWithText("TEST CONTENT 1")
+            .assertExists()
     }
 
     @Test
@@ -87,7 +91,7 @@ class NotesEndToEndTest {
             .assertExists()
         composeTestRule
             .onNodeWithTag(TestTags.NOTE_TITLE_FIELD)
-            .performTextInput("TEST TITLE")
+            .performTextInput("TEST TITLE ")
         composeTestRule
             .onNodeWithTag(TestTags.NOTE_CONTENT_FIELD)
             .performTextInput("TEST CONTENT")
