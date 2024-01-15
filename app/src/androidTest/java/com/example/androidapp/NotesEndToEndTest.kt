@@ -9,6 +9,8 @@ import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performImeAction
+import androidx.compose.ui.test.performScrollTo
 import androidx.compose.ui.test.performTextInput
 import com.example.androidapp.navigation.navigablescreen.DaysScreen
 import kotlinx.coroutines.runBlocking
@@ -101,9 +103,14 @@ class NotesEndToEndTest {
             .performTextInput("TEST EVENT")
         composeTestRule
             .onNodeWithContentDescription("Save")
-            .assertExists()
+            .performScrollTo()
+        composeTestRule
+            .onNodeWithContentDescription("Save")
             .assertHasClickAction()
             .performClick()
+        composeTestRule
+            .onNodeWithText("TEST EVENT")
+            .assertExists()
         composeTestRule
             .onNodeWithTag(TestTags.DAYS_SCREEN_VIEW)
             .assertExists()
@@ -123,17 +130,16 @@ class NotesEndToEndTest {
         composeTestRule
             .onNodeWithTag(TestTags.CALENDAR_VIEW)
             .assertExists()
-
-//        composeTestRule
-//            .onNodeWithText("TEST EVENT")
-//            .assertExists()
-//            .assertHasClickAction()
-//            .performClick()
-//        composeTestRule
-//            .onNodeWithTag(TestTags.DAYS_SCREEN_VIEW)
-//            .assertExists()
-//        composeTestRule
-//            .onNodeWithTag(TestTags.CALENDAR_VIEW)
-//            .assertDoesNotExist()
+        composeTestRule
+            .onNodeWithText("TEST EVENT")
+            .assertExists()
+            .assertHasClickAction()
+            .performClick()
+        composeTestRule
+            .onNodeWithTag(TestTags.DAYS_SCREEN_VIEW)
+            .assertExists()
+        composeTestRule
+            .onNodeWithTag(TestTags.CALENDAR_VIEW)
+            .assertDoesNotExist()
     }
 }
