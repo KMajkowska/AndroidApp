@@ -2,19 +2,19 @@
 <project version="4">
   <component name="deploymentTargetDropDown">
     <value>
-      <entry key="ExampleInstrumentedTest">
+      <entry key="NavigationPerformanceTest">
         <State />
       </entry>
-      <entry key="LanguageChangeTest">
+      <entry key="creatingAndSavingANoteProperly()">
         <State />
       </entry>
-      <entry key="SettingsChangeTest">
+      <entry key="testAppNavigation()">
         <State />
       </entry>
-      <entry key="ViewModelTest">
+      <entry key="testAppNavigationBetweenNotesAndCalendarAndDays()">
         <State />
       </entry>
-      <entry key="app">
+      <entry key="testCreatingAndSavingANoteProperly()">
         <State />
       </entry>
     </value>

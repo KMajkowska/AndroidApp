@@ -51,6 +51,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
 
 import androidx.compose.ui.platform.LocalView
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -63,6 +64,7 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import com.example.androidapp.HorizontalDivider
 import com.example.androidapp.R
+import com.example.androidapp.TestTags
 import com.example.androidapp.database.model.Note
 import com.example.androidapp.database.viewmodel.DayViewModel
 import java.time.LocalDate
@@ -99,7 +101,7 @@ class CreateNote(
             }
         }
 
-        Surface {
+        Surface(modifier = Modifier.testTag(TestTags.NOTE_EDITOR_VIEW)) {
             Column(
                 modifier = Modifier
                     .fillMaxSize()
@@ -118,7 +120,7 @@ class CreateNote(
                     ) {
                         Icon(
                             imageVector = Icons.Default.Delete,
-                            contentDescription = null,
+                            contentDescription = "Delete",
                             tint = MaterialTheme.colorScheme.onBackground
                         )
                     }
@@ -148,7 +150,7 @@ class CreateNote(
                         ) {
                         Icon(
                             imageVector = Icons.Default.Done,
-                            contentDescription = null,
+                            contentDescription = "Save",
                             tint = MaterialTheme.colorScheme.onBackground
                         )
                     }
@@ -162,7 +164,7 @@ class CreateNote(
                     ) {
                         Icon(
                             imageVector = Icons.Default.Close,
-                            contentDescription = null,
+                            contentDescription = "Close",
                             tint = MaterialTheme.colorScheme.onBackground
                         )
                     }
@@ -217,7 +219,8 @@ class CreateNote(
                         .fillMaxWidth()
                         .background(MaterialTheme.colorScheme.background)
                         .padding(4.dp)
-                        .clip(MaterialTheme.shapes.small),
+                        .clip(MaterialTheme.shapes.small)
+                        .testTag(TestTags.NOTE_TITLE_FIELD),
                     cursorBrush = SolidColor(MaterialTheme.colorScheme.onBackground),
                     decorationBox = { innerTextField ->
                         Box(
@@ -246,9 +249,6 @@ class CreateNote(
 
                 )
                 {
-
-
-
                     Column(
                         modifier = Modifier
                             .fillMaxWidth()
@@ -289,6 +289,7 @@ class CreateNote(
                                     .background(MaterialTheme.colorScheme.background)
                                     .padding(1.dp)
                                     .verticalScroll(state = rememberScrollState(), enabled = true)
+                                    .testTag(TestTags.NOTE_CONTENT_FIELD)
                             )
 
 

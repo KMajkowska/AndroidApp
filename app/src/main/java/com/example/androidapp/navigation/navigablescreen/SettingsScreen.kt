@@ -15,11 +15,13 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.example.androidapp.DropDown
 import com.example.androidapp.HorizontalDivider
 import com.example.androidapp.R
+import com.example.androidapp.TestTags
 import com.example.androidapp.Toggle
 import com.example.androidapp.navigation.ScreenRoutes
 import com.example.androidapp.settings.LanguageEnum
@@ -43,7 +45,7 @@ class SettingsScreen(
 
         val context = LocalContext.current
 
-        Surface {
+        Surface(modifier = Modifier.testTag(TestTags.SETTINGS_SCREEN_VIEW)) {
             LazyColumn(
                 modifier = Modifier
                     .fillMaxSize()
