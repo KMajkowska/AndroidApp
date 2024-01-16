@@ -11,7 +11,7 @@ data class Note(
     @Expose(serialize = false)
     @PrimaryKey(autoGenerate = true)
     var noteId: Long? = null,
-    val noteTitle: String = "",
+    var noteTitle: String = "",
     val content: String = "",
     var noteDate:LocalDate? = null,
     val pinned: Boolean = false

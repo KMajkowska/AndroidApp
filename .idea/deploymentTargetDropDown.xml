@@ -2,19 +2,22 @@
 <project version="4">
   <component name="deploymentTargetDropDown">
     <value>
-      <entry key="ExampleInstrumentedTest">
+      <entry key="DayViewModelTest">
         <State />
       </entry>
-      <entry key="LanguageChangeTest">
-        <State />
-      </entry>
-      <entry key="SettingsChangeTest">
-        <State />
-      </entry>
-      <entry key="ViewModelTest">
+      <entry key="NotificationHelperTest">
         <State />
       </entry>
       <entry key="app">
+        <State />
+      </entry>
+      <entry key="testAllEventEntitiesWithDelete()">
+        <State />
+      </entry>
+      <entry key="testAllTodoEntitiesWithDelete()">
+        <State />
+      </entry>
+      <entry key="testSchedulingWithFutureDate()">
         <State />
       </entry>
     </value>

@@ -87,10 +87,6 @@ class MyRepository(
         return dayDao.getDayIdWithRelatedByDate(date)
     }
 
-    suspend fun addNewTodo(todo: TodoEntity) {
-        return todoDao.addNewTodo(todo)
-    }
-
     suspend fun deleteTodoEntity(todo: TodoEntity) {
         todoDao.deleteTodoEntity(todo)
     }
@@ -98,6 +94,5 @@ class MyRepository(
     suspend fun deleteEventEntity(event: EventEntity) {
         eventDao.deleteEventEntity(event)
     }
-
 
 }

@@ -110,6 +110,7 @@ dependencies {
     implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:2.6.2")
     implementation("androidx.compose.material:material-icons-extended:$composeBom")
     testImplementation("junit:junit:4.13.2")
+    androidTestImplementation("androidx.arch.core:core-testing:2.1.0")
     androidTestImplementation("androidx.test.ext:junit:1.1.5")
     androidTestImplementation("androidx.test.espresso:espresso-core:3.5.1")
     androidTestImplementation("androidx.test:runner:1.5.2")
@@ -117,11 +118,14 @@ dependencies {
     androidTestImplementation ("org.mockito:mockito-core:3.12.4")
     androidTestImplementation ("org.mockito:mockito-inline:3.12.4")
     androidTestImplementation("io.mockk:mockk-android:1.13.9")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.5.2")
+    testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.5.2")
     testImplementation("io.mockk:mockk-agent-jvm:1.13.9")
     testImplementation("org.mockito:mockito-core:4.0.0") // Use the latest version
     testImplementation("org.mockito:mockito-inline:4.0.0") // For mocking final classes
     testImplementation("org.junit.jupiter:junit-jupiter-api:5.7.0") // JUnit 5
     testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine")
+
 
 
 }

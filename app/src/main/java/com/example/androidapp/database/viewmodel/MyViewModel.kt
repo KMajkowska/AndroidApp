@@ -22,18 +22,23 @@ import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 import java.time.LocalDate
 
-class DayViewModel(application: Application, private val notificationHelper: NotificationHelper) : AndroidViewModel(application) {
+class DayViewModel(
+    application: Application,
+    private val notificationHelper: NotificationHelper,
+    databaseConnection: MyDatabaseConnection
+) : AndroidViewModel(application) {
 
     private val repository: MyRepository = MyRepository(
-        MyDatabaseConnection.getDatabase(application).dayDao(),
-        MyDatabaseConnection.getDatabase(application).eventDao(),
-        MyDatabaseConnection.getDatabase(application).noteDao(),
-        MyDatabaseConnection.getDatabase(application).todoDao()
+        databaseConnection.dayDao(),
+        databaseConnection.eventDao(),
+        databaseConnection.noteDao(),
+        databaseConnection.todoDao()
     )
 
-
-    val allDayEntitiesSortedByDate: LiveData<List<DayEntity>> = repository.allDayEntitiesSortedByDate
-    val allDayEntitiesWithRelatedSortedByDate: LiveData<List<DayWithTodosAndEvents>> = repository.allDayEntitiesWithRelatedSortedByDate
+    val allDayEntitiesSortedByDate: LiveData<List<DayEntity>> =
+        repository.allDayEntitiesSortedByDate
+    val allDayEntitiesWithRelatedSortedByDate: LiveData<List<DayWithTodosAndEvents>> =
+        repository.allDayEntitiesWithRelatedSortedByDate
     val allTodoEntities: LiveData<List<TodoEntity>> = repository.allTodoEntities
     val allEventEntities: LiveData<List<EventEntity>> = repository.allEventEntities
     val allNotes: LiveData<List<Note>> = repository.allNotes
@@ -43,6 +48,7 @@ class DayViewModel(application: Application, private val notificationHelper: Not
             notificationHelper.scheduleNotification(repository.getDayIdWithRelatedByDate(date))
         }
     }
+
     fun saveDayEntity(dayEntity: DayEntity) {
         return runBlocking {
             withContext(Dispatchers.IO) {
@@ -52,7 +58,7 @@ class DayViewModel(application: Application, private val notificationHelper: Not
         }
     }
 
-    private fun deleteDayEntity(dayEntity: DayEntity) {
+    fun deleteDayEntity(dayEntity: DayEntity) {
         viewModelScope.launch(Dispatchers.IO) {
             repository.deleteDayEntity(dayEntity)
             notificationHelper.unscheduleNotification(dayEntity.dayId)
@@ -117,7 +123,6 @@ class DayViewModel(application: Application, private val notificationHelper: Not
         }
     }
 
-
     fun updateNote(note: Note) {
         viewModelScope.launch(Dispatchers.IO) {
             repository.updateNote(note)
@@ -137,7 +142,6 @@ class DayViewModel(application: Application, private val notificationHelper: Not
             }
         }
     }
-
 
     fun getEventsByDayId(dayId: Long): LiveData<List<EventEntity>> {
         return runBlocking {
@@ -163,12 +167,6 @@ class DayViewModel(application: Application, private val notificationHelper: Not
         }
     }
 
-    fun insertTodo(todo: TodoEntity) {
-        viewModelScope.launch {
-            repository.addNewTodo(todo)
-        }
-    }
-
     fun deleteDayEntityIfEmpty(dayId: Long) {
         val temp: DayWithTodosAndEvents? = getDayIdWithRelated(dayId)
         if (temp?.events?.isEmpty() == true &&
@@ -179,12 +177,19 @@ class DayViewModel(application: Application, private val notificationHelper: Not
     }
 }
 
-class DayViewModelFactory(private val application: Application, private val notificationHelper: NotificationHelper) : ViewModelProvider.Factory {
+class DayViewModelFactory(
+    private val application: Application,
+    private val notificationHelper: NotificationHelper
+) : ViewModelProvider.Factory {
 
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         if (modelClass.isAssignableFrom(DayViewModel::class.java)) {
             @Suppress("UNCHECKED_CAST")
-            return DayViewModel(application, notificationHelper) as T
+            return DayViewModel(
+                application,
+                notificationHelper,
+                MyDatabaseConnection.getDatabase(application)
+            ) as T
         }
         throw IllegalArgumentException("Unknown ViewModel class")
     }

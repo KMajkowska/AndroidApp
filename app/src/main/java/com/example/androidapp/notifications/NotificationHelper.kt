@@ -14,7 +14,10 @@ import java.time.ZoneId
 import java.time.ZonedDateTime
 import java.util.*
 
-class NotificationHelper(private val context: Context, private val areNotificationsEnabled: Boolean) {
+class NotificationHelper(
+    private val context: Context,
+    private val areNotificationsEnabled: Boolean
+) {
 
     companion object {
         private const val CHANNEL_ID = "calendar_event_channel"
@@ -38,6 +41,7 @@ class NotificationHelper(private val context: Context, private val areNotificati
             }
         val notificationManager: NotificationManager =
             context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+
         notificationManager.createNotificationChannel(channel)
     }
 
@@ -46,6 +50,10 @@ class NotificationHelper(private val context: Context, private val areNotificati
             Objects.isNull(dayWithTodosAndEvents!!.dayEntity) ||
             Objects.isNull(dayWithTodosAndEvents.dayEntity.dayId)
         )
+            return
+
+        val today = LocalDateTime.now()
+        if (!dayWithTodosAndEvents.dayEntity.date.isAfter(today.toLocalDate()))
             return
 
         val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
@@ -72,21 +80,31 @@ class NotificationHelper(private val context: Context, private val areNotificati
             )
             addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
         }
+
         val pendingIntent = PendingIntent.getBroadcast(
             context,
             dayWithTodosAndEvents.dayEntity.dayId!!.toInt(),
             intent,
-            PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
+            PendingIntent.FLAG_NO_CREATE or PendingIntent.FLAG_MUTABLE
         )
 
-        alarmManager.setExact(
-            AlarmManager.RTC_WAKEUP,
-            ZonedDateTime.of(
-                dayWithTodosAndEvents.dayEntity.date.atStartOfDay(),
-                ZoneId.systemDefault()
-            ).toInstant().toEpochMilli(),
-            pendingIntent
-        )
+        if (pendingIntent == null) {
+            val newPendingIntent = PendingIntent.getBroadcast(
+                context,
+                dayWithTodosAndEvents.dayEntity.dayId!!.toInt(),
+                intent,
+                PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
+            )
+
+            alarmManager.setExact(
+                AlarmManager.RTC_WAKEUP,
+                ZonedDateTime.of(
+                    dayWithTodosAndEvents.dayEntity.date.atStartOfDay(),
+                    ZoneId.systemDefault()
+                ).toInstant().toEpochMilli(),
+                newPendingIntent
+            )
+        }
     }
 
     fun unscheduleNotification(objectId: Long?) {
@@ -109,7 +127,11 @@ class NotificationHelper(private val context: Context, private val areNotificati
             val notificationManager =
                 context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
 
-            if (notificationManager.areNotificationsEnabled() &&  intent.getBooleanExtra(ARE_NOTIFICATIONS_ENABLED_STRING, true)) {
+            if (notificationManager.areNotificationsEnabled() && intent.getBooleanExtra(
+                    ARE_NOTIFICATIONS_ENABLED_STRING,
+                    true
+                )
+            ) {
                 val notificationBuilder = NotificationCompat.Builder(context, CHANNEL_ID)
                     .setSmallIcon(R.drawable.ic_launcher_foreground)
                     .setContentTitle(context.resources.getString(R.string.notification_title))
@@ -119,8 +141,8 @@ class NotificationHelper(private val context: Context, private val areNotificati
                                 NOTIFICATION_DATA_STRING
                             )
                         } ${context.resources.getString(R.string.events)}: ${
-                            intent.getStringExtra(
-                                NOTIFICATION_EVENT_AMOUNT
+                            intent.getIntExtra(
+                                NOTIFICATION_EVENT_AMOUNT, 0
                             )
                         } ${context.resources.getString(R.string.todos)}: ${
                             intent.getIntExtra(
