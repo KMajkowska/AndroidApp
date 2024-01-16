@@ -1,13 +1,10 @@
 package com.example.androidapp
 
 import android.app.Application
-import android.content.Context
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
-import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalContext
-import androidx.datastore.preferences.preferencesDataStore
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavGraphBuilder
@@ -46,6 +43,46 @@ fun UniqrnApp() {
     )
 
     val selectedLanguage by mSettingsViewModel.selectedLanguage.observeAsState(LanguageEnum.ENGLISH)
+    val isDarkTheme by mSettingsViewModel.isDarkTheme.observeAsState(true)
+    val isUniqrnTheme by mSettingsViewModel.isUniqrnModeEnabled.observeAsState(true)
+    val areNotificationsEnabled by mSettingsViewModel.areNotificationsEnabled.observeAsState(true)
+
+    val notificationHelper = NotificationHelper(LocalContext.current, areNotificationsEnabled)
+    val mDayViewModel: DayViewModel = viewModel(
+        factory = DayViewModelFactory(LocalContext.current.applicationContext as Application, notificationHelper)
+    )
+
+    AndroidAppTheme(isDarkTheme, isUniqrnTheme) {
+        LanguageAwareScreen(selectedLanguage.code) {
+            NavHost(
+                navController = navController.navController,
+                startDestination = ScreenRoutes.ALL_NOTES
+            ) {
+                unqirnNavGraph(
+                    onDaySelected = navController::navigateToDayDetail,
+                    onNoteSelected = navController::navigateToNoteEditor,
+                    upPress = navController::upPress,
+                    onNavigateToRoute = navController::navigateToBottomBarRoute,
+                    mDayViewModel = mDayViewModel,
+                    mSettingsViewModel = mSettingsViewModel
+                )
+            }
+        }
+    }
+}
+
+@Composable
+fun UniqrnAppSettings(
+    mSettingsViewModel: SettingsViewModel,
+    setting: LanguageEnum
+    ) {
+    val navController = rememberNavHostController()
+//
+//    val mSettingsViewModel: SettingsViewModel = viewModel(
+//        factory = SettingsViewModelFactory(SettingsRepository(LocalContext.current))
+//    )
+
+    val selectedLanguage by mSettingsViewModel.selectedLanguage.observeAsState(setting)
     val isDarkTheme by mSettingsViewModel.isDarkTheme.observeAsState(true)
     val isUniqrnTheme by mSettingsViewModel.isUniqrnModeEnabled.observeAsState(true)
     val areNotificationsEnabled by mSettingsViewModel.areNotificationsEnabled.observeAsState(true)

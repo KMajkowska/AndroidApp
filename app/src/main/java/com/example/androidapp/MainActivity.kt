@@ -12,13 +12,16 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         enableEdgeToEdge()
         super.onCreate(savedInstanceState)
-        setContent { UniqrnApp() }
+        setContent {
+            UniqrnApp()
+        }
     }
 }
 
 @Preview(showBackground = true)
 @Composable
 fun UniqrnPreview() {
+
     UniqrnApp()
 
 }

@@ -26,7 +26,7 @@
     <string name="unicorn">Unicorn mode</string>
     <string name="note_title">Title</string>
     <string name="note_content">Note</string>
-    <string name="event_list">Event List</string>
+    <string name="event_list">Events List</string>
     <string name="event_category_general">General</string>
     <string name="event_category_party">Party</string>
     <string name="event_category_meeting">Meeting</string>
