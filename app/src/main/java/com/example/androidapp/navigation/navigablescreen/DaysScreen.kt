@@ -47,6 +47,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -59,6 +60,7 @@ import com.example.androidapp.AddBackgroundToComposables
 import com.example.androidapp.HorizontalDivider
 import com.example.androidapp.InlineTextEditor
 import com.example.androidapp.R
+import com.example.androidapp.TestTags
 import com.example.androidapp.TextEditorWithPreview
 import com.example.androidapp.database.model.DayEntity
 import com.example.androidapp.database.model.EventEntity
@@ -89,7 +91,7 @@ class DaysScreen(
         var dayEntity by remember { mutableStateOf(mDayViewModel.getDayByDate(localDate)) }
         var selectedNote by remember { mutableStateOf(mDayViewModel.getNoteByDate(localDate)) }
 
-        Surface {
+        Surface(modifier = Modifier.testTag(TestTags.DAYS_SCREEN_VIEW)) {
             AddBackgroundToComposables({
                 View { chosenDate ->
                     dayEntity = mDayViewModel.getDayByDate(chosenDate)

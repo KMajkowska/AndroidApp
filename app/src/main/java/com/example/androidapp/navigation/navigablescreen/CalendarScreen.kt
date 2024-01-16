@@ -29,9 +29,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.androidapp.TestTags
 import com.example.androidapp.database.model.DayWithTodosAndEvents
 import com.example.androidapp.database.viewmodel.DayViewModel
 import java.time.LocalDate
@@ -60,7 +62,9 @@ class CalendarScreen(
         var currentYearMonth by remember { mutableStateOf(YearMonth.now()) }
         val lazyListState = rememberLazyListState()
 
-        Surface {
+        Surface(
+            modifier = Modifier.testTag(TestTags.CALENDAR_VIEW)
+        ) {
             LazyColumn(
                 modifier = Modifier
                     .fillMaxSize()
@@ -156,6 +160,7 @@ fun YearSquare(
                 .padding(8.dp)
                 .background(MaterialTheme.colorScheme.background)
                 .clickable { onDaySelected(obj.dayEntity.date) }
+                .testTag(TestTags.DAY_IN_CALENDAR)
         ) {
             Spacer(modifier = Modifier.height(4.dp))
             Text(
@@ -163,6 +168,7 @@ fun YearSquare(
                 style = LocalTextStyle.current.copy(color = MaterialTheme.colorScheme.onBackground),
                 modifier = Modifier
                     .padding(10.dp, 4.dp, 10.dp, 4.dp))
+
             Spacer(modifier = Modifier.height(4.dp))
             //display events planned for the day
             Column {

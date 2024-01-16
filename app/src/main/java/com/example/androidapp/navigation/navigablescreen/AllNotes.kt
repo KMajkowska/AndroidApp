@@ -35,6 +35,7 @@ import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontStyle
@@ -44,6 +45,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.androidapp.R
+import com.example.androidapp.TestTags
 import com.example.androidapp.database.model.Note
 import com.example.androidapp.database.viewmodel.DayViewModel
 import com.example.androidapp.settings.NoteSortOptionEnum
@@ -52,6 +54,7 @@ import com.example.androidapp.settings.SettingsViewModel
 import com.example.androidapp.settings.SettingsViewModelFactory
 import com.example.androidapp.ui.theme.Blue
 import java.time.LocalDate
+
 
 class AllNotes(
     private val mDayViewModel: DayViewModel,
@@ -78,6 +81,7 @@ class AllNotes(
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(16.dp)
+                    .testTag(TestTags.ALL_NOTES_VIEW)
             ) {
                 Column(
                     modifier = Modifier
@@ -117,7 +121,7 @@ class AllNotes(
                     ) {
                         Icon(
                             imageVector = Icons.Default.Edit,
-                            contentDescription = null,
+                            contentDescription = "Create note",
                             tint = MaterialTheme.colorScheme.onPrimary,
                             modifier = Modifier
                                 .size(20.dp)
@@ -144,6 +148,7 @@ class AllNotes(
                     style = LocalTextStyle.current.copy(color = MaterialTheme.colorScheme.onBackground, fontSize = 18.sp, fontWeight = FontWeight.Bold),
                     modifier = Modifier
                         .padding(10.dp,2.dp,10.dp,2.dp)
+                        .testTag(TestTags.DISPLAYED_NOTE_TITLE)
                 )
                 val lines = note.content.lines().take(2)
                 lines.forEachIndexed { index, line ->
@@ -154,6 +159,7 @@ class AllNotes(
                         overflow = TextOverflow.Ellipsis,  // Indicate that the text might be truncated
                         modifier = Modifier
                             .padding(10.dp,0.dp,10.dp,0.dp)
+                            .testTag(TestTags.DISPLAYED_NOTE_CONTENT)
                     )
                 }
                 if (note.noteDate != null) {
@@ -183,7 +189,7 @@ class AllNotes(
                             ) {
                                 Icon(
                                     imageVector = Icons.Default.CalendarMonth,
-                                    contentDescription = null,
+                                    contentDescription = "Redirect to days",
                                     tint = MaterialTheme.colorScheme.onBackground,
                                 )
                             }

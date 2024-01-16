@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.material.icons.Icons
@@ -25,6 +26,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -76,15 +78,19 @@ fun InlineTextEditor(
     val keyboardController = LocalSoftwareKeyboardController.current
     var tempText by remember { mutableStateOf(data) }
 
+
+
     Column(
         modifier = Modifier
             .fillMaxSize()
             .padding(16.dp)
+            .imePadding()
     ) {
         TextField(
             value = tempText,
             onValueChange = { tempText = it },
             modifier = Modifier.fillMaxSize()
+                .testTag(TestTags.INLINE_TEXT_EDITOR_FIELD)
         )
 
         Row(
