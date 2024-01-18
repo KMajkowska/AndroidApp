@@ -48,6 +48,9 @@ import com.example.androidapp.ui.theme.Blue
 import com.example.androidapp.ui.theme.DarkerPurple
 import com.example.androidapp.ui.theme.Pink
 import com.example.androidapp.ui.theme.Purple
+import com.example.androidapp.ui.theme.Red
+import com.example.androidapp.ui.theme.darkerBlue
+import com.example.androidapp.ui.theme.darkerPink
 
 @Composable
 fun AddBackgroundToComposables(vararg composables: @Composable () -> Unit) {
@@ -63,7 +66,7 @@ fun AddBackgroundToComposables(vararg composables: @Composable () -> Unit) {
                 brush = if (isUniqrnTheme) {
                     Brush.verticalGradient(
                         colors = listOf(
-                            Color.hsv(0F, 1F, 1F),
+                            darkerPink,
                             Color.hsv(30F, 1F, 1F),
                             Color.hsv(60F, 1F, 1F),
                             Color.hsv(120F, 1F, 1F),
@@ -88,7 +91,7 @@ fun AddBackgroundToComposables(vararg composables: @Composable () -> Unit) {
                     } else {
                         Brush.verticalGradient(
                             colors = listOf(
-                                Color.hsv(242F, 0.729F, 1F),
+                                darkerBlue,
                                 Blue
                             ),
                             startY = 0.0f,

@@ -1,11 +1,17 @@
 package com.example.androidapp.navigation.navigablescreen
 
+
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Surface
+import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -13,6 +19,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
@@ -49,7 +56,7 @@ class SettingsScreen(
             LazyColumn(
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(24.dp)
+                    .padding(16.dp)
             ) {
                 item {
                     DropDown(
@@ -62,7 +69,7 @@ class SettingsScreen(
                     }
 
                     HorizontalDivider()
-                    Toggle(
+                    MyToggle(
                         toggleOption = notificationsEnabled,
                         text = stringResource(id = R.string.notification)
                     ) { areNotificationsEnabled ->
@@ -70,7 +77,7 @@ class SettingsScreen(
                     }
 
                     HorizontalDivider()
-                    Toggle(
+                    MyToggle(
                         toggleOption = isDarkModeEnabled,
                         text = stringResource(id = R.string.dark_mode),
                     ) { isDarkModeEnabled ->
@@ -88,7 +95,7 @@ class SettingsScreen(
                     }
 
                     HorizontalDivider()
-                    Toggle(
+                    MyToggle(
                         toggleOption = unicornModeEnabled,
                         text = stringResource(id = R.string.unicorn)
                     ) { isUniqrnModeEnabled ->
@@ -165,5 +172,30 @@ fun BackupImportDialog(navigateTo: (String) -> Unit) {
                 )
             }"
         )
+    }
+}
+
+
+@Composable
+fun MyToggle(toggleOption: Boolean, text: String, onToggle: (Boolean) -> Unit) {
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+    ) {
+        Row( modifier = Modifier
+            .fillMaxWidth()
+            .padding(end = 24.dp)
+        ) {
+            Text(
+                text = text,
+                modifier = Modifier
+                    .padding(0.dp, 12.dp, 0.dp, 8.dp)
+                    .fillMaxWidth()
+            )
+            Switch(
+                checked = toggleOption,
+                onCheckedChange = { onToggle(!toggleOption) },
+            )
+        }
     }
 }

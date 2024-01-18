@@ -55,8 +55,8 @@ private val UnicornColorScheme = lightColorScheme(
     surface = White,
     primaryContainer = LighterPink,
     secondaryContainer = LighterPink,
-    onPrimaryContainer = Color.Black,
-    onSecondaryContainer = Color.Black,
+    onPrimaryContainer = White,
+    onSecondaryContainer = White,
     )
 
 private val DarkUnicornScheme = darkColorScheme(
@@ -114,8 +114,8 @@ fun AndroidAppTheme(
     if (!view.isInEditMode) {
         SideEffect {
             val window = (view.context as Activity).window
-            window.statusBarColor = colorScheme.primary.toArgb()
-            window.navigationBarColor = colorScheme.secondary.toArgb()
+            window.statusBarColor = colorScheme.secondary.toArgb()
+            window.navigationBarColor = colorScheme.primary.toArgb()
             WindowCompat.getInsetsController(window, view).isAppearanceLightStatusBars = darkTheme
         }
     }

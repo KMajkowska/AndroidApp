@@ -73,7 +73,7 @@ fun CustomBottomNavigation(
 
     Scaffold(bottomBar = {
         NavigationBar(
-            containerColor = MaterialTheme.colorScheme.secondary
+            containerColor = MaterialTheme.colorScheme.primary
         ) {
             tabs.forEach { tab ->
                 NavigationBarItem(
@@ -81,13 +81,13 @@ fun CustomBottomNavigation(
                         Icon(
                             imageVector = tab.icon,
                             contentDescription = stringResource(id = tab.title),
-                            tint = if (tab == currentSection) MaterialTheme.colorScheme.onSecondary else MaterialTheme.colorScheme.onSecondaryContainer
+                            tint = if (tab == currentSection) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onPrimaryContainer
                         )
                     },
                     label = {
                         Text(
                             text = stringResource(id = tab.title),
-                            color = if (tab == currentSection) MaterialTheme.colorScheme.onSecondary else MaterialTheme.colorScheme.onSecondaryContainer
+                            color = if (tab == currentSection) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onPrimaryContainer
                         )
                     },
                     selected = tab == currentSection,
@@ -113,7 +113,7 @@ fun CustomBottomNavigation(
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .background(MaterialTheme.colorScheme.secondary)
+                .background(MaterialTheme.colorScheme.primary)
                 .padding(padding),
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally,
