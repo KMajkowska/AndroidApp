@@ -141,14 +141,14 @@ class AllNotes(
         LazyColumn(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(innerPadding)
+            .padding(8.dp)
             .nestedScroll(nestedScrollConnection)
             .testTag(TestTags.ALL_NOTES_VIEW),
     ){
             item{
                 Box(
                     modifier = Modifier
-                        .padding(16.dp)
+                        .padding(innerPadding)
                 ) {
                     Column(
                         modifier = Modifier
@@ -181,7 +181,7 @@ class AllNotes(
         Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(6.dp, 0.dp, 6.dp, 6.dp)
+                .padding(bottom = 10.dp)
                 .background(MaterialTheme.colorScheme.surface)
                 .clickable { onNoteClicked(note) }
         ) {
@@ -190,7 +190,7 @@ class AllNotes(
                     text = note.noteTitle,
                     style = LocalTextStyle.current.copy(color = MaterialTheme.colorScheme.onBackground, fontSize = 18.sp, fontWeight = FontWeight.Bold),
                     modifier = Modifier
-                        .padding(10.dp, 2.dp, 10.dp, 2.dp)
+                        .padding(10.dp, 0.dp, 0.dp, 2.dp)
                         .testTag(TestTags.DISPLAYED_NOTE_TITLE)
                 )
                 val lines = note.content.lines().take(2)
@@ -201,20 +201,20 @@ class AllNotes(
                         maxLines = 1,  // Limit to one line
                         overflow = TextOverflow.Ellipsis,  // Indicate that the text might be truncated
                         modifier = Modifier
-                            .padding(10.dp, 0.dp, 10.dp, 0.dp)
+                            .padding(start=10.dp)
                             .testTag(TestTags.DISPLAYED_NOTE_CONTENT)
                     )
                 }
                 if (note.noteDate != null) {
                     Row(
-                        verticalAlignment = Alignment.CenterVertically
+                        Modifier.padding(end=8.dp)
                     ) {
                         Text(
                             text = "${note.noteDate}",
                             style = LocalTextStyle.current.copy(color = MaterialTheme.colorScheme.onBackground, fontSize = 14.sp, fontStyle = FontStyle.Italic),
                             modifier = Modifier
                                 .weight(1f)
-                                .padding(10.dp, 0.dp, 10.dp, 0.dp)
+                                .padding(start=10.dp)
                         )
                         if (note.noteDate != null) {
                             IconButton(

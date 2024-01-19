@@ -68,7 +68,7 @@ class CalendarScreen(
             LazyColumn(
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(16.dp),
+                    .padding(8.dp),
                 state = lazyListState
             ) {
                 items(groupedByYear.entries.toList()) { (year, objects) ->

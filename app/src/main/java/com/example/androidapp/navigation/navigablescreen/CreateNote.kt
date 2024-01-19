@@ -105,7 +105,7 @@ class CreateNote(
             Column(
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(16.dp)
+                    .padding(8.dp)
             ) {
                 Row(
                     modifier = Modifier
@@ -199,54 +199,56 @@ class CreateNote(
                 }
 
                 Spacer(modifier = Modifier.width(16.dp))
-                BasicTextField(
-                    value = titleValue,
-                    onValueChange = {
-                        val filteredText = it.replace("\n", "")
-                        titleValue = filteredText.take(100)
-                    },
-                    textStyle = TextStyle(
-                        fontWeight = FontWeight.Bold,
-                        fontSize = 20.sp,
-                        color = MaterialTheme.colorScheme.onBackground
-                    ),
-                    singleLine = false,
-                    keyboardOptions = KeyboardOptions(
-                        keyboardType = KeyboardType.Text,
-                        imeAction = ImeAction.Done
-                    ),
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .background(MaterialTheme.colorScheme.background)
-                        .padding(4.dp)
-                        .clip(MaterialTheme.shapes.small)
-                        .testTag(TestTags.NOTE_TITLE_FIELD),
-                    cursorBrush = SolidColor(MaterialTheme.colorScheme.onBackground),
-                    decorationBox = { innerTextField ->
-                        Box(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                        ) {
-                            if (titleValue.isEmpty()) {
-                                Text(
-                                    text =  stringResource(id = R.string.note_title),
-                                    fontSize = 18.sp,
-                                    fontWeight = FontWeight.Normal,
-                                    style = LocalTextStyle.current.copy(color = MaterialTheme.colorScheme.onSecondaryContainer)
-                                )
+                Box(modifier = Modifier
+                    .padding(8.dp)){
+                    BasicTextField(
+                        value = titleValue,
+                        onValueChange = {
+                            val filteredText = it.replace("\n", "")
+                            titleValue = filteredText.take(100)
+                        },
+                        textStyle = TextStyle(
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 20.sp,
+                            color = MaterialTheme.colorScheme.onBackground
+                        ),
+                        singleLine = false,
+                        keyboardOptions = KeyboardOptions(
+                            keyboardType = KeyboardType.Text,
+                            imeAction = ImeAction.Done
+                        ),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .background(MaterialTheme.colorScheme.background)
+                            .padding(4.dp)
+                            .clip(MaterialTheme.shapes.small)
+                            .testTag(TestTags.NOTE_TITLE_FIELD),
+                        cursorBrush = SolidColor(MaterialTheme.colorScheme.onBackground),
+                        decorationBox = { innerTextField ->
+                            Box(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                            ) {
+                                if (titleValue.isEmpty()) {
+                                    Text(
+                                        text =  stringResource(id = R.string.note_title),
+                                        fontSize = 18.sp,
+                                        fontWeight = FontWeight.Normal,
+                                        style = LocalTextStyle.current.copy(color = MaterialTheme.colorScheme.onSecondaryContainer)
+                                    )
+                                }
+                                innerTextField()
                             }
-                            innerTextField()
                         }
-                    }
-                )
+                    )
+                }
+
                 HorizontalDivider()
 
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
                         .fillMaxHeight()
-
-
                 )
                 {
                     Column(
