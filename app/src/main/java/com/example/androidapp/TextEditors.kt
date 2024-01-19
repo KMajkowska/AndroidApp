@@ -35,24 +35,35 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 
 @Composable
-fun TextPreview(data: String, onEditClick: () -> Unit) {
+fun TextPreview(data: String, placeholder: String, onEditClick: () -> Unit) {
     Column(
         modifier = Modifier
             .fillMaxSize()
             .padding(8.dp)
             .clickable { onEditClick() }
     ) {
-        Text(
-            text = data,
-            style = TextStyle(fontSize = 16.sp),
-            modifier = Modifier.wrapContentSize()
-        )
+        if (data.isBlank()){
+            Text(
+                text=placeholder,
+                style = TextStyle(fontSize = 16.sp, color = MaterialTheme.colorScheme.onSecondaryContainer),
+                modifier = Modifier.wrapContentSize()
+            )
+        }
+        else {
+
+            Text(
+                text = data,
+                style = TextStyle(fontSize = 16.sp),
+                modifier = Modifier.wrapContentSize()
+            )
+        }
     }
 }
 
 @Composable
 fun TextEditorWithPreview(
     data: String,
+    placeholder: String,
     textEditor: @Composable (possibleNewData: String, onCloseEditor: (possiblyEditedData: String) -> Unit) -> Unit
 ) {
     var isEditing by remember { mutableStateOf(false) }
@@ -62,7 +73,7 @@ fun TextEditorWithPreview(
             isEditing = false
         }
     } else {
-        TextPreview(data = data) {
+        TextPreview(data = data, placeholder = placeholder) {
             isEditing = true
         }
     }
@@ -77,8 +88,6 @@ fun InlineTextEditor(
 ) {
     val keyboardController = LocalSoftwareKeyboardController.current
     var tempText by remember { mutableStateOf(data) }
-
-
 
     Column(
         modifier = Modifier
@@ -109,9 +118,15 @@ fun InlineTextEditor(
 
             Button(
                 onClick = {
-                    hasDayEntityBeenChanged.value = true
-                    keyboardController?.hide()
-                    onCloseEditor(tempText)
+                    if (tempText.isNotBlank()) {
+                        hasDayEntityBeenChanged.value = true
+                        keyboardController?.hide()
+                        val stringWithoutEnters = tempText.replace("\n", " ")
+                        onCloseEditor(stringWithoutEnters)
+                    }
+                    else {
+                        onCloseEditor("")
+                    }
                 }
             ) {
                 Icon(imageVector = Icons.Default.Check, contentDescription = "Save")

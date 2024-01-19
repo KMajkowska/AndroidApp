@@ -35,6 +35,7 @@
     <string name="event_category_entertainment">Entertainment</string>
     <string name="no_note">No note available - click to add!</string>
     <string name="days">Days</string>
+    <string name="day_title">Day title</string>
     <string name="apply_language">Apply language</string>
     <string name="change_mode">Change mode</string>
     <string name="pop_up_window">Do you want to save the changes in the note?</string>

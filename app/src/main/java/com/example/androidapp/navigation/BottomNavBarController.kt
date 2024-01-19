@@ -99,14 +99,8 @@ fun CustomBottomNavigation(
                                 navigateToRoute(tab.route)
                             }
                         }
-                        .background(
-                            if (tab == currentSection) {
-                                MaterialTheme.colorScheme.primary// Set the background color for the selected item
-                            } else {
-                                Color.Transparent // Set a transparent background for unselected items
-                            }
-                        )
-                )
+                        .background(MaterialTheme.colorScheme.primary// Set the background color for the selected item)
+                ))
             }
         }
     }, content = { padding ->

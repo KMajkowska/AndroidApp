@@ -138,7 +138,8 @@ class DaysScreen(
         ) {
             item {
                 TextEditorWithPreview(
-                    data = dayEntity.dayTitle
+                    data = dayEntity.dayTitle,
+                    placeholder = stringResource(id = R.string.day_title)
                 ) { data, onCloseEditor ->
                     InlineTextEditor(
                         data = data,
@@ -292,7 +293,7 @@ class DaysScreen(
                                 hasDayEntityBeenChanged.value = true
                             }
                         )
-                        Spacer(modifier = Modifier.width(8.dp)) // Add some spacing between Checkbox and Text
+
                         Text(text = todo.title, modifier = Modifier.weight(1f), style = LocalTextStyle.current.copy(color = MaterialTheme.colorScheme.onBackground))
                     }
                     IconButton(
@@ -368,8 +369,6 @@ class DaysScreen(
                         Text(newEventCategory.value, style = LocalTextStyle.current.copy(color = MaterialTheme.colorScheme.onBackground))
                     }
 
-                    Spacer(modifier = Modifier.width(8.dp))
-
                     InlineTextEditor(
                         data = "",
                         hasDayEntityBeenChanged = hasDayEntityBeenChanged
@@ -406,7 +405,7 @@ class DaysScreen(
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.SpaceBetween,
-                    modifier = Modifier.padding(18.dp, 0.dp, 0.dp, 18.dp)
+                    modifier = Modifier.padding(18.dp, 0.dp, 0.dp, 0.dp)
                 ) {
                     Row(
                         verticalAlignment = Alignment.CenterVertically,
@@ -417,12 +416,13 @@ class DaysScreen(
                         Icon(
                             imageVector = icon,
                             contentDescription = null,
-                            modifier = Modifier.padding(18.dp, 0.dp, 0.dp, 0.dp)
+                            modifier = Modifier.padding(start=8.dp)
                         )
                         Text(
                             text = event.title,
                             style = LocalTextStyle.current.copy(color = MaterialTheme.colorScheme.onBackground),
                             modifier = Modifier.weight(1f)
+                                .padding(start=8.dp)
                         )
                     }
 
