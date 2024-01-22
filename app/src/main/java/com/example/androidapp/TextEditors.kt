@@ -18,6 +18,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -25,6 +26,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.TextStyle
@@ -88,25 +91,22 @@ fun InlineTextEditor(
 ) {
     val keyboardController = LocalSoftwareKeyboardController.current
     var tempText by remember { mutableStateOf(data) }
+    val focusRequester = remember { FocusRequester() }
 
+    LaunchedEffect(Unit) {
+        keyboardController?.show()
+        focusRequester.requestFocus()
+    }
     Column(
         modifier = Modifier
             .fillMaxSize()
             .padding(16.dp)
             .imePadding()
     ) {
-        TextField(
-            value = tempText,
-            onValueChange = { tempText = it },
-            modifier = Modifier.fillMaxSize()
-                .testTag(TestTags.INLINE_TEXT_EDITOR_FIELD)
-        )
-
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
-
             Button(
                 onClick = {
                     keyboardController?.hide()
@@ -123,8 +123,7 @@ fun InlineTextEditor(
                         keyboardController?.hide()
                         val stringWithoutEnters = tempText.replace("\n", " ")
                         onCloseEditor(stringWithoutEnters)
-                    }
-                    else {
+                    } else {
                         onCloseEditor("")
                     }
                 }
@@ -132,11 +131,16 @@ fun InlineTextEditor(
                 Icon(imageVector = Icons.Default.Check, contentDescription = "Save")
             }
         }
+
+        TextField(
+            value = tempText,
+            onValueChange = { tempText = it },
+            modifier = Modifier.fillMaxSize()
+                .testTag(TestTags.INLINE_TEXT_EDITOR_FIELD)
+                .focusRequester(focusRequester)
+        )
     }
-
-
 }
-
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun DialogTextEditor(
