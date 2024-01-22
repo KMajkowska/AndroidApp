@@ -5,6 +5,7 @@ import android.view.ContextThemeWrapper
 import android.view.ViewGroup
 import android.widget.CalendarView
 import androidx.annotation.RequiresApi
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -327,12 +328,13 @@ class DaysScreen(
                 .fillMaxSize()
                 .padding(8.dp)
         ) {
-            Text(stringResource(id = R.string.event_list), style = LocalTextStyle.current.copy(color = MaterialTheme.colorScheme.onBackground))
+            Text(stringResource(id = R.string.event_list),
+                style = LocalTextStyle.current.copy(color = MaterialTheme.colorScheme.onBackground))
 
             val categoryList = EventCategories.entries.toTypedArray()
             if (isEditing) {
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally,
                 ) {
                     Box(
                         modifier = Modifier
@@ -344,7 +346,9 @@ class DaysScreen(
                             expanded = isDropdownExpanded,
                             onDismissRequest = {
                                 isDropdownExpanded = false
-                            }
+                            },
+                            Modifier.background(MaterialTheme.colorScheme.primaryContainer)
+
                         ) {
 
                             categoryList.forEach { category ->
@@ -355,7 +359,7 @@ class DaysScreen(
                                     {
                                         Text(
                                             text = stringResource(id = category.resourceId),
-                                            Modifier.padding(8.dp),
+                                            color = MaterialTheme.colorScheme.onPrimaryContainer,
                                         )
                                     },
                                     onClick = {
@@ -366,7 +370,10 @@ class DaysScreen(
                                 )
                             }
                         }
-                        Text(newEventCategory.value, style = LocalTextStyle.current.copy(color = MaterialTheme.colorScheme.onBackground))
+                        Text(newEventCategory.value, style = LocalTextStyle.current.copy(color = MaterialTheme.colorScheme.onPrimaryContainer),
+                            modifier = Modifier
+                                .background(MaterialTheme.colorScheme.primary)
+                                .padding(8.dp))
                     }
 
                     InlineTextEditor(
