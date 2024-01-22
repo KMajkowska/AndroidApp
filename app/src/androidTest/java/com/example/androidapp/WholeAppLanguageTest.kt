@@ -61,16 +61,17 @@ class WholeAppLanguageTest {
             .onNodeWithText("Settings")
             .assertIsDisplayed()
         composeTestRuleWholeApp
+            .onNodeWithText("Settings")
+            .performClick()
+        composeTestRuleWholeApp
             .onNodeWithText("Language")
             .assertIsDisplayed()
         composeTestRuleWholeApp
-            .onNodeWithText("Notifications")
+            .onNodeWithText("Notification")
             .assertIsDisplayed()
         composeTestRuleWholeApp
-            .onNodeWithText("Sort Option")
+            .onNodeWithText("Sort option")
             .assertIsDisplayed()
-
-
     }
 
     @Test
@@ -100,13 +101,16 @@ class WholeAppLanguageTest {
             .onNodeWithText("Ustawienia")
             .assertIsDisplayed()
         composeTestRuleWholeApp
+            .onNodeWithText("Ustawienia")
+            .performClick()
+        composeTestRuleWholeApp
             .onNodeWithText("Język")
             .assertIsDisplayed()
         composeTestRuleWholeApp
-            .onNodeWithText("Powiadomienia")
+            .onNodeWithText("Powiadomienie")
             .assertIsDisplayed()
         composeTestRuleWholeApp
-            .onNodeWithText("Sortowanie")
+            .onNodeWithText("Opcja sortowania")
             .assertIsDisplayed()
     }
 }

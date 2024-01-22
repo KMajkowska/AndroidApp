@@ -69,7 +69,7 @@ class NotesEndToEndTest {
     }
 
     @Test
-    fun testAppNavigationBetweenNotesAndCalendarAndDays(){
+    fun testAppNavigationBetweenNotesAndCalendarAndDays() {
         val context = composeTestRule.activity.applicationContext
         composeTestRule
             .onNodeWithTag(TestTags.ALL_NOTES_VIEW)

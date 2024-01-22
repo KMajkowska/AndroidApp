@@ -165,6 +165,7 @@ class DayViewModelTest {
         assertNotNull(savedDayEntity.dayId)
 
         dayViewModel.deleteDayEntityIfEmpty(savedDayEntity.dayId!!)
+        waitForCoroutinesToFinish()
 
         assertNull(dayViewModel.getInnerDayByDate(testDate))
     }
@@ -210,7 +211,9 @@ class DayViewModelTest {
 
         retrievedNote!!.noteTitle = newNoteTitle
         dayViewModel.updateNote(retrievedNote)
+        waitForCoroutinesToFinish()
         val retrievedNoteAfterUpdate = dayViewModel.getNoteByDate(testDate)
+        waitForCoroutinesToFinish()
         assertNotNull(retrievedNoteAfterUpdate)
 
         assertEquals(retrievedNoteAfterUpdate!!.noteTitle, newNoteTitle)
