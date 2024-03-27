@@ -1,10 +1,8 @@
 package com.example.androidapp.database.viewmodel
 
 import android.app.Application
-import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
@@ -12,8 +10,12 @@ import com.example.androidapp.database.MyDatabaseConnection
 import com.example.androidapp.database.model.DayEntity
 import com.example.androidapp.database.model.DayWithTodosAndEvents
 import com.example.androidapp.database.model.EventEntity
-import com.example.androidapp.database.model.Note
+import com.example.androidapp.database.model.savables.Note
 import com.example.androidapp.database.model.TodoEntity
+import com.example.androidapp.database.model.savables.Image
+import com.example.androidapp.database.model.savables.Savable
+import com.example.androidapp.database.model.savables.Sound
+import com.example.androidapp.database.model.savables.Video
 import com.example.androidapp.database.repository.MyRepository
 import com.example.androidapp.notifications.NotificationHelper
 import kotlinx.coroutines.Dispatchers
@@ -32,7 +34,11 @@ class DayViewModel(
         databaseConnection.dayDao(),
         databaseConnection.eventDao(),
         databaseConnection.noteDao(),
-        databaseConnection.todoDao()
+        databaseConnection.todoDao(),
+        databaseConnection.savableDao(),
+        databaseConnection.imageDao(),
+        databaseConnection.soundDao(),
+        databaseConnection.videoDao()
     )
 
     val allDayEntitiesSortedByDate: LiveData<List<DayEntity>> =
@@ -41,7 +47,79 @@ class DayViewModel(
         repository.allDayEntitiesWithRelatedSortedByDate
     val allTodoEntities: LiveData<List<TodoEntity>> = repository.allTodoEntities
     val allEventEntities: LiveData<List<EventEntity>> = repository.allEventEntities
+
+    val allSavables: LiveData<List<Savable>> = repository.allSavables
+    val allImages: LiveData<List<Image>> = repository.allImages
+    val allSounds: LiveData<List<Sound>> = repository.allSounds
+    val allVideos: LiveData<List<Video>> = repository.allVideos
     val allNotes: LiveData<List<Note>> = repository.allNotes
+
+    fun getSoundById(id: Long): Sound? {
+        return runBlocking {
+            withContext(Dispatchers.IO) {
+                repository.getSoundById(id)
+            }
+        }
+    }
+
+    fun getVideoById(id: Long): Video? {
+        return runBlocking {
+            withContext(Dispatchers.IO) {
+                repository.getVideoById(id)
+            }
+        }
+    }
+
+    fun getImageById(id: Long): Image? {
+        return runBlocking {
+            withContext(Dispatchers.IO) {
+                repository.getImageById(id)
+            }
+        }
+    }
+
+    fun addNewVideo(video: Video) {
+        viewModelScope.launch(Dispatchers.IO) {
+            repository.addNewVideo(video)
+        }
+    }
+
+    fun addNewSound(sound: Sound) {
+        viewModelScope.launch(Dispatchers.IO) {
+            repository.addNewSound(sound)
+        }
+    }
+
+    fun addNewImage(image: Image) {
+        viewModelScope.launch(Dispatchers.IO) {
+            repository.addNewImage(image)
+        }
+    }
+
+    fun deleteSavable(savable: Savable) {
+        viewModelScope.launch(Dispatchers.IO) {
+            savable.doBeforeDeletingRecord()
+            repository.deleteSavableEntity(savable)
+        }
+    }
+
+    fun updateVideo(video: Video) {
+        viewModelScope.launch(Dispatchers.IO) {
+            repository.updateVideo(video)
+        }
+    }
+
+    fun updateSound(sound: Sound) {
+        viewModelScope.launch(Dispatchers.IO) {
+            repository.updateSound(sound)
+        }
+    }
+
+    fun updateImage(image: Image) {
+        viewModelScope.launch(Dispatchers.IO) {
+            repository.updateImage(image)
+        }
+    }
 
     private fun scheduleNotification(date: LocalDate) {
         viewModelScope.launch(Dispatchers.IO) {
@@ -126,12 +204,6 @@ class DayViewModel(
     fun updateNote(note: Note) {
         viewModelScope.launch(Dispatchers.IO) {
             repository.updateNote(note)
-        }
-    }
-
-    fun deleteNote(note: Note) {
-        viewModelScope.launch(Dispatchers.IO) {
-            repository.deleteNote(note)
         }
     }
 

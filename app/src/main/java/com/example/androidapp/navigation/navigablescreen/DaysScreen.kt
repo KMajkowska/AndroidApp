@@ -11,11 +11,9 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
@@ -65,7 +63,7 @@ import com.example.androidapp.TestTags
 import com.example.androidapp.TextEditorWithPreview
 import com.example.androidapp.database.model.DayEntity
 import com.example.androidapp.database.model.EventEntity
-import com.example.androidapp.database.model.Note
+import com.example.androidapp.database.model.savables.Note
 import com.example.androidapp.database.model.TodoEntity
 import com.example.androidapp.database.viewmodel.DayViewModel
 import com.example.androidapp.settings.EventCategories

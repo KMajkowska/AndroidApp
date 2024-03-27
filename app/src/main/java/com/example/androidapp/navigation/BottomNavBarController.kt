@@ -12,6 +12,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AddAlarm
 import androidx.compose.material.icons.filled.AddCircle
 import androidx.compose.material.icons.filled.CalendarMonth
+import androidx.compose.material.icons.filled.Chat
 import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.material.ripple.rememberRipple
 import androidx.compose.material3.Icon
@@ -47,6 +48,7 @@ object ScreenRoutes {
     const val DAYS = "days"
     const val SETTINGS = "settings"
     const val CREATE_NOTE = "createNote"
+    const val CHAT_NOTES = "chatNotes"
     const val IMPORT_PICKER = "importPicker"
     const val BACKUP_PICKER = "backupPicker"
 }
@@ -59,6 +61,7 @@ enum class NavItem(
     ALL_NOTES(R.string.all_notes, Icons.Default.AddCircle, ScreenRoutes.ALL_NOTES),
     CALENDAR(R.string.calendar, Icons.Default.CalendarMonth, ScreenRoutes.CALENDAR),
     DAYS(R.string.days, Icons.Default.AddAlarm, ScreenRoutes.DAYS),
+    CHAT_NOTES(R.string.chat_notes, Icons.Default.Chat, ScreenRoutes.CHAT_NOTES),
     SETTINGS(R.string.settings, Icons.Outlined.Settings, ScreenRoutes.SETTINGS),
 }
 

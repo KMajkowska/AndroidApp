@@ -20,6 +20,7 @@ import com.example.androidapp.navigation.NavItem
 import com.example.androidapp.navigation.ScreenRoutes
 import com.example.androidapp.navigation.navigablescreen.AllNotes
 import com.example.androidapp.navigation.navigablescreen.CalendarScreen
+import com.example.androidapp.navigation.navigablescreen.ChatNotes
 import com.example.androidapp.navigation.navigablescreen.CreateNote
 import com.example.androidapp.navigation.navigablescreen.DaysScreen
 import com.example.androidapp.navigation.navigablescreen.FilePicker
@@ -49,7 +50,10 @@ fun UniqrnApp() {
 
     val notificationHelper = NotificationHelper(LocalContext.current, areNotificationsEnabled)
     val mDayViewModel: DayViewModel = viewModel(
-        factory = DayViewModelFactory(LocalContext.current.applicationContext as Application, notificationHelper)
+        factory = DayViewModelFactory(
+            LocalContext.current.applicationContext as Application,
+            notificationHelper
+        )
     )
 
     AndroidAppTheme(isDarkTheme, isUniqrnTheme) {
@@ -75,7 +79,7 @@ fun UniqrnApp() {
 fun UniqrnAppSettings(
     mSettingsViewModel: SettingsViewModel,
     setting: LanguageEnum
-    ) {
+) {
     val navController = rememberNavHostController()
 //
 //    val mSettingsViewModel: SettingsViewModel = viewModel(
@@ -89,7 +93,10 @@ fun UniqrnAppSettings(
 
     val notificationHelper = NotificationHelper(LocalContext.current, areNotificationsEnabled)
     val mDayViewModel: DayViewModel = viewModel(
-        factory = DayViewModelFactory(LocalContext.current.applicationContext as Application, notificationHelper)
+        factory = DayViewModelFactory(
+            LocalContext.current.applicationContext as Application,
+            notificationHelper
+        )
     )
 
     AndroidAppTheme(isDarkTheme, isUniqrnTheme) {
@@ -120,9 +127,14 @@ private fun NavGraphBuilder.unqirnNavGraph(
     onNavigateToRoute: (String) -> Unit
 ) {
     val localDateConverter = LocalDateConverter()
-    val tabs = listOf(NavItem.ALL_NOTES, NavItem.CALENDAR, NavItem.DAYS, NavItem.SETTINGS)
+    val tabs = listOf(
+        NavItem.ALL_NOTES,
+        NavItem.CALENDAR,
+        NavItem.DAYS,
+        NavItem.CHAT_NOTES,
+        NavItem.SETTINGS
+    )
 
-    //args
     val noteId = "noteId"
     val localDate = "localDate"
     fun getDateFromStringOrNow(dateString: String?, default: LocalDate?): LocalDate? {
@@ -224,9 +236,12 @@ private fun NavGraphBuilder.unqirnNavGraph(
     composable(route = ScreenRoutes.BACKUP_PICKER) { _ ->
         FilePicker(
             mDayViewModel = mDayViewModel,
-
             upPress = upPress,
             isExport = true
         ).ViewWithBackground()
+    }
+
+    composable(route = ScreenRoutes.CHAT_NOTES) { backStackEntry ->
+        ChatNotes(mDayViewModel = mDayViewModel).ViewWithBackground()
     }
 }

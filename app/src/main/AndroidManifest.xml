@@ -45,6 +45,10 @@
             android:name=".navigation.navigablescreen.CalendarScreen"
             android:exported="false" />
         <receiver android:name=".notifications.NotificationHelper$AlarmReceiver"/>
+        <activity
+            android:name=".navigation.navigablescreen.ChatNotes"
+            android:windowSoftInputMode="adjustResize">
+        </activity>
     </application>
 
 </manifest>

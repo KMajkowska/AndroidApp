@@ -1,15 +1,28 @@
 package com.example.androidapp.database.repository
 
 import androidx.lifecycle.LiveData
+import androidx.room.Delete
+import androidx.room.Insert
+import androidx.room.OnConflictStrategy
+import androidx.room.Query
+import androidx.room.Update
 import com.example.androidapp.database.dao.DayDao
 import com.example.androidapp.database.dao.EventDao
+import com.example.androidapp.database.dao.ImageDao
 import com.example.androidapp.database.dao.NoteDao
+import com.example.androidapp.database.dao.SavableDao
+import com.example.androidapp.database.dao.SoundDao
 import com.example.androidapp.database.dao.TodoDao
+import com.example.androidapp.database.dao.VideoDao
 import com.example.androidapp.database.model.DayEntity
 import com.example.androidapp.database.model.DayWithTodosAndEvents
 import com.example.androidapp.database.model.EventEntity
-import com.example.androidapp.database.model.Note
+import com.example.androidapp.database.model.savables.Note
 import com.example.androidapp.database.model.TodoEntity
+import com.example.androidapp.database.model.savables.Image
+import com.example.androidapp.database.model.savables.Savable
+import com.example.androidapp.database.model.savables.Sound
+import com.example.androidapp.database.model.savables.Video
 import java.time.LocalDate
 
 class MyRepository(
@@ -17,6 +30,10 @@ class MyRepository(
     private val eventDao: EventDao,
     private val noteDao: NoteDao,
     private val todoDao: TodoDao,
+    private val savableDao: SavableDao,
+    private val imageDao: ImageDao,
+    private val soundDao: SoundDao,
+    private val videoDao: VideoDao
 ) {
 
     val allDayEntitiesSortedByDate: LiveData<List<DayEntity>> =
@@ -28,8 +45,56 @@ class MyRepository(
 
     val allNotes: LiveData<List<Note>> = noteDao.getAllNotes()
 
+    val allSavables: LiveData<List<Savable>> = savableDao.getAllSavables()
+
+    val allImages: LiveData<List<Image>> = imageDao.getAllImages()
+
+    val allSounds: LiveData<List<Sound>> = soundDao.getAllSounds()
+
+    val allVideos: LiveData<List<Video>> = videoDao.getAllVideos()
+
     val allDayEntitiesWithRelatedSortedByDate: LiveData<List<DayWithTodosAndEvents>> =
         dayDao.getAllDayEntitiesWithRelatedSortedByDate()
+
+    fun getSoundById(id: Long): Sound? {
+        return soundDao.getSoundById(id)
+    }
+
+    suspend fun updateSound(sound: Sound) {
+        soundDao.updateSound(sound)
+    }
+
+    suspend fun addNewSound(sound: Sound) {
+        soundDao.addNewSound(sound)
+    }
+
+    fun getVideoById(id: Long): Video? {
+        return videoDao.getVideoById(id)
+    }
+
+    suspend fun updateVideo(video: Video) {
+        videoDao.updateVideo(video)
+    }
+
+    suspend fun addNewVideo(video: Video) {
+        videoDao.addNewVideo(video)
+    }
+
+    fun getImageById(id: Long): Image? {
+        return imageDao.getImageById(id)
+    }
+
+    suspend fun updateImage(image: Image) {
+        imageDao.updateImage(image)
+    }
+
+    suspend fun addNewImage(image: Image) {
+        imageDao.addNewImage(image)
+    }
+
+    suspend fun deleteSavableEntity(savable: Savable) {
+        savableDao.deleteSavable(savable)
+    }
 
     suspend fun saveDayEntity(newDayEntity: DayEntity) {
         dayDao.saveDayEntity(newDayEntity)
@@ -53,10 +118,6 @@ class MyRepository(
 
     suspend fun updateNote(note: Note) {
         noteDao.updateNote(note)
-    }
-
-    suspend fun deleteNote(note: Note) {
-        noteDao.deleteNote(note)
     }
 
     fun getNoteById(noteId: Long): Note? {

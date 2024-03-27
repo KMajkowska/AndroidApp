@@ -22,13 +22,12 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.viewModelScope
 import androidx.test.core.app.ApplicationProvider
 import com.example.androidapp.database.model.EventEntity
-import com.example.androidapp.database.model.Note
+import com.example.androidapp.database.model.savables.Note
 import com.example.androidapp.database.model.TodoEntity
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
-import kotlinx.coroutines.withContext
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotEquals
 import org.junit.Assert.assertNotNull
