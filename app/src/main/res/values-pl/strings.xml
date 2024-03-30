@@ -59,4 +59,9 @@
     <string name="small">Mały</string>
     <string name="standard">Standardowy</string>
     <string name="big">Duży</string>
+    <string name="sound">Muzyka</string>
+    <string name="PFUDON">Pink fluffy unicorn</string>
+    <string name="CCDD">Chipi chipi</string>
+    <string name="BS">Baby Shark</string>
+    <string name="NONE">Nic</string>
 </resources>

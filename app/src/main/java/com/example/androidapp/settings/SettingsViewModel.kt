@@ -14,6 +14,7 @@ class SettingsViewModel(private val repository: SettingsRepository) : ViewModel(
     val isUniqrnModeEnabled = repository.isUniqrnModeEnabled.asLiveData()
     val areNotificationsEnabled = repository.areNotificationsEnabled.asLiveData()
     val selectedSortOption = repository.selectedSortOption.asLiveData()
+    val selectedSoundOption = repository.selectedSoundOption.asLiveData()
 
     fun setSelectedLanguage(language: LanguageEnum) {
         runBlocking {
@@ -53,6 +54,15 @@ class SettingsViewModel(private val repository: SettingsRepository) : ViewModel(
 
             viewModelScope.launch(Dispatchers.IO) {
                 repository.setSelectedSortOption(selectedSortOption)
+            }
+        }
+    }
+
+    fun setSelectedSound(selectedSoundOption: SoundOptions) {
+        runBlocking {
+
+            viewModelScope.launch(Dispatchers.IO) {
+                repository.setSelectedSound(selectedSoundOption)
             }
         }
     }
