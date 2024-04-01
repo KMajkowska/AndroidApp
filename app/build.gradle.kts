@@ -134,6 +134,7 @@ dependencies {
     testImplementation("org.mockito:mockito-inline:4.0.0") // For mocking final classes
     testImplementation("org.junit.jupiter:junit-jupiter-api:5.7.0") // JUnit 5
     testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine")
+    implementation("androidx.compose.material3:material3:1.0.0-alpha16")
 
 
 
