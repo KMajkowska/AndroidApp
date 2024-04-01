@@ -1,6 +1,7 @@
 package com.example.androidapp.database.model
 
 
+import android.net.Uri
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 import com.google.gson.annotations.Expose
@@ -14,6 +15,7 @@ data class Note(
     var noteTitle: String = "",
     val content: String = "",
     var noteDate:LocalDate? = null,
-    val pinned: Boolean = false
+    var pinned: Boolean = false,
+    var noteImageUri: String? = null
 
 )

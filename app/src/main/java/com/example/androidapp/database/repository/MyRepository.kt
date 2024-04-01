@@ -16,7 +16,7 @@ class MyRepository(
     private val dayDao: DayDao,
     private val eventDao: EventDao,
     private val noteDao: NoteDao,
-    private val todoDao: TodoDao,
+    private val todoDao: TodoDao
 ) {
 
     val allDayEntitiesSortedByDate: LiveData<List<DayEntity>> =
@@ -94,5 +94,4 @@ class MyRepository(
     suspend fun deleteEventEntity(event: EventEntity) {
         eventDao.deleteEventEntity(event)
     }
-
 }
