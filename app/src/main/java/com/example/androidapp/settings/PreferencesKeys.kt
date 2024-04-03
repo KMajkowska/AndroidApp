@@ -9,6 +9,7 @@ object PreferenceKeysNames {
     val IS_DARK_THEME_NAME = "is_dark_theme"
     val IS_UNIQRN_MODE_ENABLED_NAME = "is_uniqrn_mode_enabled"
     val SELECTED_SORT_OPTION_NAME = "selected_sort_option"
+    val SELECTED_SOUND_OPTION_NAME = "selected_sound_option"
 }
 
 object PreferencesKeys {
@@ -17,4 +18,5 @@ object PreferencesKeys {
     val IS_DARK_THEME = booleanPreferencesKey(PreferenceKeysNames.IS_DARK_THEME_NAME)
     val IS_UNIQRN_MODE_ENABLED = booleanPreferencesKey(PreferenceKeysNames.IS_UNIQRN_MODE_ENABLED_NAME)
     val SELECTED_SORT_OPTION = stringPreferencesKey(PreferenceKeysNames.SELECTED_SORT_OPTION_NAME)
+    val SELECTED_SOUND_OPTION = stringPreferencesKey(PreferenceKeysNames.SELECTED_SOUND_OPTION_NAME)
 }
