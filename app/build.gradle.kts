@@ -74,6 +74,7 @@ dependencies {
     implementation("androidx.room:room-ktx:2.6.1")
     implementation("androidx.compose.runtime:runtime-livedata:1.5.4")
     implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.7.0-rc02")
+    implementation("com.android.volley:volley:1.2.1")
     ksp("androidx.room:room-compiler:2.6.1")
 
     implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.6.2")
@@ -84,8 +85,16 @@ dependencies {
     implementation("androidx.compose.ui:ui-graphics")
     implementation(platform("androidx.compose:compose-bom:2023.03.00"))
     implementation(platform("androidx.compose:compose-bom:2023.03.00"))
-    implementation(platform("androidx.compose:compose-bom:2023.03.00"))
+    implementation(platform("androidx.compose:compose-bom:2024.03.00"))
     implementation("androidx.compose.material3:material3")
+
+    //for photos
+    implementation("io.coil-kt:coil-compose:2.2.2")
+    implementation("androidx.activity:activity-compose:1.8.2")
+    implementation("androidx.activity:activity-ktx:1.8.2")
+    implementation("org.jetbrains.kotlin:kotlin-reflect:1.9.10")
+    implementation("net.bytebuddy:byte-buddy:1.14.6")
+
 
     androidTestImplementation(platform("androidx.compose:compose-bom:2023.03.00"))
     androidTestImplementation(platform("androidx.compose:compose-bom:2023.03.00"))
@@ -109,10 +118,10 @@ dependencies {
     implementation("androidx.lifecycle:lifecycle-livedata-ktx:2.6.2")
     implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:2.6.2")
     implementation("androidx.compose.material:material-icons-extended:$composeBom")
-    testImplementation("junit:junit:4.13.2")
+    implementation("junit:junit:4.13.2")
     androidTestImplementation("androidx.arch.core:core-testing:2.1.0")
     androidTestImplementation("androidx.test.ext:junit:1.1.5")
-    androidTestImplementation("androidx.test.espresso:espresso-core:3.5.1")
+    androidTestImplementation("androidx.test.espresso:espresso-core:3.5.1@aar")
     androidTestImplementation("androidx.test:runner:1.5.2")
     androidTestImplementation("androidx.test:rules:1.5.0")
     androidTestImplementation ("org.mockito:mockito-core:3.12.4")
