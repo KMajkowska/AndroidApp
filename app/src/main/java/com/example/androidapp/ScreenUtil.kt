@@ -209,7 +209,8 @@ fun <T> DropDown(
     selectedValueModifier: T,
     onValueChange: (T) -> Unit
 ) {
-    val mSettingsViewModel: SettingsViewModel = viewModel( factory = SettingsViewModelFactory(SettingsRepository(LocalContext.current)) )
+    val mSettingsViewModel: SettingsViewModel =
+        viewModel(factory = SettingsViewModelFactory(SettingsRepository(LocalContext.current)))
     var expanded by rememberSaveable { mutableStateOf(false) }
     val isDarkMode by mSettingsViewModel.isDarkTheme.observeAsState(false)
 
@@ -229,7 +230,7 @@ fun <T> DropDown(
 
         TextButton(
             modifier = Modifier
-                .align(Alignment.CenterEnd)
+                .align(Alignment.TopEnd)
                 .padding(end = 16.dp),
             onClick = { expanded = true }
         ) {
@@ -242,30 +243,28 @@ fun <T> DropDown(
                 Icons.Default.MoreVert,
                 contentDescription = "Localized description"
             )
-        }
 
-        DropdownMenu(
-            expanded = expanded,
-            onDismissRequest = { expanded = false },
-            modifier = Modifier
-                .fillMaxWidth()
-                .wrapContentWidth(Alignment.End)
-                .align(Alignment.TopEnd)
-        ) {
-            allOptions.forEach { option ->
-                DropdownMenuItem(
-                    modifier = Modifier.widthIn(min = 0.dp, max = 310.dp),
-                    text = {
-                        Text(
-                            text = valueFromOptionGetterFunction(option),
-                            color = if (!isDarkMode) Color.Black else Color.Gray
-                        )
-                    },
-                    onClick = {
-                        onValueChange(option)
-                        expanded = false
-                    }
-                )
+            DropdownMenu(
+                expanded = expanded,
+                onDismissRequest = { expanded = false },
+                modifier = Modifier
+                    .wrapContentWidth(Alignment.End),
+            ) {
+                allOptions.forEach { option ->
+                    DropdownMenuItem(
+                        modifier = Modifier.widthIn(min = 0.dp, max = 310.dp),
+                        text = {
+                            Text(
+                                text = valueFromOptionGetterFunction(option),
+                                color = if (!isDarkMode) Color.Black else Color.Gray
+                            )
+                        },
+                        onClick = {
+                            onValueChange(option)
+                            expanded = false
+                        }
+                    )
+                }
             }
         }
     }
