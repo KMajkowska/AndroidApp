@@ -10,10 +10,13 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.AttachFile
 import androidx.compose.material.icons.filled.CameraAlt
+import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Send
 import androidx.compose.material3.Card
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -21,6 +24,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
+import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
@@ -29,26 +33,38 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import com.example.androidapp.database.model.savables.Note
+import com.example.androidapp.database.model.ConnectedToDay
+import com.example.androidapp.database.model.Note
 import com.example.androidapp.database.viewmodel.DayViewModel
 
-class ChatNotes(private val mDayViewModel: DayViewModel) : NavigableScreen() {
+class ChatNotes(
+    private val mDayViewModel: DayViewModel,
+    private val upPress: () -> Unit,
+) : NavigableScreen() {
     @Composable
     override fun View() {
         Scaffold(
-            topBar = { /* ... */ },
-            // bottomBar is used for the message creation UI
+            topBar = {
+                CustomTopAppBar(
+                    title = "Daily note",
+                    onNavigationClick = upPress,
+                    onOverflowClick = { /* Handle overflow menu click */ }
+                )
+            },
             bottomBar = {
                 MessageCreationRow(
-                    onAttachmentClick = { /* Handle attachment click */ },
-                    onCameraClick = { /* Handle camera click */ },
-                    onSendClick = { message -> /* Handle sending a message */ }
+                    onAttachmentClick = {
+                    },
+                    onCameraClick = {
+                    },
+                    onSendClick = { content ->
+                        mDayViewModel.addNewNote(Note(content = content))
+                    }
                 )
             }
         ) { innerPadding ->
-            // Content of the screen, i.e., messages list goes here.
-            // Remember to provide innerPadding to the content composable to respect Scaffold's bottomBar padding.
             ChatContent(paddingValues = innerPadding)
         }
 
@@ -56,18 +72,18 @@ class ChatNotes(private val mDayViewModel: DayViewModel) : NavigableScreen() {
 
     @Composable
     fun ChatContent(paddingValues: PaddingValues) {
-        val notes = mDayViewModel.allNotes.observeAsState(initial = listOf()).value
+        val connectedToDays = mDayViewModel.allConnectedToDay.observeAsState(initial = listOf()).value
 
         LazyColumn(modifier = Modifier.padding(paddingValues)) {
-            items(items = notes) { note ->
-                MessageRow(note = note)
+            items(items = connectedToDays) { connectedToDay ->
+                MessageRow(connectedToDay = connectedToDay)
             }
         }
     }
 }
 
 @Composable
-fun MessageRow(note: Note) {
+fun MessageRow(connectedToDay: ConnectedToDay) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -77,11 +93,20 @@ fun MessageRow(note: Note) {
         Card(
             modifier = Modifier.padding(4.dp)
         ) {
-            Text(
-                text = note.content,
-                style = MaterialTheme.typography.bodyMedium,
-                modifier = Modifier.padding(8.dp)
-            )
+            if (connectedToDay is Note) {
+                Text(
+                    text = connectedToDay.content,
+                    style = MaterialTheme.typography.bodyMedium,
+                    modifier = Modifier.padding(8.dp)
+                )
+            } else {
+                Text(
+                    text = "ŁOT DE HEEEL",
+                    style = MaterialTheme.typography.bodyMedium,
+                    modifier = Modifier.padding(8.dp)
+                )
+            }
+
         }
     }
 }
@@ -135,3 +160,25 @@ fun MessageCreationRow(
         }
     }
 }
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun CustomTopAppBar(title: String, onNavigationClick: () -> Unit, onOverflowClick: () -> Unit) {
+    TopAppBar(
+        title = {
+            Text(text = title, maxLines = 1, overflow = TextOverflow.Ellipsis)
+        },
+        navigationIcon = {
+            IconButton(onClick = { onNavigationClick() }) {
+                Icon(Icons.Default.ArrowBack, contentDescription = "Back")
+            }
+        },
+        actions = {
+            // Actions you might want to add (like search, etc.)
+            IconButton(onClick = { onOverflowClick() }) {
+                Icon(Icons.Default.MoreVert, contentDescription = "More")
+            }
+        }
+    )
+}
+

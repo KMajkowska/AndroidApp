@@ -3,17 +3,19 @@ package com.example.androidapp.database.viewmodel
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
+import androidx.lifecycle.MediatorLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.example.androidapp.database.MyDatabaseConnection
+import com.example.androidapp.database.model.ConnectedToDay
 import com.example.androidapp.database.model.DayEntity
 import com.example.androidapp.database.model.DayWithTodosAndEvents
 import com.example.androidapp.database.model.EventEntity
-import com.example.androidapp.database.model.savables.Note
+import com.example.androidapp.database.model.Note
 import com.example.androidapp.database.model.TodoEntity
 import com.example.androidapp.database.model.savables.Image
-import com.example.androidapp.database.model.savables.Savable
+import com.example.androidapp.database.model.savables.Saveable
 import com.example.androidapp.database.model.savables.Sound
 import com.example.androidapp.database.model.savables.Video
 import com.example.androidapp.database.repository.MyRepository
@@ -35,7 +37,6 @@ class DayViewModel(
         databaseConnection.eventDao(),
         databaseConnection.noteDao(),
         databaseConnection.todoDao(),
-        databaseConnection.savableDao(),
         databaseConnection.imageDao(),
         databaseConnection.soundDao(),
         databaseConnection.videoDao()
@@ -48,11 +49,28 @@ class DayViewModel(
     val allTodoEntities: LiveData<List<TodoEntity>> = repository.allTodoEntities
     val allEventEntities: LiveData<List<EventEntity>> = repository.allEventEntities
 
-    val allSavables: LiveData<List<Savable>> = repository.allSavables
     val allImages: LiveData<List<Image>> = repository.allImages
     val allSounds: LiveData<List<Sound>> = repository.allSounds
     val allVideos: LiveData<List<Video>> = repository.allVideos
     val allNotes: LiveData<List<Note>> = repository.allNotes
+
+    val allConnectedToDay: LiveData<List<ConnectedToDay>> = MediatorLiveData<List<ConnectedToDay>>().apply {
+        val combinedList = arrayListOf<ConnectedToDay>()
+
+        fun <T : ConnectedToDay> addSource(source: LiveData<List<T>>) {
+            addSource(source) { items ->
+                combinedList.removeAll { it.javaClass == items.firstOrNull()?.javaClass }
+                combinedList.addAll(items)
+                combinedList.sortBy { it.id }
+                value = combinedList
+            }
+        }
+
+        addSource(repository.allImages)
+        addSource(repository.allSounds)
+        addSource(repository.allVideos)
+        addSource(repository.allNotes)
+    }
 
     fun getSoundById(id: Long): Sound? {
         return runBlocking {
@@ -96,10 +114,17 @@ class DayViewModel(
         }
     }
 
-    fun deleteSavable(savable: Savable) {
+    fun deleteConnectedToDay(connectedToDay: ConnectedToDay) {
         viewModelScope.launch(Dispatchers.IO) {
-            savable.doBeforeDeletingRecord()
-            repository.deleteSavableEntity(savable)
+            if (connectedToDay is Saveable)
+                connectedToDay.doBeforeDeletingRecord()
+
+            when (connectedToDay) {
+                is Image -> repository.deleteImageEntity(connectedToDay)
+                is Note -> repository.deleteNoteEntity(connectedToDay)
+                is Sound -> repository.deleteSoundEntity(connectedToDay)
+                is Video -> repository.deleteVideoEntity(connectedToDay)
+            }
         }
     }
 

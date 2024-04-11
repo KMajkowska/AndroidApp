@@ -8,7 +8,7 @@ import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Transaction
 import androidx.room.Update
-import com.example.androidapp.database.model.savables.Note
+import com.example.androidapp.database.model.Note
 import java.time.LocalDate
 
 @Dao
@@ -28,4 +28,7 @@ interface NoteDao {
 
     @Query("SELECT * FROM notes WHERE id = :noteId")
     fun getNoteById(noteId: Long): Note?
+
+    @Delete
+    suspend fun deleteNote(note: Note)
 }

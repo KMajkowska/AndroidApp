@@ -57,7 +57,7 @@ import androidx.compose.ui.zIndex
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.androidapp.R
 import com.example.androidapp.TestTags
-import com.example.androidapp.database.model.savables.Note
+import com.example.androidapp.database.model.Note
 import com.example.androidapp.database.viewmodel.DayViewModel
 import com.example.androidapp.settings.NoteSortOptionEnum
 import com.example.androidapp.settings.SettingsRepository
@@ -124,7 +124,7 @@ class AllNotes(
                         for (note in notes) {
                             NoteItem(
                                 note = note,
-                                onNoteClicked = { selectedNote -> onNoteClick(selectedNote.noteId!!) }
+                                onNoteClicked = { selectedNote -> onNoteClick(selectedNote.id!!) }
                             )
                             Spacer(modifier = Modifier.height(8.dp))
                         }

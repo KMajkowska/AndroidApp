@@ -22,7 +22,7 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.viewModelScope
 import androidx.test.core.app.ApplicationProvider
 import com.example.androidapp.database.model.EventEntity
-import com.example.androidapp.database.model.savables.Note
+import com.example.androidapp.database.model.Note
 import com.example.androidapp.database.model.TodoEntity
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.Job

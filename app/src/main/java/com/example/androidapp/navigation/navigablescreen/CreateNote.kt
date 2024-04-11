@@ -60,7 +60,7 @@ import androidx.core.view.WindowInsetsCompat
 import com.example.androidapp.HorizontalDivider
 import com.example.androidapp.R
 import com.example.androidapp.TestTags
-import com.example.androidapp.database.model.savables.Note
+import com.example.androidapp.database.model.Note
 import com.example.androidapp.database.viewmodel.DayViewModel
 import java.time.LocalDate
 
@@ -82,8 +82,6 @@ class CreateNote(
         var openDialogDelete by remember { mutableStateOf(false) }
 
         var isKeyboardVisible by remember { mutableStateOf(false) }
-
-
 
         val view = LocalView.current
         val viewTreeObserver = view.viewTreeObserver
@@ -192,7 +190,7 @@ class CreateNote(
                         }
                         if (openDialogDelete) {
                             CloseNotePopUp(upPress, text = stringResource(id = R.string.pop_up_delete_window), onSaveChanges = {  if (note != null)
-                                mDayViewModel.deleteNote(note) }) {
+                                mDayViewModel.deleteConnectedToDay(note) }) {
                                 openDialogDelete = false
                             }
                         }

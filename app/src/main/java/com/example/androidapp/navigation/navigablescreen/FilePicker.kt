@@ -12,7 +12,7 @@ import androidx.documentfile.provider.DocumentFile
 import com.example.androidapp.database.databaseName
 import com.example.androidapp.database.model.DayEntity
 import com.example.androidapp.database.model.EventEntity
-import com.example.androidapp.database.model.savables.Note
+import com.example.androidapp.database.model.Note
 import com.example.androidapp.database.model.TodoEntity
 import com.example.androidapp.database.viewmodel.DayViewModel
 import com.google.gson.Gson
@@ -116,7 +116,7 @@ class FilePicker(
                 jsonObject.getString(notes),
                 object : TypeToken<List<Note>>() {}.type
             ).forEach {
-                it.noteId = null
+                it.id = null
                 mDayViewModel.addNewNote(it)
             }
 

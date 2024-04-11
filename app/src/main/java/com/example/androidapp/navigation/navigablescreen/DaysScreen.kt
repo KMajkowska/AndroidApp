@@ -63,7 +63,7 @@ import com.example.androidapp.TestTags
 import com.example.androidapp.TextEditorWithPreview
 import com.example.androidapp.database.model.DayEntity
 import com.example.androidapp.database.model.EventEntity
-import com.example.androidapp.database.model.savables.Note
+import com.example.androidapp.database.model.Note
 import com.example.androidapp.database.model.TodoEntity
 import com.example.androidapp.database.viewmodel.DayViewModel
 import com.example.androidapp.settings.EventCategories
@@ -155,7 +155,7 @@ class DaysScreen(
                 HorizontalDivider()
 
                 NoteItem(selectedNote) { note ->
-                    onNoteClick(note?.noteId ?: -1, dayEntity.date)
+                    onNoteClick(note?.id ?: -1, dayEntity.date)
                     hasNoteBeenChanged = true
                 }
 

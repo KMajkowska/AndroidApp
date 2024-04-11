@@ -1,26 +1,19 @@
 package com.example.androidapp.database.repository
 
 import androidx.lifecycle.LiveData
-import androidx.room.Delete
-import androidx.room.Insert
-import androidx.room.OnConflictStrategy
-import androidx.room.Query
-import androidx.room.Update
 import com.example.androidapp.database.dao.DayDao
 import com.example.androidapp.database.dao.EventDao
 import com.example.androidapp.database.dao.ImageDao
 import com.example.androidapp.database.dao.NoteDao
-import com.example.androidapp.database.dao.SavableDao
 import com.example.androidapp.database.dao.SoundDao
 import com.example.androidapp.database.dao.TodoDao
 import com.example.androidapp.database.dao.VideoDao
 import com.example.androidapp.database.model.DayEntity
 import com.example.androidapp.database.model.DayWithTodosAndEvents
 import com.example.androidapp.database.model.EventEntity
-import com.example.androidapp.database.model.savables.Note
+import com.example.androidapp.database.model.Note
 import com.example.androidapp.database.model.TodoEntity
 import com.example.androidapp.database.model.savables.Image
-import com.example.androidapp.database.model.savables.Savable
 import com.example.androidapp.database.model.savables.Sound
 import com.example.androidapp.database.model.savables.Video
 import java.time.LocalDate
@@ -30,7 +23,6 @@ class MyRepository(
     private val eventDao: EventDao,
     private val noteDao: NoteDao,
     private val todoDao: TodoDao,
-    private val savableDao: SavableDao,
     private val imageDao: ImageDao,
     private val soundDao: SoundDao,
     private val videoDao: VideoDao
@@ -44,8 +36,6 @@ class MyRepository(
     val allEventEntities: LiveData<List<EventEntity>> = eventDao.getAllEventEntities()
 
     val allNotes: LiveData<List<Note>> = noteDao.getAllNotes()
-
-    val allSavables: LiveData<List<Savable>> = savableDao.getAllSavables()
 
     val allImages: LiveData<List<Image>> = imageDao.getAllImages()
 
@@ -92,8 +82,20 @@ class MyRepository(
         imageDao.addNewImage(image)
     }
 
-    suspend fun deleteSavableEntity(savable: Savable) {
-        savableDao.deleteSavable(savable)
+    suspend fun deleteNoteEntity(note: Note) {
+        noteDao.deleteNote(note)
+    }
+
+    suspend fun deleteSoundEntity(sound: Sound) {
+        soundDao.deleteSound(sound)
+    }
+
+    suspend fun deleteVideoEntity(video: Video) {
+        videoDao.deleteVideo(video)
+    }
+
+    suspend fun deleteImageEntity(image: Image) {
+        imageDao.deleteImage(image)
     }
 
     suspend fun saveDayEntity(newDayEntity: DayEntity) {

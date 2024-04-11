@@ -1,6 +1,7 @@
 package com.example.androidapp.database.dao
 
 import androidx.lifecycle.LiveData
+import androidx.room.Dao
 import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
@@ -8,6 +9,7 @@ import androidx.room.Query
 import androidx.room.Update
 import com.example.androidapp.database.model.savables.Video
 
+@Dao
 interface VideoDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun addNewVideo(video: Video)
@@ -20,4 +22,7 @@ interface VideoDao {
 
     @Query("SELECT * FROM videos WHERE id = :id")
     fun getVideoById(id: Long): Video?
+
+    @Delete
+    suspend fun deleteVideo(video: Video)
 }

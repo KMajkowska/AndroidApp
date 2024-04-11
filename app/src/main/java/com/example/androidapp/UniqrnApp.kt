@@ -241,7 +241,10 @@ private fun NavGraphBuilder.unqirnNavGraph(
         ).ViewWithBackground()
     }
 
-    composable(route = ScreenRoutes.CHAT_NOTES) { backStackEntry ->
-        ChatNotes(mDayViewModel = mDayViewModel).ViewWithBackground()
+    composable(route = ScreenRoutes.CHAT_NOTES) { _ ->
+        ChatNotes(
+            mDayViewModel = mDayViewModel,
+            upPress = upPress
+        ).ViewWithBackground()
     }
 }

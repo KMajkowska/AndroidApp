@@ -11,16 +11,14 @@ import com.example.androidapp.database.dao.DayDao
 import com.example.androidapp.database.dao.EventDao
 import com.example.androidapp.database.dao.ImageDao
 import com.example.androidapp.database.dao.NoteDao
-import com.example.androidapp.database.dao.SavableDao
 import com.example.androidapp.database.dao.SoundDao
 import com.example.androidapp.database.dao.TodoDao
 import com.example.androidapp.database.dao.VideoDao
 import com.example.androidapp.database.model.DayEntity
 import com.example.androidapp.database.model.EventEntity
-import com.example.androidapp.database.model.savables.Note
+import com.example.androidapp.database.model.Note
 import com.example.androidapp.database.model.TodoEntity
 import com.example.androidapp.database.model.savables.Image
-import com.example.androidapp.database.model.savables.Savable
 import com.example.androidapp.database.model.savables.Sound
 import com.example.androidapp.database.model.savables.Video
 
@@ -31,7 +29,6 @@ const val databaseName = "uniqrn_db"
         DayEntity::class,
         TodoEntity::class,
         EventEntity::class,
-        Savable::class,
         Note::class,
         Image::class,
         Video::class,
@@ -46,7 +43,6 @@ abstract class MyDatabaseConnection : RoomDatabase() {
     abstract fun eventDao(): EventDao
     abstract fun todoDao(): TodoDao
 
-    abstract fun savableDao(): SavableDao
     abstract fun noteDao(): NoteDao
     abstract fun imageDao(): ImageDao
     abstract fun videoDao(): VideoDao
