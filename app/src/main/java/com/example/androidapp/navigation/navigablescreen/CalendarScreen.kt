@@ -1,5 +1,16 @@
 package com.example.androidapp.navigation.navigablescreen
 
+import android.annotation.SuppressLint
+import android.os.Build
+import android.view.ContextThemeWrapper
+import android.view.ViewGroup
+import android.widget.CalendarView
+import androidx.annotation.RequiresApi
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.animateContentSize
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.expandVertically
+import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
@@ -9,17 +20,26 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.ArrowDownward
+import androidx.compose.material.icons.filled.ArrowForward
+import androidx.compose.material.icons.filled.ArrowUpward
+import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
@@ -33,13 +53,23 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.viewinterop.AndroidView
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.androidapp.R
 import com.example.androidapp.TestTags
 import com.example.androidapp.database.model.DayWithTodosAndEvents
 import com.example.androidapp.database.viewmodel.DayViewModel
+import com.example.androidapp.settings.SettingsRepository
+import com.example.androidapp.settings.SettingsViewModel
+import com.example.androidapp.settings.SettingsViewModelFactory
 import java.time.LocalDate
 import java.time.Year
 import java.time.YearMonth
+import java.time.format.DateTimeFormatter
 import java.time.format.TextStyle
+import java.util.Calendar
+import java.util.Locale
+
 
 class CalendarScreen(
     private val mDayViewModel: DayViewModel,
@@ -47,8 +77,12 @@ class CalendarScreen(
     private val onDaySelected: (LocalDate) -> Unit,
 ) : NavigableScreen() {
 
+    @SuppressLint("UnrememberedMutableState")
+    @RequiresApi(Build.VERSION_CODES.S)
     @Composable
     override fun View() {
+        var dayEntity by remember { mutableStateOf(mDayViewModel.getDayByDate(localDate)) }
+        var selectedNote by remember { mutableStateOf(mDayViewModel.getNoteByDate(localDate)) }
 
         val allDayEntitiesWithRelatedSortedByDate =
             mDayViewModel.allDayEntitiesWithRelatedSortedByDate.observeAsState(initial = listOf()).value
@@ -59,23 +93,121 @@ class CalendarScreen(
                     dayEntityWithRelated.dayEntity.date
                 )
             }
+
         var currentYearMonth by remember { mutableStateOf(YearMonth.now()) }
         val lazyListState = rememberLazyListState()
+        var isCalendarExpanded = mutableStateOf(false)
+        val currentMonthYear = remember { mutableStateOf(YearMonth.now()) }
+        val monthYearText = currentMonthYear.value.format(DateTimeFormatter.ofPattern("MMMM yyyy"))
 
-        Surface(
-            modifier = Modifier.testTag(TestTags.CALENDAR_VIEW)
-        ) {
-            LazyColumn(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(8.dp),
-                state = lazyListState
-            ) {
-                items(groupedByYear.entries.toList()) { (year, objects) ->
-                    YearSquare(year, objects, currentYearMonth, onDaySelected)
+        Surface(modifier = Modifier.fillMaxSize()) {
+            Column(modifier = Modifier.fillMaxSize()) {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(16.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        text = monthYearText
+                    )
+                    Spacer(modifier = Modifier.weight(1f))
+                    IconButton(
+                        onClick = {
+                            isCalendarExpanded.value = !isCalendarExpanded.value
+                        },
+                        modifier = Modifier.size(24.dp)
+                    ) {
+                        Icon(
+                            imageVector = if (isCalendarExpanded.value) Icons.Default.ArrowUpward else Icons.Default.ArrowDownward,
+                            contentDescription = if (isCalendarExpanded.value) "Collapse" else "Expand"
+                        )
+                    }
                 }
-        }
 
+                AnimatedVisibility(
+                    visible = isCalendarExpanded.value,
+                    enter = expandVertically(),
+                    exit = shrinkVertically(),
+                    modifier = Modifier.weight(1f)
+                ) {
+                    CalendarView(
+                        expanded = isCalendarExpanded
+                    ) { chosenDate ->
+                        dayEntity = mDayViewModel.getDayByDate(chosenDate)
+                        selectedNote = mDayViewModel.getNoteByDate(chosenDate)
+                    }
+                }
+
+                LazyColumn(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .weight(1f)
+                        .animateContentSize(animationSpec = tween(100)),
+                    state = lazyListState
+                ) {
+                    items(groupedByYear.entries.toList()) { (year, objects) ->
+                        YearSquare(year, objects, currentYearMonth, onDaySelected)
+                    }
+                }
+            }
+        }
+    }
+
+    @RequiresApi(Build.VERSION_CODES.S)
+    @Composable
+    fun CalendarView(
+        expanded: MutableState<Boolean>,
+        onChangeDate: (LocalDate) -> Unit
+    ) {
+        val mSettingsViewModel: SettingsViewModel = viewModel(
+            factory = SettingsViewModelFactory(SettingsRepository(LocalContext.current))
+        )
+        val isDarkMode by mSettingsViewModel.isDarkTheme.observeAsState(false)
+        val isUniqrnMode by mSettingsViewModel.isUniqrnModeEnabled.observeAsState(false)
+
+        AnimatedVisibility(
+            visible = expanded.value,
+            enter = expandVertically(),
+            exit = shrinkVertically()
+        ) {
+            LazyColumn(modifier = Modifier.fillMaxSize()) {
+                item {
+                    AndroidView(
+                        factory = { context ->
+                            val themedContext = ContextThemeWrapper(
+                                context,
+                                if (isUniqrnMode && isDarkMode) R.style.CalendarTextAppearance_DarkUnicorn
+                                else if (isDarkMode) R.style.CalendarTextAppearance_Dark
+                                else if(isUniqrnMode) R.style.CalendarTextAppearance_Unicorn
+                                else {
+                                    R.style.CalendarTextAppearance_Light
+                                }
+                            )
+                            CalendarView(themedContext).apply {
+                                layoutParams = ViewGroup.LayoutParams(
+                                    ViewGroup.LayoutParams.MATCH_PARENT,
+                                    ViewGroup.LayoutParams.MATCH_PARENT,
+                                )
+                            }
+                        },
+                        modifier = Modifier.fillMaxSize(),
+                        update = { calendarView ->
+                            val calendar = Calendar.getInstance()
+                            val chosenDateInMillis: Long = calendar.apply {
+                                set(Calendar.YEAR, localDate.year)
+                                set(Calendar.MONTH, localDate.monthValue - 1)
+                                set(Calendar.DAY_OF_MONTH, localDate.dayOfMonth)
+                            }.timeInMillis
+
+                            calendarView.setDate(chosenDateInMillis, false, true)
+                            calendarView.setOnDateChangeListener { _, year, month, dayOfMonth ->
+                                onChangeDate(LocalDate.of(year, month + 1, dayOfMonth))
+                            }
+                        }
+                    )
+                }
+            }
         }
     }
 
@@ -188,6 +320,46 @@ fun YearSquare(
                     }
                     Spacer(modifier = Modifier.height(8.dp))
                 }
+            }
+        }
+    }
+
+    @Composable
+    fun MonthHeader(
+        currentMonth:YearMonth,
+        onMonthChanged: (YearMonth) -> Unit
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Button(
+                onClick = {
+                    onMonthChanged(currentMonth.minusMonths(1))
+                }
+            ) {
+                Icon(
+                    imageVector = Icons.Default.ArrowBack,
+                    contentDescription = "Previous month"
+                )
+            }
+
+            Text(
+                text = currentMonth.month.getDisplayName(TextStyle.FULL_STANDALONE, Locale.getDefault()),
+                modifier = Modifier.padding(start = 16.dp, end = 16.dp)
+            )
+
+            Button(
+                onClick = {
+                    onMonthChanged(currentMonth.plusMonths(1))
+                }
+            ) {
+                Icon(
+                    imageVector = Icons.Default.ArrowForward,
+                    contentDescription = "Next month"
+                )
             }
         }
     }
