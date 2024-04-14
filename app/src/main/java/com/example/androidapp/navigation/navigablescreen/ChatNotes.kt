@@ -1,12 +1,16 @@
 package com.example.androidapp.navigation.navigablescreen
 
+import android.net.Uri
+import android.util.Log
 import android.view.MotionEvent
+import androidx.activity.compose.ManagedActivityResultLauncher
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.navigationBarsPadding
@@ -53,6 +57,8 @@ import com.example.androidapp.media.AudioPlayer
 import com.example.androidapp.media.AudioRecorder
 import com.example.androidapp.media.ClickableVideoPlayer
 import com.example.androidapp.media.MimeTypeEnum
+import com.example.androidapp.media.TakePicture
+import com.example.androidapp.media.cameraPreview
 import com.example.androidapp.media.imagePainter
 import com.example.androidapp.media.mediaPicker
 
@@ -63,7 +69,22 @@ class ChatNotes(
 ) : NavigableScreen() {
     @Composable
     override fun View() {
-        val visualMediaPicker = mediaPicker(context = LocalContext.current) { path, mimeType ->
+        var showCamera by remember { mutableStateOf(false) }
+
+        val context = LocalContext.current
+
+        val addToDatabase: (MimeTypeEnum, String) -> Unit = { mimeTypeEnum, contentOrPath ->
+            mDayViewModel.addConnectedToNoteText(
+                ConnectedToNote(
+                    id = null,
+                    contentOrPath = contentOrPath,
+                    noteForeignId = noteForeignId,
+                    mimeType = mimeTypeEnum.toString()
+                )
+            )
+        }
+
+        val visualMediaPicker = mediaPicker(context = context) { path, mimeType ->
             if (path == null || mimeType == null)
                 return@mediaPicker
 
@@ -77,6 +98,27 @@ class ChatNotes(
             )
         }
 
+        if (showCamera) {
+            ConfiguredCameraPreview(onCreateImage = addToDatabase) {
+                showCamera = false
+            }
+
+        } else {
+            ShowChat(
+                visualMediaPicker = visualMediaPicker,
+                onCreateConnectedToNote = addToDatabase
+            ) {
+                showCamera = true
+            }
+        }
+    }
+
+    @Composable
+    fun ShowChat(
+        visualMediaPicker: ManagedActivityResultLauncher<PickVisualMediaRequest, Uri?>,
+        onCreateConnectedToNote: (MimeTypeEnum, String) -> Unit,
+        onShowCamera: () -> Unit,
+    ) {
         Scaffold(
             topBar = {
                 CustomTopAppBar(
@@ -96,37 +138,44 @@ class ChatNotes(
                     },
                     audioRecorder = AudioRecorder(),
                     onAudioRecorderFinished = { path ->
-                        mDayViewModel.addConnectedToNoteText(
-                            ConnectedToNote(
-                                id = null,
-                                contentOrPath = path,
-                                noteForeignId = noteForeignId,
-                                mimeType = MimeTypeEnum.SOUND.toString()
-                            )
+                        onCreateConnectedToNote(
+                            MimeTypeEnum.SOUND,
+                            path
                         )
                     },
-                    onCameraClick = { },
-                    onSendClick = { content ->
-                        mDayViewModel.addConnectedToNoteText(
-                            ConnectedToNote(
-                                id = null,
-                                contentOrPath = content,
-                                noteForeignId = noteForeignId,
-                                mimeType = MimeTypeEnum.TEXT.toString()
-                            )
-                        )
-                    }
+                    onCameraClick = onShowCamera,
+                    onSendClick = { content -> onCreateConnectedToNote(MimeTypeEnum.TEXT, content) }
                 )
             }
         ) { innerPadding ->
             ChatContent(paddingValues = innerPadding)
         }
+    }
 
+    @Composable
+    fun ConfiguredCameraPreview(
+        onCreateImage: (MimeTypeEnum, String) -> Unit,
+        onTakePicture: () -> Unit
+    ) {
+        val context = LocalContext.current
+
+        TakePicture(
+            context = context,
+            imageCapture = cameraPreview(Modifier.fillMaxSize()),
+            onImageSaved = { path ->
+                onCreateImage(MimeTypeEnum.IMAGE, path)
+                onTakePicture()
+            },
+            onError = { imageCaptureException ->
+                imageCaptureException.localizedMessage?.let {
+                    Log.e("Error", it)
+                }
+            }
+        )
     }
 
     @Composable
     fun ChatContent(paddingValues: PaddingValues) {
-
         val connectedToDays = mDayViewModel
             .getConnectedToNoteByNoteId(noteForeignId)
             .observeAsState(initial = listOf())
@@ -170,10 +219,8 @@ fun MessageRow(connectedToNote: ConnectedToNote) {
                 }
 
                 MimeTypeEnum.IMAGE -> {
-                    val imagePainter = imagePainter(imagePath = connectedToNote.contentOrPath)
-
                     Image(
-                        painter = imagePainter,
+                        painter = imagePainter(imagePath = connectedToNote.contentOrPath),
                         contentDescription = "Note Image",
                         contentScale = ContentScale.Crop,
                         modifier = messageModifier
@@ -186,7 +233,7 @@ fun MessageRow(connectedToNote: ConnectedToNote) {
                         modifier = messageModifier
                     )
                 }
-                
+
                 MimeTypeEnum.SOUND -> {
                     AudioPlayer(audioPath = connectedToNote.contentOrPath)
                 }
@@ -277,22 +324,24 @@ fun MessageCreationRow(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun CustomTopAppBar(title: String, onNavigationClick: () -> Unit, onOverflowClick: () -> Unit) {
+fun CustomTopAppBar(
+    title: String,
+    onNavigationClick: () -> Unit,
+    onOverflowClick: () -> Unit
+) {
     TopAppBar(
         title = {
             Text(text = title, maxLines = 1, overflow = TextOverflow.Ellipsis)
         },
         navigationIcon = {
-            IconButton(onClick = { onNavigationClick() }) {
+            IconButton(onClick = onNavigationClick) {
                 Icon(Icons.Default.ArrowBack, contentDescription = "Back")
             }
         },
         actions = {
-            // Actions you might want to add (like search, etc.)
-            IconButton(onClick = { onOverflowClick() }) {
+            IconButton(onClick = onOverflowClick) {
                 Icon(Icons.Default.MoreVert, contentDescription = "More")
             }
         }
     )
 }
-

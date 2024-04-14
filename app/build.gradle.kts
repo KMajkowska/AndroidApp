@@ -65,8 +65,11 @@ android {
     }
 }
 
-dependencies {
+configurations.implementation {
+    exclude("com.google.auto.value",  ("auto-value"))
+}
 
+dependencies {
     implementation("androidx.datastore:datastore-preferences:1.0.0")
     implementation("com.android.tools.build:gradle:3.5.1")
     implementation("com.google.code.gson:gson:2.10")
@@ -79,13 +82,9 @@ dependencies {
 
     implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.6.2")
     implementation("androidx.activity:activity-compose:1.8.2")
-    implementation(platform("androidx.compose:compose-bom:2023.03.00"))
 
     implementation("androidx.compose.ui:ui")
     implementation("androidx.compose.ui:ui-graphics")
-    implementation(platform("androidx.compose:compose-bom:2023.03.00"))
-    implementation(platform("androidx.compose:compose-bom:2023.03.00"))
-    implementation(platform("androidx.compose:compose-bom:2024.03.00"))
     implementation("androidx.compose.material3:material3")
 
     // for photos
@@ -96,8 +95,8 @@ dependencies {
     implementation("net.bytebuddy:byte-buddy:1.14.6")
 
     // for videos and audio
-    implementation("com.google.android.exoplayer:exoplayer:2.18.1")
-    implementation("com.google.android.exoplayer:exoplayer-ui:2.18.1")
+    implementation("com.google.android.exoplayer:exoplayer:2.19.1")
+    implementation("com.google.android.exoplayer:exoplayer-ui:2.19.1")
 
     // for camera
     implementation("androidx.camera:camera-camera2:1.3.2")
@@ -105,11 +104,7 @@ dependencies {
     implementation("androidx.camera:camera-video:1.3.2")
     implementation("androidx.camera:camera-view:1.3.2")
 
-    androidTestImplementation(platform("androidx.compose:compose-bom:2023.03.00"))
-    androidTestImplementation(platform("androidx.compose:compose-bom:2023.03.00"))
-    androidTestImplementation(platform("androidx.compose:compose-bom:2023.03.00"))
-    androidTestImplementation(platform("androidx.compose:compose-bom:2023.03.00"))
-    val composeBom = platform("androidx.compose:compose-bom:2023.10.01")
+    val composeBom = platform("androidx.compose:compose-bom:2024.03.00")
     implementation(composeBom)
     androidTestImplementation(composeBom)
 
@@ -144,6 +139,4 @@ dependencies {
     testImplementation("org.junit.jupiter:junit-jupiter-api:5.7.0") // JUnit 5
     testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine")
     implementation("androidx.compose.material3:material3:1.0.0-alpha16")
-
-
 }
