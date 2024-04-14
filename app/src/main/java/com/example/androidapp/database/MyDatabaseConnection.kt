@@ -7,20 +7,16 @@ import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
 import com.example.androidapp.database.converter.ColorConverter
 import com.example.androidapp.database.converter.LocalDateConverter
+import com.example.androidapp.database.dao.ConnectedToNoteDao
 import com.example.androidapp.database.dao.DayDao
 import com.example.androidapp.database.dao.EventDao
-import com.example.androidapp.database.dao.ImageDao
 import com.example.androidapp.database.dao.NoteDao
-import com.example.androidapp.database.dao.SoundDao
 import com.example.androidapp.database.dao.TodoDao
-import com.example.androidapp.database.dao.VideoDao
+import com.example.androidapp.database.model.ConnectedToNote
 import com.example.androidapp.database.model.DayEntity
 import com.example.androidapp.database.model.EventEntity
 import com.example.androidapp.database.model.Note
 import com.example.androidapp.database.model.TodoEntity
-import com.example.androidapp.database.model.savables.Image
-import com.example.androidapp.database.model.savables.Sound
-import com.example.androidapp.database.model.savables.Video
 
 const val databaseName = "uniqrn_db"
 
@@ -30,9 +26,7 @@ const val databaseName = "uniqrn_db"
         TodoEntity::class,
         EventEntity::class,
         Note::class,
-        Image::class,
-        Video::class,
-        Sound::class
+        ConnectedToNote::class
     ],
     version = 1,
     exportSchema = false
@@ -44,9 +38,7 @@ abstract class MyDatabaseConnection : RoomDatabase() {
     abstract fun todoDao(): TodoDao
 
     abstract fun noteDao(): NoteDao
-    abstract fun imageDao(): ImageDao
-    abstract fun videoDao(): VideoDao
-    abstract fun soundDao(): SoundDao
+    abstract fun connectedToNoteDao(): ConnectedToNoteDao
 
     companion object {
         @Volatile

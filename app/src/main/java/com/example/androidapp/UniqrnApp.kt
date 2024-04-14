@@ -65,6 +65,7 @@ fun UniqrnApp() {
                 unqirnNavGraph(
                     onDaySelected = navController::navigateToDayDetail,
                     onNoteSelected = navController::navigateToNoteEditor,
+                    onDayChatNoteSelected = navController::navigateToDayChatNotes,
                     upPress = navController::upPress,
                     onNavigateToRoute = navController::navigateToBottomBarRoute,
                     mDayViewModel = mDayViewModel,
@@ -111,7 +112,8 @@ fun UniqrnAppSettings(
                     upPress = navController::upPress,
                     onNavigateToRoute = navController::navigateToBottomBarRoute,
                     mDayViewModel = mDayViewModel,
-                    mSettingsViewModel = mSettingsViewModel
+                    mSettingsViewModel = mSettingsViewModel,
+                    onDayChatNoteSelected = navController::navigateToDayChatNotes
                 )
             }
         }
@@ -123,6 +125,7 @@ private fun NavGraphBuilder.unqirnNavGraph(
     mDayViewModel: DayViewModel,
     onDaySelected: (LocalDate, NavBackStackEntry) -> Unit,
     onNoteSelected: (Long, LocalDate?, NavBackStackEntry) -> Unit,
+    onDayChatNoteSelected: (Long, NavBackStackEntry) -> Unit,
     upPress: () -> Unit,
     onNavigateToRoute: (String) -> Unit
 ) {
@@ -131,12 +134,13 @@ private fun NavGraphBuilder.unqirnNavGraph(
         NavItem.ALL_NOTES,
         NavItem.CALENDAR,
         NavItem.DAYS,
-        NavItem.CHAT_NOTES,
-        NavItem.SETTINGS
+        // NavItem.CHAT_NOTES,
+        // NavItem.SETTINGS
     )
 
     val noteId = "noteId"
     val localDate = "localDate"
+
     fun getDateFromStringOrNow(dateString: String?, default: LocalDate?): LocalDate? {
         return if (dateString == null) default else localDateConverter.toLocalDate(dateString)
     }
@@ -148,7 +152,7 @@ private fun NavGraphBuilder.unqirnNavGraph(
             AllNotes(
                 mDayViewModel,
                 LocalDate.now(),
-                { noteId -> onNoteSelected(noteId, null, backStackEntry) }
+                { noteId -> /*onNoteSelected(noteId, null, backStackEntry)*/ onDayChatNoteSelected(noteId, backStackEntry)}
             ) { date -> onDaySelected(date, backStackEntry) }, onNavigateToRoute
         )
     }
@@ -215,14 +219,13 @@ private fun NavGraphBuilder.unqirnNavGraph(
         )
     ) { backStackEntry ->
         val arguments = requireNotNull(backStackEntry.arguments)
-        val noteIdArgument = arguments.getLong("noteId", -1)
+        val noteIdArgument = arguments.getLong(noteId, -1)
         CreateNote(
             mDayViewModel,
             noteIdArgument,
             getDateFromStringOrNow(arguments.getString(localDate), null),
             upPress
-        )
-            .ViewWithBackground()
+        ).ViewWithBackground()
     }
 
     composable(route = ScreenRoutes.IMPORT_PICKER) { _ ->
@@ -241,8 +244,18 @@ private fun NavGraphBuilder.unqirnNavGraph(
         ).ViewWithBackground()
     }
 
-    composable(route = ScreenRoutes.CHAT_NOTES) { _ ->
+    composable(
+        route = "${ScreenRoutes.CHAT_NOTES}?$noteId={$noteId}",
+        arguments = listOf(
+            navArgument(noteId) {
+                defaultValue = -1
+                type = NavType.LongType
+            }
+        )) { backStackEntry ->
+        val arguments = requireNotNull(backStackEntry.arguments)
+        val noteForeignId = arguments.getLong(noteId, -1)
         ChatNotes(
+            noteForeignId = noteForeignId,
             mDayViewModel = mDayViewModel,
             upPress = upPress
         ).ViewWithBackground()

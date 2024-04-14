@@ -155,6 +155,13 @@ class BottomNavBarController(val navController: NavHostController) {
                         if (localDate == null) "" else "&localDate=${localDateConverter.fromLocalDate(localDate)}"
             )
     }
+
+    fun navigateToDayChatNotes(noteId: Long, from: NavBackStackEntry) {
+        if (from.lifecycleIsResumed())
+            navController.navigate(
+                "${ScreenRoutes.CHAT_NOTES}?noteId=$noteId"
+            )
+    }
 }
 
 private fun NavBackStackEntry.lifecycleIsResumed() =

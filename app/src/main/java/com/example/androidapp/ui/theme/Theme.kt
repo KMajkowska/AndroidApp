@@ -27,6 +27,8 @@ private val DarkColorScheme = darkColorScheme(
     secondaryContainer = LighterPurple,
     onPrimaryContainer =  Black,
     onSecondaryContainer = Color.Gray,
+    tertiaryContainer = Color.hsv(251.75F, 0.5026F, 0.7569F),
+    onTertiaryContainer = Color.hsv(270.41F, 0.6549F, 0.8863F),
 )
 
 private val LightColorScheme = lightColorScheme(
@@ -42,6 +44,8 @@ private val LightColorScheme = lightColorScheme(
     secondaryContainer = LighterBlue,
     onPrimaryContainer = White,
     onSecondaryContainer = Color.Gray,
+    tertiaryContainer = Color.hsv(183.33F, 0.2118F, 1F),
+    onTertiaryContainer = Color.hsv(200.53F, 0.149F, 1F),
 )
 
 private val UnicornColorScheme = lightColorScheme(
@@ -57,7 +61,9 @@ private val UnicornColorScheme = lightColorScheme(
     secondaryContainer = LighterPink,
     onPrimaryContainer = White,
     onSecondaryContainer = Color.Gray,
-    )
+    tertiaryContainer = Color.hsv(312.5F, 0.2824F, 1F),
+    onTertiaryContainer = Color.hsv(312.35F, 0.1349F, 1F),
+)
 
 private val DarkUnicornScheme = darkColorScheme(
     primary = Pink,
@@ -72,6 +78,8 @@ private val DarkUnicornScheme = darkColorScheme(
     secondaryContainer = LighterPink,
     onPrimaryContainer =  Black,
     onSecondaryContainer = Color.Gray,
+    tertiaryContainer = Color.hsv(312.21F, 0.7107F, 0.6235F),
+    onTertiaryContainer = Color.hsv(322.82F, 0.7978F, 0.698F),
 )
 
 
@@ -123,6 +131,6 @@ fun AndroidAppTheme(
     MaterialTheme(
         colorScheme = colorScheme,
         typography = Typography,
-        content = content
+        content = content,
     )
 }

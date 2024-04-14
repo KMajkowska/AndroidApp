@@ -240,70 +240,83 @@ class DaysScreen(
         var isEditing by remember { mutableStateOf(false) }
         val todoList = mDayViewModel.getTodosByDayId(dayId).observeAsState(initial = listOf()).value
 
-        Column(
+        Box(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(8.dp)
+                .background(color = MaterialTheme.colorScheme.tertiaryContainer)
         ) {
-            Text(stringResource(id = R.string.todos), style = LocalTextStyle.current.copy(color = MaterialTheme.colorScheme.onBackground))
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(8.dp)
+            ) {
+                Text(
+                    stringResource(id = R.string.todos),
+                    style = LocalTextStyle.current.copy(color = MaterialTheme.colorScheme.onBackground)
+                )
 
-            if (isEditing) {
-                InlineTextEditor(
-                    data = "",
-                    hasDayEntityBeenChanged = hasDayEntityBeenChanged,
-                ) { possiblyChangedData ->
-                    if (possiblyChangedData.isNotEmpty()) {
-                        mDayViewModel.saveTodoEntity(
-                            TodoEntity(
-                                dayForeignId = dayId,
-                                title = possiblyChangedData
+                if (isEditing) {
+                    InlineTextEditor(
+                        data = "",
+                        hasDayEntityBeenChanged = hasDayEntityBeenChanged,
+                    ) { possiblyChangedData ->
+                        if (possiblyChangedData.isNotEmpty()) {
+                            mDayViewModel.saveTodoEntity(
+                                TodoEntity(
+                                    dayForeignId = dayId,
+                                    title = possiblyChangedData
+                                )
                             )
-                        )
+                        }
+                        isEditing = false
                     }
-                    isEditing = false
+                } else {
+                    IconButton(onClick = {
+                        isEditing = true
+                    }) {
+                        Icon(imageVector = Icons.Default.Add, contentDescription = "Add new todo")
+                    }
                 }
-            } else {
-                IconButton(onClick = {
-                    isEditing = true
-                }) {
-                    Icon(imageVector = Icons.Default.Add, contentDescription = "Add new todo")
-                }
-            }
 
-            todoList.forEach { todo ->
-                var isChecked by remember { mutableStateOf(todo.isDone) }
+                todoList.forEach { todo ->
+                    var isChecked by remember { mutableStateOf(todo.isDone) }
 
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    modifier = Modifier.padding(18.dp, 0.dp, 0.dp, 0.dp)
-                ) {
                     Row(
                         verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(8.dp),
-                        modifier = Modifier.weight(1f)
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        modifier = Modifier.padding(18.dp, 0.dp, 0.dp, 0.dp)
                     ) {
-                        Checkbox(
-                            checked = isChecked,
-                            onCheckedChange = { checked ->
-                                isChecked = checked
-                                todo.isDone = isChecked
-                                mDayViewModel.saveTodoEntity(todo)
-                                hasDayEntityBeenChanged.value = true
-                            }
-                        )
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(8.dp),
+                            modifier = Modifier.weight(1f)
+                        ) {
+                            Checkbox(
+                                checked = isChecked,
+                                onCheckedChange = { checked ->
+                                    isChecked = checked
+                                    todo.isDone = isChecked
+                                    mDayViewModel.saveTodoEntity(todo)
+                                    hasDayEntityBeenChanged.value = true
+                                }
+                            )
 
-                        Text(text = todo.title, modifier = Modifier.weight(1f), style = LocalTextStyle.current.copy(color = MaterialTheme.colorScheme.onBackground))
-                    }
-                    IconButton(
-                        onClick = { mDayViewModel.deleteTodoEntity(todo) }
-                    ) {
-                        Icon(Icons.Default.Delete, contentDescription = "Delete")
-                        hasDayEntityBeenChanged.value = true
+                            Text(
+                                text = todo.title,
+                                modifier = Modifier.weight(1f),
+                                style = LocalTextStyle.current.copy(color = MaterialTheme.colorScheme.onBackground)
+                            )
+                        }
+                        IconButton(
+                            onClick = { mDayViewModel.deleteTodoEntity(todo) }
+                        ) {
+                            Icon(Icons.Default.Delete, contentDescription = "Delete")
+                            hasDayEntityBeenChanged.value = true
+                        }
                     }
                 }
-            }
 
+            }
         }
     }
 
@@ -321,121 +334,132 @@ class DaysScreen(
         var isDropdownExpanded by remember { mutableStateOf(false) }
         val context = LocalContext.current
 
-        Column(
+        Box(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(8.dp)
+                .background(color = MaterialTheme.colorScheme.onTertiaryContainer)
         ) {
-            Text(stringResource(id = R.string.event_list),
-                style = LocalTextStyle.current.copy(color = MaterialTheme.colorScheme.onBackground))
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(8.dp)
+            ) {
+                Text(
+                    stringResource(id = R.string.event_list),
+                    style = LocalTextStyle.current.copy(color = MaterialTheme.colorScheme.onBackground)
+                )
 
-            val categoryList = EventCategories.entries.toTypedArray()
-            if (isEditing) {
-                Column(
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                ) {
-                    Box(
-                        modifier = Modifier
-                            .clickable {
-                                isDropdownExpanded = !isDropdownExpanded
-                            }
+                val categoryList = EventCategories.entries.toTypedArray()
+                if (isEditing) {
+                    Column(
+                        horizontalAlignment = Alignment.CenterHorizontally,
                     ) {
-                        DropdownMenu(
-                            expanded = isDropdownExpanded,
-                            onDismissRequest = {
-                                isDropdownExpanded = false
-                            },
-                            Modifier.background(MaterialTheme.colorScheme.primaryContainer)
-
-                        ) {
-
-                            categoryList.forEach { category ->
-                                if (category.name == newEventCategory.value) {
-                                    return@forEach
-                                }
-                                DropdownMenuItem(
-                                    {
-                                        Text(
-                                            text = stringResource(id = category.resourceId),
-                                            color = MaterialTheme.colorScheme.onPrimaryContainer,
-                                        )
-                                    },
-                                    onClick = {
-                                        newEventCategory.value =
-                                            context.getString(category.resourceId)
-                                        isDropdownExpanded = false
-                                    }
-                                )
-                            }
-                        }
-                        Text(newEventCategory.value, style = LocalTextStyle.current.copy(color = MaterialTheme.colorScheme.onPrimaryContainer),
+                        Box(
                             modifier = Modifier
-                                .background(MaterialTheme.colorScheme.primary)
-                                .padding(8.dp))
-                    }
+                                .clickable {
+                                    isDropdownExpanded = !isDropdownExpanded
+                                }
+                        ) {
+                            DropdownMenu(
+                                expanded = isDropdownExpanded,
+                                onDismissRequest = {
+                                    isDropdownExpanded = false
+                                },
+                                Modifier.background(MaterialTheme.colorScheme.primaryContainer)
 
-                    InlineTextEditor(
-                        data = "",
-                        hasDayEntityBeenChanged = hasDayEntityBeenChanged
-                    ) { possibleNewEventTitle ->
-                        if (possibleNewEventTitle.isNotEmpty()) {
-                            mDayViewModel.saveEventEntity(
-                                EventEntity(
-                                    dayForeignId = dayId,
-                                    title = possibleNewEventTitle,
-                                    category = newEventCategory.value
-                                )
+                            ) {
+
+                                categoryList.forEach { category ->
+                                    if (category.name == newEventCategory.value) {
+                                        return@forEach
+                                    }
+                                    DropdownMenuItem(
+                                        {
+                                            Text(
+                                                text = stringResource(id = category.resourceId),
+                                                color = MaterialTheme.colorScheme.onPrimaryContainer,
+                                            )
+                                        },
+                                        onClick = {
+                                            newEventCategory.value =
+                                                context.getString(category.resourceId)
+                                            isDropdownExpanded = false
+                                        }
+                                    )
+                                }
+                            }
+                            Text(
+                                newEventCategory.value,
+                                style = LocalTextStyle.current.copy(color = MaterialTheme.colorScheme.onPrimaryContainer),
+                                modifier = Modifier
+                                    .background(MaterialTheme.colorScheme.primary)
+                                    .padding(8.dp)
                             )
                         }
-                        isEditing = false
-                        newEventCategory.value = categoryList[0].toString()
+
+                        InlineTextEditor(
+                            data = "",
+                            hasDayEntityBeenChanged = hasDayEntityBeenChanged
+                        ) { possibleNewEventTitle ->
+                            if (possibleNewEventTitle.isNotEmpty()) {
+                                mDayViewModel.saveEventEntity(
+                                    EventEntity(
+                                        dayForeignId = dayId,
+                                        title = possibleNewEventTitle,
+                                        category = newEventCategory.value
+                                    )
+                                )
+                            }
+                            isEditing = false
+                            newEventCategory.value = categoryList[0].toString()
+                        }
+
+
                     }
-
-
+                } else {
+                    IconButton(onClick = {
+                        isEditing = true
+                    }) {
+                        Icon(
+                            imageVector = Icons.Default.Add,
+                            contentDescription = "Add new event"
+                        )
+                    }
                 }
-            } else {
-                IconButton(onClick = {
-                    isEditing = true
-                }) {
-                    Icon(
-                        imageVector = Icons.Default.Add,
-                        contentDescription = "Add new event"
-                    )
-                }
-            }
 
-            eventList.forEach { event ->
-                val eventCategory by remember { mutableStateOf(event.category) }
+                eventList.forEach { event ->
+                    val eventCategory by remember { mutableStateOf(event.category) }
 
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    modifier = Modifier.padding(18.dp, 0.dp, 0.dp, 0.dp)
-                ) {
                     Row(
                         verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(8.dp),
-                        modifier = Modifier.weight(1f)
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        modifier = Modifier.padding(18.dp, 0.dp, 0.dp, 0.dp)
                     ) {
-                        val icon = getCategoryIcon(eventCategory)
-                        Icon(
-                            imageVector = icon,
-                            contentDescription = null,
-                            modifier = Modifier.padding(start=8.dp)
-                        )
-                        Text(
-                            text = event.title,
-                            style = LocalTextStyle.current.copy(color = MaterialTheme.colorScheme.onBackground),
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(8.dp),
                             modifier = Modifier.weight(1f)
-                                .padding(start=8.dp)
-                        )
-                    }
+                        ) {
+                            val icon = getCategoryIcon(eventCategory)
+                            Icon(
+                                imageVector = icon,
+                                contentDescription = null,
+                                modifier = Modifier.padding(start = 8.dp)
+                            )
+                            Text(
+                                text = event.title,
+                                style = LocalTextStyle.current.copy(color = MaterialTheme.colorScheme.onBackground),
+                                modifier = Modifier.weight(1f)
+                                    .padding(start = 8.dp)
+                            )
+                        }
 
-                    IconButton(
-                        onClick = { mDayViewModel.deleteEventEntity(event) }
-                    ) {
-                        Icon(Icons.Default.Delete, contentDescription = "Delete")
-                        hasDayEntityBeenChanged.value = true
+                        IconButton(
+                            onClick = { mDayViewModel.deleteEventEntity(event) }
+                        ) {
+                            Icon(Icons.Default.Delete, contentDescription = "Delete")
+                            hasDayEntityBeenChanged.value = true
+                        }
                     }
                 }
             }

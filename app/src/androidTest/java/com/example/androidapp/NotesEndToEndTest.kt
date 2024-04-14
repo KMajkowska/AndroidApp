@@ -107,9 +107,6 @@ class NotesEndToEndTest {
             .performTextInput("TEST EVENT")
         composeTestRule
             .onNodeWithContentDescription("Save")
-            .performScrollTo()
-        composeTestRule
-            .onNodeWithContentDescription("Save")
             .assertHasClickAction()
             .performClick()
         composeTestRule

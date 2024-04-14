@@ -9,8 +9,13 @@ import java.time.LocalDate
 
 @Entity(tableName = "notes")
 data class Note (
+    @Expose(serialize = false)
+    @PrimaryKey(autoGenerate = true)
+    var id: Long? = null,
     var noteTitle: String = "",
     val content: String = "",
     var noteDate: LocalDate? = null,
     val pinned: Boolean = false,
-) : ConnectedToDay()
+    var noteImageUri: String? = null
+
+)

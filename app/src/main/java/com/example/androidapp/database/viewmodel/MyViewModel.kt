@@ -3,21 +3,16 @@ package com.example.androidapp.database.viewmodel
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
-import androidx.lifecycle.MediatorLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.example.androidapp.database.MyDatabaseConnection
-import com.example.androidapp.database.model.ConnectedToDay
+import com.example.androidapp.database.model.ConnectedToNote
 import com.example.androidapp.database.model.DayEntity
 import com.example.androidapp.database.model.DayWithTodosAndEvents
 import com.example.androidapp.database.model.EventEntity
 import com.example.androidapp.database.model.Note
 import com.example.androidapp.database.model.TodoEntity
-import com.example.androidapp.database.model.savables.Image
-import com.example.androidapp.database.model.savables.Saveable
-import com.example.androidapp.database.model.savables.Sound
-import com.example.androidapp.database.model.savables.Video
 import com.example.androidapp.database.repository.MyRepository
 import com.example.androidapp.notifications.NotificationHelper
 import kotlinx.coroutines.Dispatchers
@@ -37,9 +32,7 @@ class DayViewModel(
         databaseConnection.eventDao(),
         databaseConnection.noteDao(),
         databaseConnection.todoDao(),
-        databaseConnection.imageDao(),
-        databaseConnection.soundDao(),
-        databaseConnection.videoDao()
+        databaseConnection.connectedToNoteDao()
     )
 
     val allDayEntitiesSortedByDate: LiveData<List<DayEntity>> =
@@ -49,103 +42,37 @@ class DayViewModel(
     val allTodoEntities: LiveData<List<TodoEntity>> = repository.allTodoEntities
     val allEventEntities: LiveData<List<EventEntity>> = repository.allEventEntities
 
-    val allImages: LiveData<List<Image>> = repository.allImages
-    val allSounds: LiveData<List<Sound>> = repository.allSounds
-    val allVideos: LiveData<List<Video>> = repository.allVideos
+    val allConnectedToNote: LiveData<List<ConnectedToNote>> = repository.allConnectedToNotes
+
     val allNotes: LiveData<List<Note>> = repository.allNotes
 
-    val allConnectedToDay: LiveData<List<ConnectedToDay>> = MediatorLiveData<List<ConnectedToDay>>().apply {
-        val combinedList = arrayListOf<ConnectedToDay>()
 
-        fun <T : ConnectedToDay> addSource(source: LiveData<List<T>>) {
-            addSource(source) { items ->
-                combinedList.removeAll { it.javaClass == items.firstOrNull()?.javaClass }
-                combinedList.addAll(items)
-                combinedList.sortBy { it.id }
-                value = combinedList
-            }
-        }
-
-        addSource(repository.allImages)
-        addSource(repository.allSounds)
-        addSource(repository.allVideos)
-        addSource(repository.allNotes)
-    }
-
-    fun getSoundById(id: Long): Sound? {
+    fun getConnectedToNoteById(id: Long): ConnectedToNote? {
         return runBlocking {
             withContext(Dispatchers.IO) {
-                repository.getSoundById(id)
+                repository.getConnectedToNoteById(id)
             }
         }
     }
 
-    fun getVideoById(id: Long): Video? {
-        return runBlocking {
-            withContext(Dispatchers.IO) {
-                repository.getVideoById(id)
-            }
-        }
-    }
-
-    fun getImageById(id: Long): Image? {
-        return runBlocking {
-            withContext(Dispatchers.IO) {
-                repository.getImageById(id)
-            }
-        }
-    }
-
-    fun addNewVideo(video: Video) {
+    fun addConnectedToNoteText(connectedToNote: ConnectedToNote) {
         viewModelScope.launch(Dispatchers.IO) {
-            repository.addNewVideo(video)
+            repository.addNewConnectedToNote(connectedToNote)
         }
     }
 
-    fun addNewSound(sound: Sound) {
+    fun deleteConnectedToDay(connectedToNote: ConnectedToNote) {
         viewModelScope.launch(Dispatchers.IO) {
-            repository.addNewSound(sound)
+            connectedToNote.doBeforeDeletingRecord()
+            repository.deleteConnectedToNote(connectedToNote)
         }
     }
 
-    fun addNewImage(image: Image) {
+    fun updateConnectedToNote(connectedToNote: ConnectedToNote) {
         viewModelScope.launch(Dispatchers.IO) {
-            repository.addNewImage(image)
+            repository.updateConnectedToNote(connectedToNote)
         }
     }
-
-    fun deleteConnectedToDay(connectedToDay: ConnectedToDay) {
-        viewModelScope.launch(Dispatchers.IO) {
-            if (connectedToDay is Saveable)
-                connectedToDay.doBeforeDeletingRecord()
-
-            when (connectedToDay) {
-                is Image -> repository.deleteImageEntity(connectedToDay)
-                is Note -> repository.deleteNoteEntity(connectedToDay)
-                is Sound -> repository.deleteSoundEntity(connectedToDay)
-                is Video -> repository.deleteVideoEntity(connectedToDay)
-            }
-        }
-    }
-
-    fun updateVideo(video: Video) {
-        viewModelScope.launch(Dispatchers.IO) {
-            repository.updateVideo(video)
-        }
-    }
-
-    fun updateSound(sound: Sound) {
-        viewModelScope.launch(Dispatchers.IO) {
-            repository.updateSound(sound)
-        }
-    }
-
-    fun updateImage(image: Image) {
-        viewModelScope.launch(Dispatchers.IO) {
-            repository.updateImage(image)
-        }
-    }
-
     private fun scheduleNotification(date: LocalDate) {
         viewModelScope.launch(Dispatchers.IO) {
             notificationHelper.scheduleNotification(repository.getDayIdWithRelatedByDate(date))
@@ -183,6 +110,12 @@ class DayViewModel(
             withContext(Dispatchers.IO) {
                 repository.getNoteByDate(chosenDate)
             }
+        }
+    }
+
+    fun deleteNoteEntity(note: Note) {
+        viewModelScope.launch(Dispatchers.IO) {
+            repository.deleteNoteEntity(note)
         }
     }
 
@@ -236,6 +169,14 @@ class DayViewModel(
         return runBlocking {
             withContext(Dispatchers.IO) {
                 repository.getNoteById(id)
+            }
+        }
+    }
+
+    fun getConnectedToNoteByNoteId(noteId: Long): LiveData<List<ConnectedToNote>> {
+        return runBlocking {
+            withContext(Dispatchers.IO) {
+                repository.getConnectedToNoteByNoteId(noteId)
             }
         }
     }

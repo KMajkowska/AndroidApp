@@ -1,8 +1,6 @@
 package com.example.androidapp
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.isSystemInDarkTheme
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -11,6 +9,8 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.widthIn
+import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
@@ -33,6 +33,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -48,7 +49,6 @@ import com.example.androidapp.ui.theme.Blue
 import com.example.androidapp.ui.theme.DarkerPurple
 import com.example.androidapp.ui.theme.Pink
 import com.example.androidapp.ui.theme.Purple
-import com.example.androidapp.ui.theme.Red
 import com.example.androidapp.ui.theme.darkerBlue
 import com.example.androidapp.ui.theme.darkerPink
 
@@ -209,47 +209,61 @@ fun <T> DropDown(
     selectedValueModifier: T,
     onValueChange: (T) -> Unit
 ) {
-
-    val mSettingsViewModel: SettingsViewModel = viewModel(
-        factory = SettingsViewModelFactory(SettingsRepository(LocalContext.current))
-    )
+    val mSettingsViewModel: SettingsViewModel =
+        viewModel(factory = SettingsViewModelFactory(SettingsRepository(LocalContext.current)))
+    var expanded by rememberSaveable { mutableStateOf(false) }
     val isDarkMode by mSettingsViewModel.isDarkTheme.observeAsState(false)
-    Column(
-        verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.Start,
-        modifier = Modifier.fillMaxWidth()
-    ) {
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(4.dp)
-        ) {
-            var expanded by remember { mutableStateOf(false) }
-            Text(text = dropdownName)
-            Column {
-                TextButton(onClick = { expanded = true }) {
-                    Text(
-                        text = valueFromOptionGetterFunction(selectedValueModifier),
-                        color = if (!isDarkMode) Color.Black else Color.Gray
-                    )
-                    Icon(
-                        Icons.Default.MoreVert,
-                        contentDescription = "Localized description"
-                    )
-                }
 
-                DropdownMenu(
-                    expanded = expanded,
-                    onDismissRequest = { expanded = false }
-                ) {
-                    allOptions.forEach { option ->
-                        DropdownMenuItem(
-                            text = { Text(valueFromOptionGetterFunction(option)) },
-                            onClick = {
-                                onValueChange(option)
-                                expanded = false
-                            }
-                        )
-                    }
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(56.dp),
+        contentAlignment = Alignment.CenterStart
+    ) {
+        Text(
+            modifier = Modifier
+                .align(Alignment.CenterStart)
+                .padding(0.dp, 12.dp, 0.dp, 8.dp),
+            text = dropdownName,
+            color = if (!isDarkMode) Color.Black else Color.Gray
+        )
+
+        TextButton(
+            modifier = Modifier
+                .align(Alignment.TopEnd)
+                .padding(end = 16.dp),
+            onClick = { expanded = true }
+        ) {
+            Text(
+                text = valueFromOptionGetterFunction(selectedValueModifier),
+                color = if (!isDarkMode) Color.Black else Color.Gray
+            )
+
+            Icon(
+                Icons.Default.MoreVert,
+                contentDescription = "Localized description"
+            )
+
+            DropdownMenu(
+                expanded = expanded,
+                onDismissRequest = { expanded = false },
+                modifier = Modifier
+                    .wrapContentWidth(Alignment.End),
+            ) {
+                allOptions.forEach { option ->
+                    DropdownMenuItem(
+                        modifier = Modifier.widthIn(min = 0.dp, max = 310.dp),
+                        text = {
+                            Text(
+                                text = valueFromOptionGetterFunction(option),
+                                color = if (!isDarkMode) Color.Black else Color.Gray
+                            )
+                        },
+                        onClick = {
+                            onValueChange(option)
+                            expanded = false
+                        }
+                    )
                 }
             }
         }

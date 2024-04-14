@@ -1,8 +1,8 @@
 package com.example.androidapp.navigation.navigablescreen
 
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -19,24 +19,25 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.example.androidapp.DropDown
 import com.example.androidapp.HorizontalDivider
 import com.example.androidapp.R
 import com.example.androidapp.TestTags
-import com.example.androidapp.Toggle
 import com.example.androidapp.navigation.ScreenRoutes
 import com.example.androidapp.settings.LanguageEnum
 import com.example.androidapp.settings.NoteSortOptionEnum
 import com.example.androidapp.settings.SettingsViewModel
+import com.example.androidapp.settings.SoundOptions
 
 val languages = LanguageEnum.entries.toTypedArray()
 val sortOptions = NoteSortOptionEnum.entries.toTypedArray()
+val soundOptions = SoundOptions.entries.toTypedArray()
 
 class SettingsScreen(
     private val navigateToFilePicker: (String) -> Unit,
@@ -49,6 +50,7 @@ class SettingsScreen(
         val isDarkModeEnabled by settingsViewModel.isDarkTheme.observeAsState(false)
         val unicornModeEnabled by settingsViewModel.isUniqrnModeEnabled.observeAsState(false)
         val selectedSortOption by settingsViewModel.selectedSortOption.observeAsState(NoteSortOptionEnum.ASCENDING)
+        val selectedSoundOption by settingsViewModel.selectedSoundOption.observeAsState(SoundOptions.NONE)
 
         val context = LocalContext.current
 
@@ -104,6 +106,24 @@ class SettingsScreen(
 
                     HorizontalDivider()
                     BackupImportDialog(navigateToFilePicker)
+
+                    HorizontalDivider()
+                    DropDown(
+                        dropdownName = stringResource(id = R.string.sound),
+                        allOptions = soundOptions,
+                        valueFromOptionGetterFunction = { soundOption -> context.resources.getString(soundOption.resourceId)},
+                        selectedValueModifier = selectedSoundOption
+                    ) { soundOption ->
+                        settingsViewModel.setSelectedSound(soundOption)
+                    }
+
+                    HorizontalDivider()
+                    val image = painterResource(R.drawable.uniqrn_app)
+                    Image(
+                        painter = image,
+                        contentDescription = null,
+                        modifier = Modifier.fillMaxWidth()
+                    )
                 }
             }
         }

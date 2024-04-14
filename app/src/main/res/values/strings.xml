@@ -60,4 +60,9 @@
     <string name="small">Small</string>
     <string name="standard">Standard</string>
     <string name="big">Big</string>
+    <string name="sound">Sound</string>
+    <string name="PFUDON">Pink fluffy unicorn</string>
+    <string name="CCDD">Chipi chipi</string>
+    <string name="BS">Baby Shark</string>
+    <string name="NONE">NONE</string>
 </resources>
