@@ -2,13 +2,19 @@ package com.example.androidapp.navigation.navigablescreen
 
 import android.content.Context
 import android.net.Uri
+import android.widget.Toast
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.material3.Button
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.platform.LocalContext
 import androidx.documentfile.provider.DocumentFile
+import com.example.androidapp.R
+import com.example.androidapp.database.MyDatabaseConnection
 import com.example.androidapp.database.databaseName
 import com.example.androidapp.database.model.DayEntity
 import com.example.androidapp.database.model.EventEntity
@@ -19,7 +25,6 @@ import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import org.json.JSONObject
 import java.io.IOException
-
 
 class FilePicker(
     private val mDayViewModel: DayViewModel,

@@ -20,9 +20,9 @@ import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.Divider
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Switch
@@ -132,7 +132,7 @@ fun AddBackgroundToComposables(vararg composables: @Composable () -> Unit) {
 @Composable
 fun HorizontalDivider() {
     Spacer(modifier = Modifier.height(8.dp))
-    HorizontalDivider(modifier = Modifier.fillMaxWidth())
+    Divider(modifier = Modifier.fillMaxWidth())
     Spacer(modifier = Modifier.height(8.dp))
 }
 
