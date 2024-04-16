@@ -1,13 +1,14 @@
 package com.example.androidapp.navigation.navigablescreen
 
-import android.net.Uri
 import android.util.Log
 import android.view.MotionEvent
-import androidx.activity.compose.ManagedActivityResultLauncher
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.camera.core.ImageCapture
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
@@ -18,6 +19,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
@@ -25,6 +27,7 @@ import androidx.compose.material.icons.filled.AttachFile
 import androidx.compose.material.icons.filled.CameraAlt
 import androidx.compose.material.icons.filled.Mic
 import androidx.compose.material.icons.filled.MoreVert
+import androidx.compose.material.icons.filled.PhotoCamera
 import androidx.compose.material.icons.filled.Send
 import androidx.compose.material3.Card
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -46,85 +49,131 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInteropFilter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import com.example.androidapp.animations.AnimatedIconButton
 import com.example.androidapp.database.model.ConnectedToNote
 import com.example.androidapp.database.viewmodel.DayViewModel
 import com.example.androidapp.media.AudioPlayer
 import com.example.androidapp.media.AudioRecorder
 import com.example.androidapp.media.ClickableVideoPlayer
 import com.example.androidapp.media.MimeTypeEnum
-import com.example.androidapp.media.TakePicture
 import com.example.androidapp.media.cameraPreview
+import com.example.androidapp.media.getPrivateStorageFileFromFilePath
 import com.example.androidapp.media.imagePainter
 import com.example.androidapp.media.mediaPicker
+import com.example.androidapp.media.takePicture
 
 class ChatNotes(
     private val noteForeignId: Long,
     private val mDayViewModel: DayViewModel,
     private val upPress: () -> Unit,
 ) : NavigableScreen() {
+
+    private val audioRecorder: AudioRecorder = AudioRecorder()
+
+    private fun addToDatabase(mimeTypeString: String, contentOrPath: String) {
+        mDayViewModel.addConnectedToNoteText(
+            ConnectedToNote(
+                id = null,
+                contentOrPath = contentOrPath,
+                noteForeignId = noteForeignId,
+                mimeType = mimeTypeString
+            )
+        )
+    }
+
     @Composable
     override fun View() {
         var showCamera by remember { mutableStateOf(false) }
 
-        val context = LocalContext.current
-
-        val addToDatabase: (MimeTypeEnum, String) -> Unit = { mimeTypeEnum, contentOrPath ->
-            mDayViewModel.addConnectedToNoteText(
-                ConnectedToNote(
-                    id = null,
-                    contentOrPath = contentOrPath,
-                    noteForeignId = noteForeignId,
-                    mimeType = mimeTypeEnum.toString()
-                )
-            )
-        }
-
-        val visualMediaPicker = mediaPicker(context = context) { path, mimeType ->
-            if (path == null || mimeType == null)
-                return@mediaPicker
-
-            mDayViewModel.addConnectedToNoteText(
-                ConnectedToNote(
-                    contentOrPath = path,
-                    noteForeignId = noteForeignId,
-                    id = null,
-                    mimeType = mimeType
-                )
-            )
-        }
-
         if (showCamera) {
-            ConfiguredCameraPreview(onCreateImage = addToDatabase) {
+            ConfiguredCameraPreview {
                 showCamera = false
             }
 
         } else {
-            ShowChat(
-                visualMediaPicker = visualMediaPicker,
-                onCreateConnectedToNote = addToDatabase
-            ) {
+            ShowChat {
                 showCamera = true
+            }
+        }
+
+    }
+
+    @Composable
+    fun ConfiguredCameraPreview(
+        onTakePicture: () -> Unit
+    ) {
+        val context = LocalContext.current
+        val imageCapture = remember { mutableStateOf<ImageCapture?>(null) }
+        val cameraReady = remember { mutableStateOf(false) }
+
+        cameraPreview(Modifier.fillMaxSize()).let { capture ->
+            imageCapture.value = capture
+            cameraReady.value = true
+        }
+
+        if (!cameraReady.value || imageCapture.value == null)
+            return
+
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(69.dp), // nice
+            contentAlignment = Alignment.BottomCenter
+        ) {
+            IconButton(
+                modifier = Modifier
+                    .size(56.dp)
+                    .background(
+                        MaterialTheme.colorScheme.primary,
+                        CircleShape
+                    ),
+                onClick = {
+                    takePicture(
+                        context = context,
+                        imageCapture = imageCapture.value!!,
+                        onImageSaved = { path ->
+                            addToDatabase(MimeTypeEnum.IMAGE.toString(), path)
+                            onTakePicture()
+                        },
+                        onError = { exception ->
+                            Log.e("Error", exception.localizedMessage ?: "Unknown error")
+                        }
+                    )
+                },
+            ) {
+                Icon(
+                    imageVector = Icons.Default.PhotoCamera,
+                    tint = Color.White,
+                    contentDescription = "TakeAPicture",
+                    modifier = Modifier.fillMaxSize(0.5f)
+                )
             }
         }
     }
 
     @Composable
-    fun ShowChat(
-        visualMediaPicker: ManagedActivityResultLauncher<PickVisualMediaRequest, Uri?>,
-        onCreateConnectedToNote: (MimeTypeEnum, String) -> Unit,
-        onShowCamera: () -> Unit,
-    ) {
+    fun ShowChat(onShowCamera: () -> Unit) {
+        val visualMediaPicker = mediaPicker(context = LocalContext.current) { path, mimeType ->
+            if (path != null && mimeType != null) {
+                addToDatabase(
+                    mimeTypeString = mimeType,
+                    contentOrPath = path
+                )
+            }
+        }
+
         Scaffold(
             topBar = {
                 CustomTopAppBar(
                     title = "Daily note",
                     onNavigationClick = upPress,
-                    onOverflowClick = { /* Handle overflow menu click */ }
+                    onOverflowClick = { /* TODO: overflow menu click */ }
                 )
             },
             bottomBar = {
@@ -136,42 +185,28 @@ class ChatNotes(
                             )
                         )
                     },
-                    audioRecorder = AudioRecorder(),
+                    audioRecorder = audioRecorder,
                     onAudioRecorderFinished = { path ->
-                        onCreateConnectedToNote(
-                            MimeTypeEnum.SOUND,
-                            path
+                        if (path == null)
+                            return@MessageCreationRow
+
+                        addToDatabase(
+                            mimeTypeString = MimeTypeEnum.SOUND.toString(),
+                            contentOrPath = path
                         )
                     },
                     onCameraClick = onShowCamera,
-                    onSendClick = { content -> onCreateConnectedToNote(MimeTypeEnum.TEXT, content) }
+                    onSendClick = { content ->
+                        addToDatabase(
+                            mimeTypeString = MimeTypeEnum.TEXT.toString(),
+                            contentOrPath = content
+                        )
+                    }
                 )
             }
         ) { innerPadding ->
             ChatContent(paddingValues = innerPadding)
         }
-    }
-
-    @Composable
-    fun ConfiguredCameraPreview(
-        onCreateImage: (MimeTypeEnum, String) -> Unit,
-        onTakePicture: () -> Unit
-    ) {
-        val context = LocalContext.current
-
-        TakePicture(
-            context = context,
-            imageCapture = cameraPreview(Modifier.fillMaxSize()),
-            onImageSaved = { path ->
-                onCreateImage(MimeTypeEnum.IMAGE, path)
-                onTakePicture()
-            },
-            onError = { imageCaptureException ->
-                imageCaptureException.localizedMessage?.let {
-                    Log.e("Error", it)
-                }
-            }
-        )
     }
 
     @Composable
@@ -240,7 +275,7 @@ fun MessageRow(connectedToNote: ConnectedToNote) {
 
                 else -> {
                     Text(
-                        text = "ŁOT DE HEEEL",
+                        text = "ERROR!",
                         style = MaterialTheme.typography.bodyMedium,
                         modifier = messageModifier
                     )
@@ -256,11 +291,12 @@ fun MessageRow(connectedToNote: ConnectedToNote) {
 fun MessageCreationRow(
     modifier: Modifier = Modifier,
     audioRecorder: AudioRecorder,
-    onAudioRecorderFinished: (String) -> Unit,
+    onAudioRecorderFinished: (String?) -> Unit,
     onAttachmentClick: () -> Unit,
     onCameraClick: () -> Unit,
     onSendClick: (String) -> Unit
 ) {
+    val context = LocalContext.current
     var text by remember { mutableStateOf("") }
 
     Surface(
@@ -275,20 +311,17 @@ fun MessageCreationRow(
             verticalAlignment = Alignment.CenterVertically
         ) {
 
-            IconButton(onClick = { /* This is required but will not be used */ },
-                modifier = Modifier.pointerInteropFilter { event ->
-                    when (event.action) {
-                        MotionEvent.ACTION_DOWN -> {
-                            audioRecorder.startRecording()
-                        }
-
-                        MotionEvent.ACTION_UP, MotionEvent.ACTION_CANCEL -> {
-                            audioRecorder.stopRecording()
-                            onAudioRecorderFinished(audioRecorder.getFilePath())
-                        }
+            AnimatedIconButton(
+                onActionDown = {
+                    audioRecorder.startRecording { path ->
+                        getPrivateStorageFileFromFilePath(
+                            context,
+                            path
+                        )
                     }
-                    true // Return true to capture the event
-                }) {
+                },
+                onActionUp = { onAudioRecorderFinished(audioRecorder.stopRecording()) }
+            ) {
                 Icon(Icons.Default.Mic, contentDescription = "Record")
             }
 

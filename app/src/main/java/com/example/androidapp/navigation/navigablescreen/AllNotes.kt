@@ -68,6 +68,7 @@ import com.example.androidapp.R
 import com.example.androidapp.TestTags
 import com.example.androidapp.database.model.Note
 import com.example.androidapp.database.viewmodel.DayViewModel
+import com.example.androidapp.media.getPrivateStorageFileFromFilePath
 import com.example.androidapp.settings.NoteSortOptionEnum
 import com.example.androidapp.settings.SettingsRepository
 import com.example.androidapp.settings.SettingsViewModel
@@ -220,7 +221,7 @@ class AllNotes(
                  else {
                    var painter = painterResource(id = R.drawable.pen)
             if (note.noteImageUri != null) {
-                val file = File(context.filesDir, note.noteImageUri!!)
+                val file = getPrivateStorageFileFromFilePath(context, note.noteImageUri!!)
                 if (file.exists()) {
                     val imageUri = Uri.fromFile(file)
                     painter = rememberAsyncImagePainter(model = imageUri)

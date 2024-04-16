@@ -12,21 +12,30 @@ import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import android.Manifest
 
-const val REQUEST_AUDIO_PERMISSION = 200
-const val REQUEST_VIDEO_PERMISSION = 201
+const val REQUEST_CODE_PERMISSIONS = 101
+
+val REQUIRED_PERMISSIONS = arrayOf(
+    Manifest.permission.RECORD_AUDIO,
+    Manifest.permission.CAMERA
+)
 
 class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        requestPermission(Manifest.permission.RECORD_AUDIO, REQUEST_AUDIO_PERMISSION)
-        requestPermission(Manifest.permission.CAMERA, REQUEST_VIDEO_PERMISSION)
-
         enableEdgeToEdge()
         super.onCreate(savedInstanceState)
         window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
 
         setContent {
             UniqrnApp()
+        }
+
+        if (!allPermissionsGranted()) {
+            ActivityCompat.requestPermissions(
+                this,
+                REQUIRED_PERMISSIONS,
+                REQUEST_CODE_PERMISSIONS
+            )
         }
     }
 
@@ -37,24 +46,18 @@ class MainActivity : ComponentActivity() {
         grantResults: IntArray
     ) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        when (requestCode) {
-            REQUEST_AUDIO_PERMISSION -> requestedPermissionAction(grantResults)
-            REQUEST_VIDEO_PERMISSION -> requestedPermissionAction(grantResults)
+        if (requestCode == REQUEST_CODE_PERMISSIONS) {
+            if (grantResults.isNotEmpty() && grantResults.all { it == PackageManager.PERMISSION_GRANTED }) {
+                // All permissions are granted
+            } else {
+                // Permissions not granted. You can notify the user and close the app or disable certain features.
+            }
         }
     }
 
-    private fun requestPermission(permissionName: String, permissionNumber: Int) {
-        if (ContextCompat.checkSelfPermission(this, permissionName) != permissionNumber) {
-            ActivityCompat.requestPermissions(this, arrayOf(permissionName), permissionNumber)
-        }
-    }
 
-    private fun requestedPermissionAction(grantResults: IntArray) {
-        if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-            // granted
-        } else {
-            // denied
-        }
+    private fun allPermissionsGranted() = REQUIRED_PERMISSIONS.all {
+        ContextCompat.checkSelfPermission(baseContext, it) == PackageManager.PERMISSION_GRANTED
     }
 
 }

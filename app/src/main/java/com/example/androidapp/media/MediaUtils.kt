@@ -15,10 +15,14 @@ val String.fileNameExtension: String
 val Uri.fileNameExtension: String
     get() = MimeTypeMap.getFileExtensionFromUrl(this.toString())
 
+fun getPrivateStorageFileFromFilePath(context: Context, filePath: String): File {
+    return File(context.filesDir, filePath)
+}
+
 fun getPrivateStorageUri(context: Context, filePath: String): Uri? {
-    val file = File(context.filesDir, filePath)
+    val file = getPrivateStorageFileFromFilePath(context, filePath)
     if (!file.exists())
-        return null;
+        return null
 
     return Uri.fromFile(file)
 }
@@ -48,3 +52,5 @@ fun generateFilenameFromUri(uri: Uri): String {
 fun generateUUID(): String {
     return UUID.randomUUID().toString()
 }
+
+

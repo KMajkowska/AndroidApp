@@ -1,29 +1,30 @@
 package com.example.androidapp.media
 
-import android.Manifest
-import android.app.Activity
-import android.content.Context
-import android.content.pm.PackageManager
 import android.media.MediaRecorder
-import androidx.core.app.ActivityCompat
-import androidx.core.content.ContextCompat
+import java.io.File
 import java.io.IOException
 
 class AudioRecorder {
     private var mediaRecorder: MediaRecorder? = null
     private var isRecording = false
-    private var filePath: String = ""
+    private var filePath: String? = null
 
-    fun startRecording() {
-        filePath = "${generateUUID()}.mp3"
+    fun startRecording(getAudioFilePath: (String) -> File) {
+        if (isRecording)
+            return
+
+        val tempFileName = "${generateUUID()}.mp3"
+
         mediaRecorder = MediaRecorder().apply {
             setAudioSource(MediaRecorder.AudioSource.MIC)
             setOutputFormat(MediaRecorder.OutputFormat.THREE_GPP)
             setAudioEncoder(MediaRecorder.AudioEncoder.AMR_NB)
-            setOutputFile(filePath)
+            setOutputFile(getAudioFilePath(tempFileName))
+
             try {
                 prepare()
                 start()
+                filePath = tempFileName
                 isRecording = true
             } catch (e: IOException) {
                 e.printStackTrace()
@@ -31,14 +32,17 @@ class AudioRecorder {
         }
     }
 
-    fun stopRecording() {
+    fun stopRecording(): String? {
+        val returnFilePath = filePath
+
         if (isRecording) {
             mediaRecorder?.stop()
             mediaRecorder?.release()
             mediaRecorder = null
             isRecording = false
+            filePath = null
         }
-    }
 
-    fun getFilePath() = filePath
+        return returnFilePath
+    }
 }
