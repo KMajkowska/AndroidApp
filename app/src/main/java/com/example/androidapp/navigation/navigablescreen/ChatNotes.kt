@@ -7,6 +7,8 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.camera.core.ImageCapture
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
@@ -42,19 +44,22 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.input.pointer.pointerInteropFilter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import com.example.androidapp.Dialog
 import com.example.androidapp.animations.AnimatedIconButton
 import com.example.androidapp.database.model.ConnectedToNote
 import com.example.androidapp.database.viewmodel.DayViewModel
@@ -101,7 +106,6 @@ class ChatNotes(
                 showCamera = true
             }
         }
-
     }
 
     @Composable
@@ -211,6 +215,11 @@ class ChatNotes(
 
     @Composable
     fun ChatContent(paddingValues: PaddingValues) {
+        val defaultLongValue = -1L
+
+        var isDeleteDialogShown by remember { mutableStateOf(false) }
+        var currentItemToDelete by remember { mutableLongStateOf(defaultLongValue) }
+
         val connectedToDays = mDayViewModel
             .getConnectedToNoteByNoteId(noteForeignId)
             .observeAsState(initial = listOf())
@@ -218,19 +227,52 @@ class ChatNotes(
 
         val stableConnectedToDays = remember(connectedToDays) { connectedToDays }
 
+        DeleteConnectedToNoteDialog(
+            isShown = isDeleteDialogShown,
+            onConfirmDelete = {
+                if (currentItemToDelete != defaultLongValue) {
+                    mDayViewModel.deleteConnectedToNoteById(currentItemToDelete)
+                }
+
+                isDeleteDialogShown = false
+                currentItemToDelete = defaultLongValue
+            }, onDismissDelete = {
+                isDeleteDialogShown = false
+                currentItemToDelete = defaultLongValue
+            })
+
         LazyColumn(
             modifier = Modifier.padding(paddingValues),
             reverseLayout = true
         ) {
-            items(items = stableConnectedToDays, key = { it.id!! }) { connectedToDay ->
-                MessageRow(connectedToNote = connectedToDay)
+            items(items = stableConnectedToDays, key = { it.id!! }) { connectedToNote ->
+
+                val deleteDialog = {
+                    currentItemToDelete = connectedToNote.id!!
+                    isDeleteDialogShown = true
+                }
+
+                MessageRow(
+                    modifier = Modifier
+                        .pointerInput(isDeleteDialogShown) {
+                            detectTapGestures(
+                                onLongPress = { _ -> deleteDialog() }
+                            )
+                        },
+                    connectedToNote = connectedToNote,
+                    onLongPress = deleteDialog
+                )
             }
         }
     }
 }
 
 @Composable
-fun MessageRow(connectedToNote: ConnectedToNote) {
+fun MessageRow(
+    modifier: Modifier = Modifier,
+    connectedToNote: ConnectedToNote,
+    onLongPress: () -> Unit = {}
+) {
     val messageModifier = Modifier
         .size(250.dp)
         .clip(RoundedCornerShape(12.dp))
@@ -238,12 +280,11 @@ fun MessageRow(connectedToNote: ConnectedToNote) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(8.dp),
+            .padding(8.dp)
+            .then(modifier),
         horizontalArrangement = Arrangement.End
     ) {
-        Card(
-            modifier = Modifier.padding(4.dp)
-        ) {
+        Card(modifier = Modifier.padding(4.dp)) {
             when (MimeTypeEnum.getMimeTypeEnumFromString(connectedToNote.mimeType)) {
                 MimeTypeEnum.TEXT -> {
                     Text(
@@ -270,7 +311,11 @@ fun MessageRow(connectedToNote: ConnectedToNote) {
                 }
 
                 MimeTypeEnum.SOUND -> {
-                    AudioPlayer(audioPath = connectedToNote.contentOrPath)
+                    AudioPlayer(
+                        audioPath = connectedToNote.contentOrPath,
+                        modifier = modifier,
+                        onLongPress = onLongPress
+                    )
                 }
 
                 else -> {
@@ -286,7 +331,6 @@ fun MessageRow(connectedToNote: ConnectedToNote) {
     }
 }
 
-@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun MessageCreationRow(
     modifier: Modifier = Modifier,
@@ -376,5 +420,20 @@ fun CustomTopAppBar(
                 Icon(Icons.Default.MoreVert, contentDescription = "More")
             }
         }
+    )
+}
+
+@Composable
+fun DeleteConnectedToNoteDialog(
+    isShown: Boolean,
+    onConfirmDelete: () -> Unit,
+    onDismissDelete: () -> Unit
+) {
+    Dialog(
+        isShown = isShown,
+        title = "Delete Confirmation",
+        text = "Are you sure you want to delete this item?",
+        onConfirm = onConfirmDelete,
+        onDismiss = onDismissDelete
     )
 }

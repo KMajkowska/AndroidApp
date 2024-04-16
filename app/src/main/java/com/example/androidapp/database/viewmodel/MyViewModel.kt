@@ -61,10 +61,18 @@ class DayViewModel(
         }
     }
 
-    fun deleteConnectedToDay(connectedToNote: ConnectedToNote) {
+    fun deleteConnectedToNote(connectedToNote: ConnectedToNote) {
         viewModelScope.launch(Dispatchers.IO) {
             connectedToNote.doBeforeDeletingRecord()
             repository.deleteConnectedToNote(connectedToNote)
+        }
+    }
+
+    fun deleteConnectedToNoteById(id: Long) {
+        viewModelScope.launch(Dispatchers.IO) {
+            val found = repository.getConnectedToNoteById(id)
+            if (found != null)
+                deleteConnectedToNote(found)
         }
     }
 

@@ -82,7 +82,7 @@ fun AddBackgroundToComposables(vararg composables: @Composable () -> Unit) {
                         endY = Float.POSITIVE_INFINITY
                     )
                 } else {
-                    if (isDarkTheme){
+                    if (isDarkTheme) {
                         Brush.verticalGradient(
                             colors = listOf(
                                 DarkerPurple,
@@ -141,47 +141,28 @@ fun HorizontalDivider() {
 
 @Composable
 fun Dialog(
+    isShown: Boolean,
+    title: String,
     text: String,
-    functionCall: () -> Unit
+    onConfirm: () -> Unit,
+    onDismiss: () -> Unit
 ) {
-    val showDialog = remember { mutableStateOf(false) }
-
-    if (showDialog.value) {
+    if (isShown) {
         AlertDialog(
-            onDismissRequest = {
-                showDialog.value = false
-            },
-            title = {
-                Text(text)
-            },
+            onDismissRequest = onDismiss,
+            title = { Text(title) },
+            text = { Text(text) },
             confirmButton = {
-                Button(
-                    onClick = {
-                        functionCall()
-                        showDialog.value = false
-                    }
-                ) {
+                Button(onClick = onConfirm) {
                     Icon(imageVector = Icons.Default.Check, contentDescription = "Confirm")
                 }
             },
             dismissButton = {
-                Button(
-                    onClick = {
-                        showDialog.value = false
-                    }
-                ) {
+                Button(onClick = onDismiss) {
                     Icon(imageVector = Icons.Default.Close, contentDescription = "Close")
                 }
             }
         )
-    }
-
-    Button(
-        onClick = {
-            showDialog.value = true
-        }
-    ) {
-        Text(text)
     }
 }
 

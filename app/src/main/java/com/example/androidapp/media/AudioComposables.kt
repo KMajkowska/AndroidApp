@@ -7,6 +7,7 @@ import android.net.Uri
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectDragGestures
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -38,7 +39,7 @@ import kotlinx.coroutines.isActive
 import java.nio.ByteBuffer
 
 @Composable
-fun AudioPlayer(audioPath: String) {
+fun AudioPlayer(audioPath: String, modifier: Modifier = Modifier, onLongPress: () -> Unit = {}) {
     val context = LocalContext.current
     val audioUri = getPrivateStorageUri(context, audioPath)
     val exoPlayer = remember { ExoPlayer.Builder(context).build() }
@@ -59,11 +60,21 @@ fun AudioPlayer(audioPath: String) {
         }
     }
 
-    WaveformView(player = exoPlayer, waveform = waveform)
+    WaveformView(
+        player = exoPlayer,
+        waveform = waveform,
+        modifier = modifier,
+        onLongPress = onLongPress
+    )
 }
 
 @Composable
-fun WaveformView(player: ExoPlayer, waveform: List<Float>) {
+fun WaveformView(
+    player: ExoPlayer,
+    waveform: List<Float>,
+    modifier: Modifier = Modifier,
+    onLongPress: () -> Unit = {}
+) {
     val isPlaying = remember { mutableStateOf(false) }
     val playbackProgress = remember { mutableFloatStateOf(0f) }
     val currentTime = remember { mutableStateOf("0:00") }
@@ -88,7 +99,7 @@ fun WaveformView(player: ExoPlayer, waveform: List<Float>) {
             .height(100.dp)
     ) {
 
-        Canvas(modifier = Modifier
+        Canvas(modifier = modifier.then(Modifier
             .fillMaxSize()
             .pointerInput(Unit) {
                 detectDragGestures { change, _ ->
@@ -98,16 +109,17 @@ fun WaveformView(player: ExoPlayer, waveform: List<Float>) {
                     player.seekTo(positionMs)
                 }
             }
-            .clickable {
-                if (player.duration <= player.currentPosition) {
-                    isPlaying.value = true
-                    player.seekTo(0)
-                } else {
-                    isPlaying.value = !isPlaying.value
+            .pointerInput(isPlaying) {
+                detectTapGestures(onLongPress = { _ -> onLongPress() }) {
+                    if (player.duration <= player.currentPosition) {
+                        isPlaying.value = true
+                        player.seekTo(0)
+                    } else {
+                        isPlaying.value = !isPlaying.value
+                    }
+                    player.playWhenReady = isPlaying.value
                 }
-                player.playWhenReady = isPlaying.value
-
-            }
+            })
         ) {
             val maxAmplitude = waveform.maxOrNull() ?: 1f
             val widthPerBar = size.width / waveform.size
