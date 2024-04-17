@@ -33,7 +33,9 @@ import com.example.androidapp.settings.SettingsViewModelFactory
 import com.example.androidapp.ui.theme.AndroidAppTheme
 import com.example.androidapp.ui.theme.LanguageAwareScreen
 import java.time.LocalDate
+import kotlin.reflect.KFunction1
 
+var defaultPicture = R.drawable.pen
 @Composable
 fun UniqrnApp() {
     val navController = rememberNavHostController()
@@ -47,6 +49,12 @@ fun UniqrnApp() {
     val isUniqrnTheme by mSettingsViewModel.isUniqrnModeEnabled.observeAsState(true)
     val areNotificationsEnabled by mSettingsViewModel.areNotificationsEnabled.observeAsState(true)
 
+    defaultPicture = if (isUniqrnTheme == true){
+         R.drawable.uniqrn_app
+    }
+    else {
+        R.drawable.pen
+    }
     val notificationHelper = NotificationHelper(LocalContext.current, areNotificationsEnabled)
     val mDayViewModel: DayViewModel = viewModel(
         factory = DayViewModelFactory(LocalContext.current.applicationContext as Application, notificationHelper)
@@ -64,7 +72,8 @@ fun UniqrnApp() {
                     upPress = navController::upPress,
                     onNavigateToRoute = navController::navigateToBottomBarRoute,
                     mDayViewModel = mDayViewModel,
-                    mSettingsViewModel = mSettingsViewModel
+                    mSettingsViewModel = mSettingsViewModel,
+                    onSettingsClick = navController::navigateToSettings,
                 )
             }
         }
@@ -104,7 +113,8 @@ fun UniqrnAppSettings(
                     upPress = navController::upPress,
                     onNavigateToRoute = navController::navigateToBottomBarRoute,
                     mDayViewModel = mDayViewModel,
-                    mSettingsViewModel = mSettingsViewModel
+                    mSettingsViewModel = mSettingsViewModel,
+                    onSettingsClick = navController::navigateToSettings
                 )
             }
         }
@@ -117,10 +127,11 @@ private fun NavGraphBuilder.unqirnNavGraph(
     onDaySelected: (LocalDate, NavBackStackEntry) -> Unit,
     onNoteSelected: (Long, LocalDate?, NavBackStackEntry) -> Unit,
     upPress: () -> Unit,
-    onNavigateToRoute: (String) -> Unit
+    onNavigateToRoute: (String) -> Unit,
+    onSettingsClick: () -> Unit,
 ) {
     val localDateConverter = LocalDateConverter()
-    val tabs = listOf(NavItem.ALL_NOTES, NavItem.CALENDAR, NavItem.DAYS, NavItem.SETTINGS)
+    val tabs = listOf(NavItem.ALL_NOTES, NavItem.CALENDAR, NavItem.DAYS) //NavItem.SETTINGS)
 
     //args
     val noteId = "noteId"
@@ -136,6 +147,7 @@ private fun NavGraphBuilder.unqirnNavGraph(
             AllNotes(
                 mDayViewModel,
                 LocalDate.now(),
+                {onSettingsClick()},
                 { noteId -> onNoteSelected(noteId, null, backStackEntry) }
             ) { date -> onDaySelected(date, backStackEntry) }, onNavigateToRoute
         )
@@ -179,13 +191,20 @@ private fun NavGraphBuilder.unqirnNavGraph(
         )
     }
 
-    composable(route = ScreenRoutes.SETTINGS) { _ ->
-        CustomBottomNavigation(
-            tabs,
-            ScreenRoutes.SETTINGS,
-            SettingsScreen(onNavigateToRoute, mSettingsViewModel),
-            onNavigateToRoute
-        )
+//    composable(route = ScreenRoutes.SETTINGS) { _ ->
+//        CustomBottomNavigation(
+//            tabs,
+//            ScreenRoutes.SETTINGS,
+//            SettingsScreen(onNavigateToRoute, mSettingsViewModel, upPress),
+//            onNavigateToRoute
+//        )
+//    }
+
+    composable(
+        route = ScreenRoutes.SETTINGS
+    ) { _ ->
+            SettingsScreen(onNavigateToRoute, mSettingsViewModel, upPress).ViewWithBackground()
+
     }
 
     composable(

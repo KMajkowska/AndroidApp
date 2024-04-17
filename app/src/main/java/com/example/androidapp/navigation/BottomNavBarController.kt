@@ -2,7 +2,6 @@ package com.example.androidapp.navigation
 
 import androidx.annotation.StringRes
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -12,8 +11,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AddAlarm
 import androidx.compose.material.icons.filled.AddCircle
 import androidx.compose.material.icons.filled.CalendarMonth
-import androidx.compose.material.icons.outlined.Settings
-import androidx.compose.material.ripple.rememberRipple
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
@@ -25,11 +22,9 @@ import androidx.compose.runtime.Stable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.unit.dp
 import androidx.lifecycle.Lifecycle
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavDestination
@@ -59,7 +54,7 @@ enum class NavItem(
     ALL_NOTES(R.string.all_notes, Icons.Default.AddCircle, ScreenRoutes.ALL_NOTES),
     CALENDAR(R.string.calendar, Icons.Default.CalendarMonth, ScreenRoutes.CALENDAR),
     DAYS(R.string.days, Icons.Default.AddAlarm, ScreenRoutes.DAYS),
-    SETTINGS(R.string.settings, Icons.Outlined.Settings, ScreenRoutes.SETTINGS),
+    //SETTINGS(R.string.settings, Icons.Outlined.Settings, ScreenRoutes.SETTINGS),
 }
 
 @Composable
@@ -100,7 +95,7 @@ fun CustomBottomNavigation(
                             }
                         }
                         .background(MaterialTheme.colorScheme.primary// Set the background color for the selected item)
-                ))
+                        ))
             }
         }
     }, content = { padding ->
@@ -151,6 +146,10 @@ class BottomNavBarController(val navController: NavHostController) {
                 "${ScreenRoutes.CREATE_NOTE}?noteId=$noteId" +
                         if (localDate == null) "" else "&localDate=${localDateConverter.fromLocalDate(localDate)}"
             )
+    }
+
+    fun navigateToSettings(){
+        navController.navigate(ScreenRoutes.SETTINGS)
     }
 }
 
