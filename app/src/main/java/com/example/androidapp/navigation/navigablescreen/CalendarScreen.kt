@@ -57,6 +57,7 @@ import androidx.compose.ui.viewinterop.AndroidView
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.androidapp.R
 import com.example.androidapp.TestTags
+import com.example.androidapp.database.model.DayEntity
 import com.example.androidapp.database.model.DayWithTodosAndEvents
 import com.example.androidapp.database.viewmodel.DayViewModel
 import com.example.androidapp.settings.SettingsRepository
@@ -132,11 +133,10 @@ class CalendarScreen(
                     modifier = Modifier.weight(1f)
                 ) {
                     CalendarView(
-                        expanded = isCalendarExpanded
-                    ) { chosenDate ->
-                        dayEntity = mDayViewModel.getDayByDate(chosenDate)
-                        selectedNote = mDayViewModel.getNoteByDate(chosenDate)
-                    }
+                        expanded = isCalendarExpanded,
+                        dayEntity,
+                        onDaySelected
+                    )
                 }
 
                 LazyColumn(
@@ -158,7 +158,8 @@ class CalendarScreen(
     @Composable
     fun CalendarView(
         expanded: MutableState<Boolean>,
-        onChangeDate: (LocalDate) -> Unit
+        day: DayEntity,
+        onDaySelected: (LocalDate) -> Unit,
     ) {
         val mSettingsViewModel: SettingsViewModel = viewModel(
             factory = SettingsViewModelFactory(SettingsRepository(LocalContext.current))
@@ -179,27 +180,31 @@ class CalendarScreen(
                                 context,
                                 if (isUniqrnMode && isDarkMode) R.style.CalendarTextAppearance_DarkUnicorn
                                 else if (isDarkMode) R.style.CalendarTextAppearance_Dark
-                                else if(isUniqrnMode) R.style.CalendarTextAppearance_Unicorn
-                                else {
-                                    R.style.CalendarTextAppearance_Light
-                                }
+                                else if (isUniqrnMode) R.style.CalendarTextAppearance_Unicorn
+                                else R.style.CalendarTextAppearance_Light
                             )
                             CalendarView(themedContext).apply {
                                 layoutParams = ViewGroup.LayoutParams(
                                     ViewGroup.LayoutParams.MATCH_PARENT,
                                     ViewGroup.LayoutParams.MATCH_PARENT,
                                 )
+                                setOnDateChangeListener { _, year, month, dayOfMonth ->
+                                    val selectedDate = LocalDate.of(year, month + 1, dayOfMonth)
+                                    onDaySelected(selectedDate)
+                                }
                             }
                         },
                         modifier = Modifier.fillMaxSize(),
                         update = { calendarView ->
                             val calendar = Calendar.getInstance()
                             val chosenDateInMillis: Long = calendar.apply {
-                                set(Calendar.YEAR, localDate.year)
-                                set(Calendar.MONTH, localDate.monthValue - 1)
-                                set(Calendar.DAY_OF_MONTH, localDate.dayOfMonth)
+                                set(Calendar.YEAR, day.date.year)
+                                set(Calendar.MONTH, day.date.monthValue - 1)
+                                set(Calendar.DAY_OF_MONTH, day.date.dayOfMonth)
                             }.timeInMillis
-                            
+
+                            // Initially select the current date in the calendar
+                            calendarView.setDate(chosenDateInMillis)
                         }
                     )
                 }
