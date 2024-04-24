@@ -69,14 +69,9 @@ class DaysScreen(
     private val onNoteClick: (Long, LocalDate) -> Unit
 ) : NavigableScreen() {
 
-    @Composable
-    override fun View() {
-        TODO("Not yet implemented")
-    }
-
     @RequiresApi(Build.VERSION_CODES.S)
     @Composable
-    override fun ViewWithBackground() {
+    override fun View() {
         var dayEntity by remember { mutableStateOf(mDayViewModel.getDayByDate(localDate)) }
         var selectedNote by remember { mutableStateOf(mDayViewModel.getNoteByDate(localDate)) }
 
@@ -84,6 +79,7 @@ class DaysScreen(
             DayDataView(dayEntity, selectedNote)
         }
     }
+
 
     @RequiresApi(Build.VERSION_CODES.S)
     @Composable

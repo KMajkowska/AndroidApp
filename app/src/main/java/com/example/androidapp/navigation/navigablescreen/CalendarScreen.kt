@@ -27,10 +27,17 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.AcUnit
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.ArrowDownward
 import androidx.compose.material.icons.filled.ArrowForward
 import androidx.compose.material.icons.filled.ArrowUpward
+import androidx.compose.material.icons.filled.LocalFlorist
+import androidx.compose.material.icons.filled.QuestionMark
+import androidx.compose.material.icons.filled.WbSunny
+import androidx.compose.material.icons.outlined.Eco
+import androidx.compose.material.icons.outlined.LocalFlorist
+import androidx.compose.material.icons.outlined.WbSunny
 import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -48,6 +55,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
@@ -64,6 +73,7 @@ import com.example.androidapp.settings.SettingsRepository
 import com.example.androidapp.settings.SettingsViewModel
 import com.example.androidapp.settings.SettingsViewModelFactory
 import java.time.LocalDate
+import java.time.Month
 import java.time.Year
 import java.time.YearMonth
 import java.time.format.DateTimeFormatter
@@ -130,7 +140,9 @@ class CalendarScreen(
                     visible = isCalendarExpanded.value,
                     enter = expandVertically(),
                     exit = shrinkVertically(),
-                    modifier = Modifier.weight(1f)
+                    modifier = Modifier
+                        .weight(1f)
+                        .animateContentSize()
                 ) {
                     CalendarView(
                         expanded = isCalendarExpanded,
@@ -238,7 +250,7 @@ class CalendarScreen(
                 color = MaterialTheme.colorScheme.onSecondary
             )
             Spacer(modifier = Modifier.height(4.dp))
-            if (isYearExpanded) {
+            if(isYearExpanded){
                 val groupedByYearMonth =
                     objects.groupBy { dayEntityWithRelated ->
                         YearMonth.from(
@@ -259,30 +271,62 @@ class CalendarScreen(
     ) {
         var isMonthExpanded by remember { mutableStateOf(true) }
 
+        val gradientColors = remember { generateGradientColors(objects) }
+        val colors = remember { generateColors(objects)}
+        val seasonColor = gradientColors.getValue(yearMonth)
+        val color = colors.getValue(yearMonth)
         Column(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(10.dp)
-                .background(MaterialTheme.colorScheme.primaryContainer),
+                //.background(MaterialTheme.colorScheme.primaryContainer),
+                .background(seasonColor),
         ) {
-            Text(
-                text = yearMonth.month.getDisplayName(TextStyle.FULL_STANDALONE, LocalContext.current.resources.configuration.locale).uppercase(),
-                style = LocalTextStyle.current.copy(color = MaterialTheme.colorScheme.onBackground, fontSize = 16.sp, fontWeight = FontWeight.Bold),
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(8.dp)
-                    .clickable { isMonthExpanded = !isMonthExpanded }
-                    .clip(RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp)),
-                color = MaterialTheme.colorScheme.onPrimaryContainer,
 
+            val seasonIcon = when (yearMonth.month) {
+                Month.DECEMBER, Month.JANUARY, Month.FEBRUARY -> Icons.Filled.AcUnit
+                Month.MARCH, Month.APRIL, Month.MAY -> Icons.Outlined.LocalFlorist
+                Month.JUNE, Month.JULY, Month.AUGUST -> Icons.Outlined.WbSunny
+                Month.SEPTEMBER, Month.OCTOBER, Month.NOVEMBER -> Icons.Outlined.Eco
+                else -> Icons.Filled.QuestionMark
+            }
+            Row(modifier = Modifier
+                .background(color)
+                ){
+                Icon(
+                    imageVector = seasonIcon,
+                    contentDescription = "Season Icon",
+                    tint = MaterialTheme.colorScheme.onPrimaryContainer,
+                    modifier = Modifier
+                        .padding(8.dp)
                 )
+                Text(
+                    text = yearMonth.month.getDisplayName(
+                        TextStyle.FULL_STANDALONE,
+                        LocalContext.current.resources.configuration.locale
+                    ).uppercase(),
+                    style = LocalTextStyle.current.copy(
+                        color = MaterialTheme.colorScheme.onBackground,
+                        fontSize = 16.sp,
+                        fontWeight = FontWeight.Bold
+                    ),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(8.dp)
+                        .clickable { isMonthExpanded = !isMonthExpanded }
+                        .clip(RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp)),
+                    color = MaterialTheme.colorScheme.onPrimaryContainer,
 
-            if(isMonthExpanded) {
-                objects.forEach { obj ->
-                    ObjectItem(obj, onDaySelected)
+                    )
+
+            }
+            
+                if (isMonthExpanded) {
+                    objects.forEach { obj ->
+                        ObjectItem(obj, onDaySelected)
+                    }
                 }
             }
-        }
     }
 
     @Composable
@@ -323,6 +367,61 @@ class CalendarScreen(
                 }
             }
         }
+    }
+
+    private fun generateColors(objects: List<DayWithTodosAndEvents>): Map<YearMonth, Color> {
+        return objects.map { dayWithTodosAndEvents ->
+            val yearMonth = YearMonth.from(dayWithTodosAndEvents.dayEntity.date)
+            val secondColor = when (yearMonth.month) {
+                Month.DECEMBER, Month.JANUARY, Month.FEBRUARY -> Color(0xFF3949AB)
+                Month.MARCH, Month.APRIL, Month.MAY -> Color(0xFF388E3C)
+                Month.JUNE, Month.JULY, Month.AUGUST -> Color(0xFFFFA500)
+                Month.SEPTEMBER, Month.OCTOBER, Month.NOVEMBER -> Color(0xFFF44336)
+                else -> Color.Black
+            }
+            yearMonth to secondColor
+        }.toMap()
+    }
+
+    private fun generateGradientColors(objects: List<DayWithTodosAndEvents>): Map<YearMonth, Brush> {
+        val distinctMonths = objects.map { YearMonth.from(it.dayEntity.date) }.distinct()
+        return distinctMonths.map { yearMonth ->
+            val seasonColor = when (yearMonth.month) {
+                Month.DECEMBER, Month.JANUARY, Month.FEBRUARY -> Brush.verticalGradient(
+                    listOf(
+                        Color(0xFF1A237E),
+                        Color(0xFF3949AB),
+                        Color(0xFF7986CB),
+
+                    )
+                )
+                Month.MARCH, Month.APRIL, Month.MAY -> Brush.verticalGradient(
+                    listOf(
+                        Color(0xFF1B5E20),
+                        Color(0xFF43A047),
+                        Color(0xFF81C784),
+
+                    )
+                )
+                Month.JUNE, Month.JULY, Month.AUGUST -> Brush.verticalGradient(
+                    listOf(
+                        Color(0xFFE65100),
+                        Color(0xFFFB8C00),
+                        Color(0xFFFFB74D),
+                    )
+                )
+                Month.SEPTEMBER, Month.OCTOBER, Month.NOVEMBER -> Brush.verticalGradient(
+                    listOf(
+                        Color(0xFFB71C1C),
+                        Color(0xFFF44336),
+                        Color(0xFFE57373),
+
+                    )
+                )
+                else -> Brush.verticalGradient(listOf(Color.Black))
+            }
+            yearMonth to seasonColor
+        }.toMap()
     }
 
     @Composable
