@@ -159,13 +159,21 @@ class DayViewModel(
         }
     }
 
-    fun addNewNote(note: Note) {
+    fun addNewNote(note: Note): Long {
         return runBlocking {
             withContext(Dispatchers.IO) {
                 repository.addNewNote(note)
             }
         }
     }
+
+    fun addNewEmptyNote() : Long {
+        return runBlocking {
+        withContext(Dispatchers.IO) {
+            repository.addNewNote(Note())
+        }
+    }
+}
 
     fun updateNote(note: Note) {
         viewModelScope.launch(Dispatchers.IO) {

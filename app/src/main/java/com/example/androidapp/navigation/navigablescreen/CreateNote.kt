@@ -1,3 +1,4 @@
+
 package com.example.androidapp.navigation.navigablescreen
 
 import android.annotation.SuppressLint
@@ -241,7 +242,7 @@ class CreateNote(
                             ) {
                                 if (titleValue.isEmpty()) {
                                     Text(
-                                        text = stringResource(id = R.string.note_title),
+                                        text = stringResource(id = R.string.title),
                                         fontSize = 18.sp,
                                         fontWeight = FontWeight.Normal,
                                         style = LocalTextStyle.current.copy(color = MaterialTheme.colorScheme.onSecondaryContainer)
@@ -285,7 +286,7 @@ class CreateNote(
                                 ) {
                                     if (noteValue.isEmpty()) {
                                         Text(
-                                            text = stringResource(id = R.string.note_content),
+                                            text = stringResource(id = R.string.note),
                                             fontSize = 18.sp,
                                             fontWeight = FontWeight.Normal,
                                             color = MaterialTheme.colorScheme.onSecondaryContainer,
@@ -362,5 +363,3 @@ fun CloseNotePopUp(
     )
 
 }
-
-

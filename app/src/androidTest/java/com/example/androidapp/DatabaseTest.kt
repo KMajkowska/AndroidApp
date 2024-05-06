@@ -7,7 +7,6 @@ import com.example.androidapp.database.MyDatabaseConnection
 import com.example.androidapp.database.model.DayEntity
 import com.example.androidapp.database.viewmodel.DayViewModel
 import com.example.androidapp.notifications.NotificationHelper
-import io.mockk.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.test.*
 import org.junit.After
@@ -216,7 +215,7 @@ class DayViewModelTest {
         assertNotNull(retrievedNoteAfterUpdate)
 
         assertEquals(retrievedNoteAfterUpdate!!.noteTitle, newNoteTitle)
-        assertEquals(retrievedNoteAfterUpdate.noteId, retrievedNote.noteId)
+        assertEquals(retrievedNoteAfterUpdate.id, retrievedNote.id)
     }
 
     @Test
@@ -231,7 +230,7 @@ class DayViewModelTest {
         assertTrue(retrievedNote.size == 1)
 
         assertEquals(retrievedNote[0].noteTitle, note.noteTitle)
-        assertNotEquals(retrievedNote[0].noteId, note.noteId)
+        assertNotEquals(retrievedNote[0].id, note.id)
     }
 
     @Test
@@ -244,8 +243,8 @@ class DayViewModelTest {
 
         val retrievedNote = dayViewModel.getNoteByDate(testDate)
         assertNotNull(retrievedNote)
-        assertNotNull(retrievedNote!!.noteId)
-        assertEquals(retrievedNote, dayViewModel.getNoteById(retrievedNote.noteId!!))
+        assertNotNull(retrievedNote!!.id)
+        assertEquals(retrievedNote, dayViewModel.getNoteById(retrievedNote.id!!))
     }
 
     /*-------------------- end::note entity tests --------------------*/

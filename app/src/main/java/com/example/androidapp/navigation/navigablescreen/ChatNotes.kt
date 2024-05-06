@@ -94,6 +94,12 @@ class ChatNotes(
 
     @Composable
     override fun View() {
+        if (noteForeignId < 0) {
+            return
+        }
+
+        val note = mDayViewModel.getNoteById(noteForeignId) ?: return
+
         var showCamera by remember { mutableStateOf(false) }
 
         if (showCamera) {
@@ -102,7 +108,7 @@ class ChatNotes(
             }
 
         } else {
-            ShowChat {
+            ShowChat(title = note.getNoteTitleIfSet(LocalContext.current)) {
                 showCamera = true
             }
         }
@@ -162,7 +168,7 @@ class ChatNotes(
     }
 
     @Composable
-    fun ShowChat(onShowCamera: () -> Unit) {
+    fun ShowChat(title: String, onShowCamera: () -> Unit) {
         val visualMediaPicker = mediaPicker(context = LocalContext.current) { path, mimeType ->
             if (path != null && mimeType != null) {
                 addToDatabase(
@@ -175,7 +181,7 @@ class ChatNotes(
         Scaffold(
             topBar = {
                 CustomTopAppBar(
-                    title = "Daily note",
+                    title = title,
                     onNavigationClick = upPress,
                     onOverflowClick = { /* TODO: overflow menu click */ }
                 )

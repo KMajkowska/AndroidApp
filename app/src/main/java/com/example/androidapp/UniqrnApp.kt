@@ -23,7 +23,6 @@ import com.example.androidapp.navigation.ScreenRoutes
 import com.example.androidapp.navigation.navigablescreen.AllNotes
 import com.example.androidapp.navigation.navigablescreen.CalendarScreen
 import com.example.androidapp.navigation.navigablescreen.ChatNotes
-import com.example.androidapp.navigation.navigablescreen.CreateNote
 import com.example.androidapp.navigation.navigablescreen.DaysScreen
 import com.example.androidapp.navigation.navigablescreen.FilePicker
 import com.example.androidapp.navigation.navigablescreen.SettingsScreen
@@ -37,7 +36,6 @@ import com.example.androidapp.ui.theme.AndroidAppTheme
 import com.example.androidapp.ui.theme.LanguageAwareScreen
 import kotlinx.coroutines.delay
 import java.time.LocalDate
-import kotlin.reflect.KFunction1
 
 var defaultPicture = R.drawable.pen
 @Composable
@@ -45,12 +43,10 @@ fun UniqrnApp() {
     val navController = rememberNavHostController()
     val current = LocalContext.current
     LaunchedEffect(key1 = true) {
-        val mediaPlayer = MediaPlayer.create(current, R.raw.music) // Replace R.raw.your_audio_file with your audio file
+        val mediaPlayer = MediaPlayer.create(current, R.raw.music)
         mediaPlayer.isLooping = true
         mediaPlayer.start()
-
-        // Delay to simulate loading time
-        delay(3000) // Adjust the delay time as needed
+        delay(3000)
     }
 
     val mSettingsViewModel: SettingsViewModel = viewModel(
@@ -62,7 +58,7 @@ fun UniqrnApp() {
     val isUniqrnTheme by mSettingsViewModel.isUniqrnModeEnabled.observeAsState(true)
     val areNotificationsEnabled by mSettingsViewModel.areNotificationsEnabled.observeAsState(true)
 
-    defaultPicture = if (isUniqrnTheme == true){
+    defaultPicture = if (isUniqrnTheme){
          R.drawable.uniqrn_app
     }
     else {
@@ -84,8 +80,7 @@ fun UniqrnApp() {
             ) {
                 unqirnNavGraph(
                     onDaySelected = navController::navigateToDayDetail,
-                    onNoteSelected = navController::navigateToNoteEditor,
-                    onDayChatNoteSelected = navController::navigateToDayChatNotes,
+                    onNoteSelected = navController::navigateToDayChatNotes,
                     upPress = navController::upPress,
                     onNavigateToRoute = navController::navigateToBottomBarRoute,
                     mDayViewModel = mDayViewModel,
@@ -103,10 +98,6 @@ fun UniqrnAppSettings(
     setting: LanguageEnum
 ) {
     val navController = rememberNavHostController()
-//
-//    val mSettingsViewModel: SettingsViewModel = viewModel(
-//        factory = SettingsViewModelFactory(SettingsRepository(LocalContext.current))
-//    )
 
     val selectedLanguage by mSettingsViewModel.selectedLanguage.observeAsState(setting)
     val isDarkTheme by mSettingsViewModel.isDarkTheme.observeAsState(true)
@@ -129,9 +120,9 @@ fun UniqrnAppSettings(
             ) {
                 unqirnNavGraph(
                     onDaySelected = navController::navigateToDayDetail,
-                    onNoteSelected = navController::navigateToNoteEditor,
                     upPress = navController::upPress,
                     onNavigateToRoute = navController::navigateToBottomBarRoute,
+                    onNoteSelected = navController::navigateToDayChatNotes,
                     mDayViewModel = mDayViewModel,
                     mSettingsViewModel = mSettingsViewModel,
                     onSettingsClick = navController::navigateToSettings
@@ -145,14 +136,13 @@ private fun NavGraphBuilder.unqirnNavGraph(
     mSettingsViewModel: SettingsViewModel,
     mDayViewModel: DayViewModel,
     onDaySelected: (LocalDate, NavBackStackEntry) -> Unit,
-    onNoteSelected: (Long, LocalDate?, NavBackStackEntry) -> Unit,
-    onDayChatNoteSelected: (Long, NavBackStackEntry) -> Unit,
-    upPress: () -> Unit,
+    onNoteSelected: (Long, NavBackStackEntry) -> Unit,
     onNavigateToRoute: (String) -> Unit,
     onSettingsClick: () -> Unit,
+    upPress: () -> Unit
 ) {
     val localDateConverter = LocalDateConverter()
-    val tabs = listOf(NavItem.ALL_NOTES, NavItem.CALENDAR, NavItem.DAYS) //NavItem.SETTINGS)
+    val tabs = listOf(NavItem.ALL_NOTES, NavItem.CALENDAR, NavItem.DAYS)
 
     val noteId = "noteId"
     val localDate = "localDate"
@@ -169,7 +159,7 @@ private fun NavGraphBuilder.unqirnNavGraph(
                 mDayViewModel,
                 LocalDate.now(),
                 {onSettingsClick()},
-                { noteId -> onNoteSelected(noteId, null, backStackEntry) }
+                { noteId -> onNoteSelected(noteId, backStackEntry) }
             ) { date -> onDaySelected(date, backStackEntry) }, onNavigateToRoute
         )
     }
@@ -201,10 +191,9 @@ private fun NavGraphBuilder.unqirnNavGraph(
             DaysScreen(
                 mDayViewModel,
                 getDateFromStringOrNow(arguments.getString(localDate), LocalDate.now())!!
-            ) { noteId, date ->
+            ) { noteId ->
                 onNoteSelected(
                     noteId,
-                    date,
                     backStackEntry
                 )
             },
@@ -212,44 +201,14 @@ private fun NavGraphBuilder.unqirnNavGraph(
         )
     }
 
-//    composable(route = ScreenRoutes.SETTINGS) { _ ->
-//        CustomBottomNavigation(
-//            tabs,
-//            ScreenRoutes.SETTINGS,
-//            SettingsScreen(onNavigateToRoute, mSettingsViewModel, upPress),
-//            onNavigateToRoute
-//        )
-//    }
-
     composable(
         route = ScreenRoutes.SETTINGS
     ) { _ ->
-            SettingsScreen(onNavigateToRoute, mSettingsViewModel, upPress).ViewWithBackground()
-
-    }
-
-    composable(
-        route = "${ScreenRoutes.CREATE_NOTE}?$noteId={$noteId}&$localDate={$localDate}",
-        arguments = listOf(
-            navArgument(noteId) {
-                defaultValue = -1
-                type = NavType.LongType
-            },
-            navArgument(localDate) {
-                nullable = true
-                defaultValue = null
-                type = NavType.StringType
-            }
-        )
-    ) { backStackEntry ->
-        val arguments = requireNotNull(backStackEntry.arguments)
-        val noteIdArgument = arguments.getLong(noteId, -1)
-        CreateNote(
-            mDayViewModel,
-            noteIdArgument,
-            getDateFromStringOrNow(arguments.getString(localDate), null),
-            upPress
-        ).ViewWithBackground()
+            SettingsScreen(
+                onNavigateToRoute,
+                mSettingsViewModel,
+                upPress
+            ).ViewWithBackground()
     }
 
     composable(route = ScreenRoutes.IMPORT_PICKER) { _ ->

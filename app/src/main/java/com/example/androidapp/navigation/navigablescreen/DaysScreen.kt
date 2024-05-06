@@ -66,7 +66,7 @@ import java.time.LocalDate
 class DaysScreen(
     private val mDayViewModel: DayViewModel,
     private val localDate: LocalDate,
-    private val onNoteClick: (Long, LocalDate) -> Unit
+    private val onNoteClick: (Long) -> Unit
 ) : NavigableScreen() {
 
     @Composable
@@ -77,8 +77,8 @@ class DaysScreen(
     @RequiresApi(Build.VERSION_CODES.S)
     @Composable
     override fun ViewWithBackground() {
-        var dayEntity by remember { mutableStateOf(mDayViewModel.getDayByDate(localDate)) }
-        var selectedNote by remember { mutableStateOf(mDayViewModel.getNoteByDate(localDate)) }
+        val dayEntity by remember { mutableStateOf(mDayViewModel.getDayByDate(localDate)) }
+        val selectedNote by remember { mutableStateOf(mDayViewModel.getNoteByDate(localDate)) }
 
         Surface(modifier = Modifier.testTag(TestTags.DAYS_SCREEN_VIEW)) {
             DayDataView(dayEntity, selectedNote)
@@ -93,6 +93,8 @@ class DaysScreen(
         var currentDayTitle by remember { mutableStateOf(dayEntity.dayTitle) }
         var hasDayTitleChanged = remember { mutableStateOf(false) }
 
+        val context = LocalContext.current
+
         DisposableEffect(
             dayEntity,
             selectedNote,
@@ -100,8 +102,8 @@ class DaysScreen(
             hasNoteBeenChanged
         ) {
             onDispose {
-                if ((currentDayTitle != dayEntity.dayTitle) || hasDayEntityBeenChanged.value ) {
-                    currentDayTitle =  dayEntity.dayTitle
+                if ((currentDayTitle != dayEntity.dayTitle) || hasDayEntityBeenChanged.value) {
+                    currentDayTitle = dayEntity.getDayTitleIfSet(context)
                     mDayViewModel.saveDayEntity(dayEntity)
                 }
 
@@ -120,7 +122,7 @@ class DaysScreen(
         ) {
             item {
                 TextEditorWithPreview(
-                    data = dayEntity.dayTitle,
+                    data = dayEntity.getDayTitleIfSet(LocalContext.current),
                     placeholder = stringResource(id = R.string.day_title)
                 ) { data, onCloseEditor ->
                     InlineTextEditor(
@@ -138,7 +140,7 @@ class DaysScreen(
                 HorizontalDivider()
 
                 NoteItem(selectedNote) { note ->
-                    onNoteClick(note?.id ?: -1, dayEntity.date)
+                    onNoteClick(note?.id ?: mDayViewModel.addNewNote(Note(noteDate = localDate)))
                     hasNoteBeenChanged = true
                 }
 
@@ -384,7 +386,8 @@ class DaysScreen(
                             Text(
                                 text = event.title,
                                 style = LocalTextStyle.current.copy(color = MaterialTheme.colorScheme.onBackground),
-                                modifier = Modifier.weight(1f)
+                                modifier = Modifier
+                                    .weight(1f)
                                     .padding(start = 8.dp)
                             )
                         }
@@ -428,25 +431,14 @@ fun NoteItem(note: Note?, onNoteClicked: (Note?) -> Unit) {
         Column {
             if (note != null) {
                 Text(
-                    text = note.noteTitle,
+                    text = "${stringResource(id = R.string.note)}: ${note.getNoteTitleIfSet(LocalContext.current)}",
                     style = TextStyle(fontSize = 18.sp, fontWeight = FontWeight.Bold)
                 )
-                val lines = note.content.lines().take(2)
-                lines.forEachIndexed { index, line ->
-                    Text(
-                        text = if (index == 1 && lines.size > 1) "$line..." else line,
-                        style = TextStyle(fontSize = 16.sp),
-                        maxLines = 1,  // Limit to one line
-                        overflow = TextOverflow.Ellipsis  // Indicate that the text might be truncated
-                    )
-                }
-            }
-            else {
+            } else {
                 Text(
                     text = stringResource(id = R.string.no_note),
                     style = TextStyle(fontSize = 18.sp, fontWeight = FontWeight.Bold)
                 )
-
             }
         }
 

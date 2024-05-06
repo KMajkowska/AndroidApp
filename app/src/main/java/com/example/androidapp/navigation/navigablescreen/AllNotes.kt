@@ -26,6 +26,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CalendarMonth
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Settings
@@ -73,6 +75,7 @@ import com.example.androidapp.R
 import com.example.androidapp.TestTags
 import com.example.androidapp.database.model.Note
 import com.example.androidapp.database.viewmodel.DayViewModel
+import com.example.androidapp.defaultPicture
 import com.example.androidapp.media.getPrivateStorageFileFromFilePath
 import com.example.androidapp.settings.NoteSortOptionEnum
 import com.example.androidapp.settings.SettingsRepository
@@ -163,7 +166,7 @@ class AllNotes(
                                     NoteItem(
                                         note = note,
                                         context = LocalContext.current,
-                                        onNoteClicked = { selectedNote -> onNoteClick(selectedNote.noteId!!) }
+                                        onNoteClicked = { selectedNote -> onNoteClick(selectedNote.id!!) }
                                     )
                                     Spacer(modifier = Modifier.height(8.dp))
                                 }
@@ -185,7 +188,7 @@ class AllNotes(
                         exit = slideOutVertically(targetOffsetY = { it * 2 }),
                     ) {
                         FloatingActionButton(
-                            onClick = { onNoteClick(-1) },
+                            onClick = { onNoteClick(mDayViewModel.addNewEmptyNote()) },
                             containerColor = MaterialTheme.colorScheme.primary,
                             contentColor = MaterialTheme.colorScheme.onPrimary,
                             shape = CircleShape,
@@ -279,7 +282,7 @@ class AllNotes(
                     .padding(start = 10.dp, top = 5.dp)
             ) {
                 Text(
-                    text = note.noteTitle,
+                    text = note.getNoteTitleIfSet(LocalContext.current),
                     style = LocalTextStyle.current.copy(
                         color = MaterialTheme.colorScheme.onBackground,
                         fontSize = 18.sp,

@@ -24,8 +24,7 @@
     <string name="sign_out">Sign out</string>
     <string name="delete_account">Delete account</string>
     <string name="unicorn">Unicorn mode</string>
-    <string name="note_title">Title</string>
-    <string name="note_content">Note</string>
+    <string name="note">Note</string>
     <string name="event_list">Events List</string>
     <string name="event_category_general">General</string>
     <string name="event_category_party">Party</string>
@@ -33,7 +32,8 @@
     <string name="event_category_sport">Sport</string>
     <string name="event_category_food">Food</string>
     <string name="event_category_entertainment">Entertainment</string>
-    <string name="no_note">No note available - click to add!</string>
+    <string name="no_note">No availible notes - click to add</string>
+    <string name="empty_title">&lt; No title was specified &gt;</string>
     <string name="days">Days</string>
     <string name="chat_notes">Chat notes</string>
     <string name="day_title">Day title</string>

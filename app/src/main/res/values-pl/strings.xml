@@ -22,8 +22,7 @@
     <string name="sign_out">Wyloguj się</string>
     <string name="delete_account">Usuń konto</string>
     <string name="unicorn">Tryb jednorożca</string>
-    <string name="note_title">Tytuł</string>
-    <string name="note_content">Notatka</string>
+    <string name="note">Notatka</string>
     <string name="event_list">Lista wydarzeń</string>
     <string name="event_category_general">Ogólne</string>
     <string name="event_category_party">Impreza</string>
@@ -31,7 +30,8 @@
     <string name="event_category_sport">Sport</string>
     <string name="event_category_food">Jedzenie</string>
     <string name="event_category_entertainment">Rozrywka</string>
-    <string name="no_note">Brak dostępnych notatek - kliknij, aby dodać!</string>
+    <string name="no_note">Brak notatek - kliknij, aby dodać</string>
+    <string name="empty_title">&lt; Brak tytułu &gt;</string>
     <string name="calendar">Kalendarz</string>
     <string name="settings">Ustawienia</string>
     <string name="days">Dni</string>

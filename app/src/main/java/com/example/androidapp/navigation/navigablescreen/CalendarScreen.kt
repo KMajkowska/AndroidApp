@@ -228,7 +228,11 @@ class CalendarScreen(
         ) {
             Text(
                 text = year.toString(),
-                style = LocalTextStyle.current.copy(color = MaterialTheme.colorScheme.onBackground, fontSize = 18.sp, fontWeight = FontWeight.Bold),
+                style = LocalTextStyle.current.copy(
+                    color = MaterialTheme.colorScheme.onBackground,
+                    fontSize = 18.sp,
+                    fontWeight = FontWeight.Bold
+                ),
                 modifier = Modifier
                     .fillMaxWidth()
                     .background(MaterialTheme.colorScheme.secondary)
@@ -251,6 +255,7 @@ class CalendarScreen(
             }
         }
     }
+
     @Composable
     fun MonthSquare(
         yearMonth: YearMonth,
@@ -266,8 +271,15 @@ class CalendarScreen(
                 .background(MaterialTheme.colorScheme.primaryContainer),
         ) {
             Text(
-                text = yearMonth.month.getDisplayName(TextStyle.FULL_STANDALONE, LocalContext.current.resources.configuration.locale).uppercase(),
-                style = LocalTextStyle.current.copy(color = MaterialTheme.colorScheme.onBackground, fontSize = 16.sp, fontWeight = FontWeight.Bold),
+                text = yearMonth.month.getDisplayName(
+                    TextStyle.FULL_STANDALONE,
+                    LocalContext.current.resources.configuration.locale
+                ).uppercase(),
+                style = LocalTextStyle.current.copy(
+                    color = MaterialTheme.colorScheme.onBackground,
+                    fontSize = 16.sp,
+                    fontWeight = FontWeight.Bold
+                ),
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(8.dp)
@@ -277,7 +289,7 @@ class CalendarScreen(
 
                 )
 
-            if(isMonthExpanded) {
+            if (isMonthExpanded) {
                 objects.forEach { obj ->
                     ObjectItem(obj, onDaySelected)
                 }
@@ -297,10 +309,15 @@ class CalendarScreen(
         ) {
             Spacer(modifier = Modifier.height(4.dp))
             Text(
-                text = "${obj.dayEntity.date.dayOfMonth},  ${obj.dayEntity.dayTitle}",
+                text = "${obj.dayEntity.date.dayOfMonth},  ${
+                    obj.dayEntity.getDayTitleIfSet(
+                        LocalContext.current
+                    )
+                }",
                 style = LocalTextStyle.current.copy(color = MaterialTheme.colorScheme.onBackground),
                 modifier = Modifier
-                    .padding(10.dp, 4.dp, 10.dp, 4.dp))
+                    .padding(10.dp, 4.dp, 10.dp, 4.dp)
+            )
 
             Spacer(modifier = Modifier.height(4.dp))
             //display events planned for the day
@@ -316,8 +333,10 @@ class CalendarScreen(
                         val icon = getCategoryIcon(event.category)
                         Icon(imageVector = icon, contentDescription = null)
                         Spacer(modifier = Modifier.width(8.dp))
-                        Text(text = event.title,
-                            style = LocalTextStyle.current.copy(color = MaterialTheme.colorScheme.onBackground))
+                        Text(
+                            text = event.title,
+                            style = LocalTextStyle.current.copy(color = MaterialTheme.colorScheme.onBackground)
+                        )
                     }
                     Spacer(modifier = Modifier.height(8.dp))
                 }
@@ -327,7 +346,7 @@ class CalendarScreen(
 
     @Composable
     fun MonthHeader(
-        currentMonth:YearMonth,
+        currentMonth: YearMonth,
         onMonthChanged: (YearMonth) -> Unit
     ) {
         Row(
@@ -348,7 +367,10 @@ class CalendarScreen(
             }
 
             Text(
-                text = currentMonth.month.getDisplayName(TextStyle.FULL_STANDALONE, Locale.getDefault()),
+                text = currentMonth.month.getDisplayName(
+                    TextStyle.FULL_STANDALONE,
+                    Locale.getDefault()
+                ),
                 modifier = Modifier.padding(start = 16.dp, end = 16.dp)
             )
 

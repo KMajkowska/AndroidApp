@@ -18,7 +18,7 @@ interface NoteDao {
     fun getNoteByDate(date: LocalDate): Note?
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun addNewNote(note: Note)
+    suspend fun addNewNote(note: Note) : Long
 
     @Update
     suspend fun updateNote(note: Note)

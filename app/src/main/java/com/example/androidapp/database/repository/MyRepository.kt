@@ -72,8 +72,8 @@ class MyRepository(
         eventDao.saveEventEntity(newEventEntity)
     }
 
-    suspend fun addNewNote(note: Note) {
-        noteDao.addNewNote(note)
+    suspend fun addNewNote(note: Note): Long {
+        return noteDao.addNewNote(note)
     }
 
     suspend fun updateNote(note: Note) {
