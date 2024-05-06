@@ -8,12 +8,20 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.ArrowBackIosNew
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
@@ -41,8 +49,10 @@ val soundOptions = SoundOptions.entries.toTypedArray()
 
 class SettingsScreen(
     private val navigateToFilePicker: (String) -> Unit,
-    private val settingsViewModel: SettingsViewModel
+    private val settingsViewModel: SettingsViewModel,
+    private val upPress: () -> Unit
 ) : NavigableScreen() {
+    @OptIn(ExperimentalMaterial3Api::class)
     @Composable
     override fun View() {
         val selectedLanguage by settingsViewModel.selectedLanguage.observeAsState(LanguageEnum.ENGLISH)
@@ -53,12 +63,24 @@ class SettingsScreen(
         val selectedSoundOption by settingsViewModel.selectedSoundOption.observeAsState(SoundOptions.NONE)
 
         val context = LocalContext.current
-
-        Surface(modifier = Modifier.testTag(TestTags.SETTINGS_SCREEN_VIEW)) {
-            LazyColumn(
+        Scaffold(
+            topBar = {
+                TopAppBar(
+                    title = { Text(stringResource(id = R.string.settings)) },
+                    actions = {
+                        IconButton(onClick = upPress) {
+                            Icon(Icons.Filled.ArrowBackIosNew, contentDescription = "back")
+                        }
+                    },
+                )
+            }
+        ) {
+            paddingValues -> LazyColumn(
                 modifier = Modifier
                     .fillMaxSize()
+                    .padding(paddingValues)
                     .padding(8.dp)
+                    .testTag(TestTags.SETTINGS_SCREEN_VIEW)
             ) {
                 item {
                     DropDown(

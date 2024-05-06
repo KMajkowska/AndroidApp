@@ -3,6 +3,7 @@ package com.example.androidapp.navigation.navigablescreen
 import android.annotation.SuppressLint
 import android.content.Context
 import android.net.Uri
+import androidx.compose.material.*
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
@@ -13,6 +14,7 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -26,8 +28,9 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.filled.CalendarMonth
 import androidx.compose.material.icons.filled.Edit
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material.icons.outlined.Settings
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -35,6 +38,7 @@ import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
@@ -46,6 +50,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
 import androidx.compose.ui.input.nestedscroll.NestedScrollSource
 import androidx.compose.ui.input.nestedscroll.nestedScroll
@@ -80,11 +85,13 @@ import java.time.LocalDate
 class AllNotes(
     private val mDayViewModel: DayViewModel,
     private val localDate: LocalDate,
+    private val onSettingsClick: () -> Unit,
     private val onNoteClick: (Long) -> Unit,
     private val onCalendarClick: (LocalDate) -> Unit,
    ) : NavigableScreen() {
 
     @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
+    @OptIn(ExperimentalMaterial3Api::class)
     @Composable
     override fun View() {
         var notes = mDayViewModel.allNotes.observeAsState(initial = listOf()).value
@@ -116,60 +123,83 @@ class AllNotes(
             }
         }
 
-        Scaffold() {
-            LazyColumn(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(8.dp)
-                    .nestedScroll(nestedScrollConnection)
-                    .testTag(TestTags.ALL_NOTES_VIEW),
+        Scaffold {
+            Box(
+                modifier = Modifier.fillMaxSize()
             ) {
-                item {
-                    if (notes.isEmpty()) {
+                Column {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(8.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
                         Text(
-                            text = stringResource(id = R.string.all_notes),
-                            style = TextStyle(fontSize = 24.sp)
+                            text = "All Notes",
+                            fontSize = 24.sp,
+                            modifier = Modifier.weight(1f).padding(start = 8.dp)
                         )
-                    } else {
-                        for (note in notes) {
-                            NoteItem(
-                                note = note,
-                                context = LocalContext.current,
-                                onNoteClicked = { selectedNote -> onNoteClick(selectedNote.id!!) }
+
+                        IconButton(
+                            onClick = { onSettingsClick() }
+                        ) {
+                            Icon(
+                                imageVector = Icons.Filled.Settings,
+                                contentDescription = "Settings",
+                                tint = MaterialTheme.colorScheme.onBackground,
                             )
-                            Spacer(modifier = Modifier.height(8.dp))
+                        }
+                    }
+                    LazyColumn(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .nestedScroll(nestedScrollConnection)
+                            .padding(horizontal = 8.dp)
+                            .testTag(TestTags.ALL_NOTES_VIEW),
+                    ) {
+                        item {
+                            if(notes.isNotEmpty()) {
+                                for (note in notes) {
+                                    NoteItem(
+                                        note = note,
+                                        context = LocalContext.current,
+                                        onNoteClicked = { selectedNote -> onNoteClick(selectedNote.noteId!!) }
+                                    )
+                                    Spacer(modifier = Modifier.height(8.dp))
+                                }
+                            }
                         }
                     }
                 }
-            }
-            Row(
-                horizontalArrangement = Arrangement.End,
-                verticalAlignment = Alignment.Bottom,
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(16.dp)
-                    .zIndex(1f)
-            ) {
-                AnimatedVisibility(
-                    visible = isVisible,
-                    enter = slideInVertically(initialOffsetY = { it * 2 }),
-                    exit = slideOutVertically(targetOffsetY = { it * 2 }),
+                Row(
+                    horizontalArrangement = Arrangement.End,
+                    verticalAlignment = Alignment.Bottom,
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(16.dp)
+                        .zIndex(1f)
                 ) {
-                    FloatingActionButton(
-                        onClick = { onNoteClick(-1) },
-                        containerColor = MaterialTheme.colorScheme.primary,
-                        contentColor = MaterialTheme.colorScheme.onPrimary,
-                        shape = CircleShape,
-                        modifier = Modifier
-                            .size(56.dp)
+                    AnimatedVisibility(
+                        visible = isVisible,
+                        enter = slideInVertically(initialOffsetY = { it * 2 }),
+                        exit = slideOutVertically(targetOffsetY = { it * 2 }),
                     ) {
-                        Icon(
-                            imageVector = Icons.Default.Edit,
-                            contentDescription = "Create note",
-                            tint = MaterialTheme.colorScheme.onPrimary,
+                        FloatingActionButton(
+                            onClick = { onNoteClick(-1) },
+                            containerColor = MaterialTheme.colorScheme.primary,
+                            contentColor = MaterialTheme.colorScheme.onPrimary,
+                            shape = CircleShape,
                             modifier = Modifier
-                                .size(16.dp)
-                        )
+                                .size(56.dp)
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.Edit,
+                                contentDescription = "Create note",
+                                tint = MaterialTheme.colorScheme.onPrimary,
+                                modifier = Modifier
+                                    .size(16.dp)
+                            )
+                        }
                     }
                 }
             }
@@ -218,8 +248,8 @@ class AllNotes(
                             }
                     )
                 }
-                 else {
-                   var painter = painterResource(id = R.drawable.pen)
+                else {
+                   var painter = painterResource(id = defaultPicture)
             if (note.noteImageUri != null) {
                 val file = getPrivateStorageFileFromFilePath(context, note.noteImageUri!!)
                 if (file.exists()) {

@@ -1,7 +1,9 @@
 package com.example.androidapp
 
 import android.app.Application
+import android.media.MediaPlayer
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.platform.LocalContext
@@ -33,11 +35,23 @@ import com.example.androidapp.settings.SettingsViewModel
 import com.example.androidapp.settings.SettingsViewModelFactory
 import com.example.androidapp.ui.theme.AndroidAppTheme
 import com.example.androidapp.ui.theme.LanguageAwareScreen
+import kotlinx.coroutines.delay
 import java.time.LocalDate
+import kotlin.reflect.KFunction1
 
+var defaultPicture = R.drawable.pen
 @Composable
 fun UniqrnApp() {
     val navController = rememberNavHostController()
+    val current = LocalContext.current
+    LaunchedEffect(key1 = true) {
+        val mediaPlayer = MediaPlayer.create(current, R.raw.music) // Replace R.raw.your_audio_file with your audio file
+        mediaPlayer.isLooping = true
+        mediaPlayer.start()
+
+        // Delay to simulate loading time
+        delay(3000) // Adjust the delay time as needed
+    }
 
     val mSettingsViewModel: SettingsViewModel = viewModel(
         factory = SettingsViewModelFactory(SettingsRepository(LocalContext.current))
@@ -48,6 +62,12 @@ fun UniqrnApp() {
     val isUniqrnTheme by mSettingsViewModel.isUniqrnModeEnabled.observeAsState(true)
     val areNotificationsEnabled by mSettingsViewModel.areNotificationsEnabled.observeAsState(true)
 
+    defaultPicture = if (isUniqrnTheme == true){
+         R.drawable.uniqrn_app
+    }
+    else {
+        R.drawable.pen
+    }
     val notificationHelper = NotificationHelper(LocalContext.current, areNotificationsEnabled)
     val mDayViewModel: DayViewModel = viewModel(
         factory = DayViewModelFactory(
@@ -69,7 +89,8 @@ fun UniqrnApp() {
                     upPress = navController::upPress,
                     onNavigateToRoute = navController::navigateToBottomBarRoute,
                     mDayViewModel = mDayViewModel,
-                    mSettingsViewModel = mSettingsViewModel
+                    mSettingsViewModel = mSettingsViewModel,
+                    onSettingsClick = navController::navigateToSettings,
                 )
             }
         }
@@ -113,7 +134,7 @@ fun UniqrnAppSettings(
                     onNavigateToRoute = navController::navigateToBottomBarRoute,
                     mDayViewModel = mDayViewModel,
                     mSettingsViewModel = mSettingsViewModel,
-                    onDayChatNoteSelected = navController::navigateToDayChatNotes
+                    onSettingsClick = navController::navigateToSettings
                 )
             }
         }
@@ -127,16 +148,11 @@ private fun NavGraphBuilder.unqirnNavGraph(
     onNoteSelected: (Long, LocalDate?, NavBackStackEntry) -> Unit,
     onDayChatNoteSelected: (Long, NavBackStackEntry) -> Unit,
     upPress: () -> Unit,
-    onNavigateToRoute: (String) -> Unit
+    onNavigateToRoute: (String) -> Unit,
+    onSettingsClick: () -> Unit,
 ) {
     val localDateConverter = LocalDateConverter()
-    val tabs = listOf(
-        NavItem.ALL_NOTES,
-        NavItem.CALENDAR,
-        NavItem.DAYS,
-        // NavItem.CHAT_NOTES,
-        // NavItem.SETTINGS
-    )
+    val tabs = listOf(NavItem.ALL_NOTES, NavItem.CALENDAR, NavItem.DAYS) //NavItem.SETTINGS)
 
     val noteId = "noteId"
     val localDate = "localDate"
@@ -152,7 +168,8 @@ private fun NavGraphBuilder.unqirnNavGraph(
             AllNotes(
                 mDayViewModel,
                 LocalDate.now(),
-                { noteId -> /*onNoteSelected(noteId, null, backStackEntry)*/ onDayChatNoteSelected(noteId, backStackEntry)}
+                {onSettingsClick()},
+                { noteId -> onNoteSelected(noteId, null, backStackEntry) }
             ) { date -> onDaySelected(date, backStackEntry) }, onNavigateToRoute
         )
     }
@@ -195,13 +212,20 @@ private fun NavGraphBuilder.unqirnNavGraph(
         )
     }
 
-    composable(route = ScreenRoutes.SETTINGS) { _ ->
-        CustomBottomNavigation(
-            tabs,
-            ScreenRoutes.SETTINGS,
-            SettingsScreen(onNavigateToRoute, mSettingsViewModel),
-            onNavigateToRoute
-        )
+//    composable(route = ScreenRoutes.SETTINGS) { _ ->
+//        CustomBottomNavigation(
+//            tabs,
+//            ScreenRoutes.SETTINGS,
+//            SettingsScreen(onNavigateToRoute, mSettingsViewModel, upPress),
+//            onNavigateToRoute
+//        )
+//    }
+
+    composable(
+        route = ScreenRoutes.SETTINGS
+    ) { _ ->
+            SettingsScreen(onNavigateToRoute, mSettingsViewModel, upPress).ViewWithBackground()
+
     }
 
     composable(

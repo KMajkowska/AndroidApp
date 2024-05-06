@@ -1,9 +1,6 @@
 package com.example.androidapp.navigation.navigablescreen
 
 import android.os.Build
-import android.view.ContextThemeWrapper
-import android.view.ViewGroup
-import android.widget.CalendarView
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -53,9 +50,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.ui.viewinterop.AndroidView
-import androidx.lifecycle.viewmodel.compose.viewModel
-import com.example.androidapp.AddBackgroundToComposables
 import com.example.androidapp.HorizontalDivider
 import com.example.androidapp.InlineTextEditor
 import com.example.androidapp.R
@@ -67,11 +61,7 @@ import com.example.androidapp.database.model.Note
 import com.example.androidapp.database.model.TodoEntity
 import com.example.androidapp.database.viewmodel.DayViewModel
 import com.example.androidapp.settings.EventCategories
-import com.example.androidapp.settings.SettingsRepository
-import com.example.androidapp.settings.SettingsViewModel
-import com.example.androidapp.settings.SettingsViewModelFactory
 import java.time.LocalDate
-import java.util.Calendar
 
 class DaysScreen(
     private val mDayViewModel: DayViewModel,
@@ -91,14 +81,7 @@ class DaysScreen(
         var selectedNote by remember { mutableStateOf(mDayViewModel.getNoteByDate(localDate)) }
 
         Surface(modifier = Modifier.testTag(TestTags.DAYS_SCREEN_VIEW)) {
-            AddBackgroundToComposables({
-                View { chosenDate ->
-                    dayEntity = mDayViewModel.getDayByDate(chosenDate)
-                    selectedNote = mDayViewModel.getNoteByDate(chosenDate)
-                }
-            }, {
-                DayDataView(dayEntity, selectedNote)
-            })
+            DayDataView(dayEntity, selectedNote)
         }
     }
 
@@ -179,54 +162,6 @@ class DaysScreen(
         LaunchedEffect(hasDayTitleChanged.value) {
             if (hasDayTitleChanged.value) {
                 hasDayTitleChanged.value = false
-            }
-        }
-    }
-
-    @Composable
-    fun View(onChangeDate: (LocalDate) -> Unit) {
-        val mSettingsViewModel: SettingsViewModel = viewModel(
-            factory = SettingsViewModelFactory(SettingsRepository(LocalContext.current))
-        )
-        val isDarkMode by mSettingsViewModel.isDarkTheme.observeAsState(false)
-        val isUniqrnMode by mSettingsViewModel.isUniqrnModeEnabled.observeAsState(false)
-
-
-        LazyColumn(modifier = Modifier.fillMaxSize()) {
-            item {
-                AndroidView(
-                    factory = { context ->
-                        val themedContext = ContextThemeWrapper(
-                            context,
-                            if (isUniqrnMode && isDarkMode) R.style.CalendarTextAppearance_DarkUnicorn
-                            else if (isDarkMode) R.style.CalendarTextAppearance_Dark
-                            else if(isUniqrnMode) R.style.CalendarTextAppearance_Unicorn
-                            else {
-                                R.style.CalendarTextAppearance_Light
-                            }
-                        )
-                        CalendarView(themedContext).apply {
-                            layoutParams = ViewGroup.LayoutParams(
-                                ViewGroup.LayoutParams.MATCH_PARENT,
-                                ViewGroup.LayoutParams.MATCH_PARENT,
-                            )
-                        }
-                    },
-                    modifier = Modifier.fillMaxSize(),
-                    update = { calendarView ->
-                        val calendar = Calendar.getInstance()
-                        val chosenDateInMillis: Long = calendar.apply {
-                            set(Calendar.YEAR, localDate.year)
-                            set(Calendar.MONTH, localDate.monthValue - 1)
-                            set(Calendar.DAY_OF_MONTH, localDate.dayOfMonth)
-                        }.timeInMillis
-
-                        calendarView.setDate(chosenDateInMillis, false, true)
-                        calendarView.setOnDateChangeListener { _, year, month, dayOfMonth ->
-                            onChangeDate(LocalDate.of(year, month + 1, dayOfMonth))
-                        }
-                    }
-                )
             }
         }
     }
