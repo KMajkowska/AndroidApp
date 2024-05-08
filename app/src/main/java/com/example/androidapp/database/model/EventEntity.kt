@@ -11,7 +11,5 @@ data class EventEntity(
     var eventId: Long? = null,
     val dayForeignId: Long,
     val title: String = "",
-    //val color: Color = Color.valueOf(0),
     val category: String = "General"
-   // val icon: ImageVector,
 )

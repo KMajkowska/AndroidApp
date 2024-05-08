@@ -10,7 +10,6 @@ import androidx.room.Transaction
 import androidx.room.Upsert
 import com.example.androidapp.database.model.DayEntity
 import com.example.androidapp.database.model.DayWithTodosAndEvents
-import com.example.androidapp.database.model.EventEntity
 import java.time.LocalDate
 
 @Dao

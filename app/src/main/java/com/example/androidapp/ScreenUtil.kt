@@ -52,6 +52,17 @@ import com.example.androidapp.ui.theme.Purple
 import com.example.androidapp.ui.theme.darkerBlue
 import com.example.androidapp.ui.theme.darkerPink
 
+val RAINBOW_BACKGROUND = listOf(
+    darkerPink,
+    Color.hsv(30F, 1F, 1F),
+    Color.hsv(60F, 1F, 1F),
+    Color.hsv(120F, 1F, 1F),
+    Color.hsv(180F, 1F, 1F),
+    Color.hsv(240F, 1F, 1F),
+    Color.hsv(270F, 1F, 1F),
+    Pink
+)
+
 @Composable
 fun AddBackgroundToComposables(vararg composables: @Composable () -> Unit) {
     val mSettingsViewModel: SettingsViewModel = viewModel(
@@ -59,27 +70,19 @@ fun AddBackgroundToComposables(vararg composables: @Composable () -> Unit) {
     )
     val isUniqrnTheme by mSettingsViewModel.isUniqrnModeEnabled.observeAsState(false)
     val isDarkTheme by mSettingsViewModel.isDarkTheme.observeAsState(false)
+
     Box(
         modifier = Modifier
             .fillMaxSize()
             .background(
                 brush = if (isUniqrnTheme) {
                     Brush.verticalGradient(
-                        colors = listOf(
-                            darkerPink,
-                            Color.hsv(30F, 1F, 1F),
-                            Color.hsv(60F, 1F, 1F),
-                            Color.hsv(120F, 1F, 1F),
-                            Color.hsv(180F, 1F, 1F),
-                            Color.hsv(240F, 1F, 1F),
-                            Color.hsv(270F, 1F, 1F),
-                            Pink
-                        ),
+                        colors = RAINBOW_BACKGROUND,
                         startY = 0.0f,
                         endY = Float.POSITIVE_INFINITY
                     )
                 } else {
-                    if (isDarkTheme){
+                    if (isDarkTheme) {
                         Brush.verticalGradient(
                             colors = listOf(
                                 DarkerPurple,
@@ -138,47 +141,28 @@ fun HorizontalDivider() {
 
 @Composable
 fun Dialog(
+    isShown: Boolean,
+    title: String,
     text: String,
-    functionCall: () -> Unit
+    onConfirm: () -> Unit,
+    onDismiss: () -> Unit
 ) {
-    val showDialog = remember { mutableStateOf(false) }
-
-    if (showDialog.value) {
+    if (isShown) {
         AlertDialog(
-            onDismissRequest = {
-                showDialog.value = false
-            },
-            title = {
-                Text(text)
-            },
+            onDismissRequest = onDismiss,
+            title = { Text(title) },
+            text = { Text(text) },
             confirmButton = {
-                Button(
-                    onClick = {
-                        functionCall()
-                        showDialog.value = false
-                    }
-                ) {
+                Button(onClick = onConfirm) {
                     Icon(imageVector = Icons.Default.Check, contentDescription = "Confirm")
                 }
             },
             dismissButton = {
-                Button(
-                    onClick = {
-                        showDialog.value = false
-                    }
-                ) {
+                Button(onClick = onDismiss) {
                     Icon(imageVector = Icons.Default.Close, contentDescription = "Close")
                 }
             }
         )
-    }
-
-    Button(
-        onClick = {
-            showDialog.value = true
-        }
-    ) {
-        Text(text)
     }
 }
 

@@ -1,10 +1,12 @@
 package com.example.androidapp.database.repository
 
 import androidx.lifecycle.LiveData
+import com.example.androidapp.database.dao.ConnectedToNoteDao
 import com.example.androidapp.database.dao.DayDao
 import com.example.androidapp.database.dao.EventDao
 import com.example.androidapp.database.dao.NoteDao
 import com.example.androidapp.database.dao.TodoDao
+import com.example.androidapp.database.model.ConnectedToNote
 import com.example.androidapp.database.model.DayEntity
 import com.example.androidapp.database.model.DayWithTodosAndEvents
 import com.example.androidapp.database.model.EventEntity
@@ -16,7 +18,8 @@ class MyRepository(
     private val dayDao: DayDao,
     private val eventDao: EventDao,
     private val noteDao: NoteDao,
-    private val todoDao: TodoDao
+    private val todoDao: TodoDao,
+    private val connectedToNoteDao: ConnectedToNoteDao
 ) {
 
     val allDayEntitiesSortedByDate: LiveData<List<DayEntity>> =
@@ -28,8 +31,30 @@ class MyRepository(
 
     val allNotes: LiveData<List<Note>> = noteDao.getAllNotes()
 
+    val allConnectedToNotes: LiveData<List<ConnectedToNote>> = connectedToNoteDao.getAllConnectedToNote()
+
     val allDayEntitiesWithRelatedSortedByDate: LiveData<List<DayWithTodosAndEvents>> =
         dayDao.getAllDayEntitiesWithRelatedSortedByDate()
+
+    fun getConnectedToNoteById(id: Long): ConnectedToNote? {
+        return connectedToNoteDao.getConnectedToNoteById(id)
+    }
+
+    suspend fun updateConnectedToNote(connectedToNote: ConnectedToNote) {
+        connectedToNoteDao.updateConnectedToNote(connectedToNote)
+    }
+
+    suspend fun addNewConnectedToNote(connectedToNote: ConnectedToNote) {
+        connectedToNoteDao.addConnectedToNote(connectedToNote)
+    }
+
+    suspend fun deleteConnectedToNote(connectedToNote: ConnectedToNote) {
+        connectedToNoteDao.deleteConnectedToNote(connectedToNote)
+    }
+
+    suspend fun deleteNoteEntity(note: Note) {
+        noteDao.deleteNote(note)
+    }
 
     suspend fun saveDayEntity(newDayEntity: DayEntity) {
         dayDao.saveDayEntity(newDayEntity)
@@ -47,16 +72,12 @@ class MyRepository(
         eventDao.saveEventEntity(newEventEntity)
     }
 
-    suspend fun addNewNote(note: Note) {
-        noteDao.addNewNote(note)
+    suspend fun addNewNote(note: Note): Long {
+        return noteDao.addNewNote(note)
     }
 
     suspend fun updateNote(note: Note) {
         noteDao.updateNote(note)
-    }
-
-    suspend fun deleteNote(note: Note) {
-        noteDao.deleteNote(note)
     }
 
     fun getNoteById(noteId: Long): Note? {
@@ -69,6 +90,10 @@ class MyRepository(
 
     fun getDayByDate(date: LocalDate): DayEntity? {
         return dayDao.getDayByDate(date)
+    }
+
+    fun getConnectedToNoteByNoteId(noteId: Long): LiveData<List<ConnectedToNote>> {
+        return connectedToNoteDao.getAllConnectedToNoteByNoteId(noteId)
     }
 
     fun getEventsByDayId(dayId: Long): LiveData<List<EventEntity>> {

@@ -18,17 +18,17 @@ interface NoteDao {
     fun getNoteByDate(date: LocalDate): Note?
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun addNewNote(note: Note)
+    suspend fun addNewNote(note: Note) : Long
 
     @Update
     suspend fun updateNote(note: Note)
 
-    @Query("SELECT * FROM notes ORDER BY noteId DESC")
+    @Query("SELECT * FROM notes ORDER BY id DESC")
     fun getAllNotes(): LiveData<List<Note>>
+
+    @Query("SELECT * FROM notes WHERE id = :noteId")
+    fun getNoteById(noteId: Long): Note?
 
     @Delete
     suspend fun deleteNote(note: Note)
-
-    @Query("SELECT * FROM notes WHERE noteId = :noteId")
-    fun getNoteById(noteId: Long):Note?
 }

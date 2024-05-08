@@ -41,7 +41,7 @@ object ScreenRoutes {
     const val CALENDAR = "calendar"
     const val DAYS = "days"
     const val SETTINGS = "settings"
-    const val CREATE_NOTE = "createNote"
+    const val CHAT_NOTES = "chatNotes"
     const val IMPORT_PICKER = "importPicker"
     const val BACKUP_PICKER = "backupPicker"
 }
@@ -54,7 +54,6 @@ enum class NavItem(
     ALL_NOTES(R.string.all_notes, Icons.Default.AddCircle, ScreenRoutes.ALL_NOTES),
     CALENDAR(R.string.calendar, Icons.Default.CalendarMonth, ScreenRoutes.CALENDAR),
     DAYS(R.string.days, Icons.Default.AddAlarm, ScreenRoutes.DAYS),
-    //SETTINGS(R.string.settings, Icons.Outlined.Settings, ScreenRoutes.SETTINGS),
 }
 
 @Composable
@@ -94,7 +93,8 @@ fun CustomBottomNavigation(
                                 navigateToRoute(tab.route)
                             }
                         }
-                        .background(MaterialTheme.colorScheme.primary// Set the background color for the selected item)
+                        .background(
+                            MaterialTheme.colorScheme.primary// Set the background color for the selected item)
                         ))
             }
         }
@@ -137,18 +137,23 @@ class BottomNavBarController(val navController: NavHostController) {
 
     fun navigateToDayDetail(localDate: LocalDate, from: NavBackStackEntry) {
         if (from.lifecycleIsResumed())
-            navController.navigate("${ScreenRoutes.DAYS}?localDate=${localDateConverter.fromLocalDate(localDate)}")
-    }
-
-    fun navigateToNoteEditor(noteId: Long, localDate: LocalDate?, from: NavBackStackEntry) {
-        if (from.lifecycleIsResumed())
             navController.navigate(
-                "${ScreenRoutes.CREATE_NOTE}?noteId=$noteId" +
-                        if (localDate == null) "" else "&localDate=${localDateConverter.fromLocalDate(localDate)}"
+                "${ScreenRoutes.DAYS}?localDate=${
+                    localDateConverter.fromLocalDate(
+                        localDate
+                    )
+                }"
             )
     }
 
-    fun navigateToSettings(){
+    fun navigateToDayChatNotes(noteId: Long, from: NavBackStackEntry) {
+        if (from.lifecycleIsResumed())
+            navController.navigate(
+                "${ScreenRoutes.CHAT_NOTES}?noteId=$noteId"
+            )
+    }
+
+    fun navigateToSettings() {
         navController.navigate(ScreenRoutes.SETTINGS)
     }
 }

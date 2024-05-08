@@ -76,14 +76,14 @@ import com.example.androidapp.TestTags
 import com.example.androidapp.database.model.Note
 import com.example.androidapp.database.viewmodel.DayViewModel
 import com.example.androidapp.defaultPicture
+import com.example.androidapp.media.getPrivateStorageFileFromFilePath
 import com.example.androidapp.settings.NoteSortOptionEnum
 import com.example.androidapp.settings.SettingsRepository
 import com.example.androidapp.settings.SettingsViewModel
 import com.example.androidapp.settings.SettingsViewModelFactory
+import com.example.androidapp.media.saveMediaToInternalStorage
 import java.io.File
 import java.time.LocalDate
-import java.util.UUID
-
 
 class AllNotes(
     private val mDayViewModel: DayViewModel,
@@ -166,7 +166,7 @@ class AllNotes(
                                     NoteItem(
                                         note = note,
                                         context = LocalContext.current,
-                                        onNoteClicked = { selectedNote -> onNoteClick(selectedNote.noteId!!) }
+                                        onNoteClicked = { selectedNote -> onNoteClick(selectedNote.id!!) }
                                     )
                                     Spacer(modifier = Modifier.height(8.dp))
                                 }
@@ -188,7 +188,7 @@ class AllNotes(
                         exit = slideOutVertically(targetOffsetY = { it * 2 }),
                     ) {
                         FloatingActionButton(
-                            onClick = { onNoteClick(-1) },
+                            onClick = { onNoteClick(mDayViewModel.addNewEmptyNote()) },
                             containerColor = MaterialTheme.colorScheme.primary,
                             contentColor = MaterialTheme.colorScheme.onPrimary,
                             shape = CircleShape,
@@ -218,7 +218,7 @@ class AllNotes(
         ) { uri ->
             photoUri = uri
             if (uri != null) {
-                val filename = saveImageToInternalStorage(context, uri)
+                val filename = saveMediaToInternalStorage(context, uri)
                 note.noteImageUri = filename
             }
             mDayViewModel.updateNote(note)
@@ -254,7 +254,7 @@ class AllNotes(
                 else {
                    var painter = painterResource(id = defaultPicture)
             if (note.noteImageUri != null) {
-                val file = File(context.filesDir, note.noteImageUri)
+                val file = getPrivateStorageFileFromFilePath(context, note.noteImageUri!!)
                 if (file.exists()) {
                     val imageUri = Uri.fromFile(file)
                     painter = rememberAsyncImagePainter(model = imageUri)
@@ -282,7 +282,7 @@ class AllNotes(
                     .padding(start = 10.dp, top = 5.dp)
             ) {
                 Text(
-                    text = note.noteTitle,
+                    text = note.getNoteTitleIfSet(LocalContext.current),
                     style = LocalTextStyle.current.copy(
                         color = MaterialTheme.colorScheme.onBackground,
                         fontSize = 18.sp,
@@ -343,31 +343,6 @@ class AllNotes(
 
         }
     }
-
-    private fun saveImageToInternalStorage(context: Context, uri: Uri): String? {
-        try {
-            val filename = generateFilenameFromUri(uri)
-            val outputStream = context.openFileOutput(filename, Context.MODE_PRIVATE)
-
-            val inputStream = context.contentResolver.openInputStream(uri)
-            inputStream?.use { input ->
-                outputStream.use { output ->
-                    input.copyTo(output)
-                }
-                return filename
-            }
-        } catch (e: Exception) {
-            e.printStackTrace()
-        }
-        return null
-    }
-
-    private fun generateFilenameFromUri(uri: Uri): String {
-        return UUID.randomUUID().toString() + ".jpg"
-    }
-
-
-
 }
 
 

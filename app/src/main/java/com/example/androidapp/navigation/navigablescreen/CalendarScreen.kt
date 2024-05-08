@@ -292,7 +292,7 @@ class CalendarScreen(
             }
             Row(modifier = Modifier
                 .background(color)
-                ){
+            ){
                 Icon(
                     imageVector = seasonIcon,
                     contentDescription = "Season Icon",
@@ -320,13 +320,13 @@ class CalendarScreen(
                     )
 
             }
-            
-                if (isMonthExpanded) {
-                    objects.forEach { obj ->
-                        ObjectItem(obj, onDaySelected)
-                    }
+
+            if (isMonthExpanded) {
+                objects.forEach { obj ->
+                    ObjectItem(obj, onDaySelected)
                 }
             }
+        }
     }
 
     @Composable
@@ -393,7 +393,7 @@ class CalendarScreen(
                         Color(0xFF3949AB),
                         Color(0xFF7986CB),
 
-                    )
+                        )
                 )
                 Month.MARCH, Month.APRIL, Month.MAY -> Brush.verticalGradient(
                     listOf(
@@ -401,7 +401,7 @@ class CalendarScreen(
                         Color(0xFF43A047),
                         Color(0xFF81C784),
 
-                    )
+                        )
                 )
                 Month.JUNE, Month.JULY, Month.AUGUST -> Brush.verticalGradient(
                     listOf(
@@ -416,7 +416,7 @@ class CalendarScreen(
                         Color(0xFFF44336),
                         Color(0xFFE57373),
 
-                    )
+                        )
                 )
                 else -> Brush.verticalGradient(listOf(Color.Black))
             }

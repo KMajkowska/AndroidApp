@@ -1,14 +1,13 @@
 package com.example.androidapp.database.viewmodel
 
 import android.app.Application
-import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.example.androidapp.database.MyDatabaseConnection
+import com.example.androidapp.database.model.ConnectedToNote
 import com.example.androidapp.database.model.DayEntity
 import com.example.androidapp.database.model.DayWithTodosAndEvents
 import com.example.androidapp.database.model.EventEntity
@@ -32,7 +31,8 @@ class DayViewModel(
         databaseConnection.dayDao(),
         databaseConnection.eventDao(),
         databaseConnection.noteDao(),
-        databaseConnection.todoDao()
+        databaseConnection.todoDao(),
+        databaseConnection.connectedToNoteDao()
     )
 
     val allDayEntitiesSortedByDate: LiveData<List<DayEntity>> =
@@ -41,8 +41,46 @@ class DayViewModel(
         repository.allDayEntitiesWithRelatedSortedByDate
     val allTodoEntities: LiveData<List<TodoEntity>> = repository.allTodoEntities
     val allEventEntities: LiveData<List<EventEntity>> = repository.allEventEntities
+
+    val allConnectedToNote: LiveData<List<ConnectedToNote>> = repository.allConnectedToNotes
+
     val allNotes: LiveData<List<Note>> = repository.allNotes
 
+
+    fun getConnectedToNoteById(id: Long): ConnectedToNote? {
+        return runBlocking {
+            withContext(Dispatchers.IO) {
+                repository.getConnectedToNoteById(id)
+            }
+        }
+    }
+
+    fun addConnectedToNoteText(connectedToNote: ConnectedToNote) {
+        viewModelScope.launch(Dispatchers.IO) {
+            repository.addNewConnectedToNote(connectedToNote)
+        }
+    }
+
+    fun deleteConnectedToNote(connectedToNote: ConnectedToNote) {
+        viewModelScope.launch(Dispatchers.IO) {
+            connectedToNote.doBeforeDeletingRecord()
+            repository.deleteConnectedToNote(connectedToNote)
+        }
+    }
+
+    fun deleteConnectedToNoteById(id: Long) {
+        viewModelScope.launch(Dispatchers.IO) {
+            val found = repository.getConnectedToNoteById(id)
+            if (found != null)
+                deleteConnectedToNote(found)
+        }
+    }
+
+    fun updateConnectedToNote(connectedToNote: ConnectedToNote) {
+        viewModelScope.launch(Dispatchers.IO) {
+            repository.updateConnectedToNote(connectedToNote)
+        }
+    }
     private fun scheduleNotification(date: LocalDate) {
         viewModelScope.launch(Dispatchers.IO) {
             notificationHelper.scheduleNotification(repository.getDayIdWithRelatedByDate(date))
@@ -83,6 +121,12 @@ class DayViewModel(
         }
     }
 
+    fun deleteNoteEntity(note: Note) {
+        viewModelScope.launch(Dispatchers.IO) {
+            repository.deleteNoteEntity(note)
+        }
+    }
+
     fun saveTodoEntity(todoEntity: TodoEntity) {
         viewModelScope.launch(Dispatchers.IO) {
             repository.saveTodoEntity(todoEntity)
@@ -115,7 +159,7 @@ class DayViewModel(
         }
     }
 
-    fun addNewNote(note: Note) {
+    fun addNewNote(note: Note): Long {
         return runBlocking {
             withContext(Dispatchers.IO) {
                 repository.addNewNote(note)
@@ -123,15 +167,17 @@ class DayViewModel(
         }
     }
 
+    fun addNewEmptyNote() : Long {
+        return runBlocking {
+        withContext(Dispatchers.IO) {
+            repository.addNewNote(Note())
+        }
+    }
+}
+
     fun updateNote(note: Note) {
         viewModelScope.launch(Dispatchers.IO) {
             repository.updateNote(note)
-        }
-    }
-
-    fun deleteNote(note: Note) {
-        viewModelScope.launch(Dispatchers.IO) {
-            repository.deleteNote(note)
         }
     }
 
@@ -139,6 +185,14 @@ class DayViewModel(
         return runBlocking {
             withContext(Dispatchers.IO) {
                 repository.getNoteById(id)
+            }
+        }
+    }
+
+    fun getConnectedToNoteByNoteId(noteId: Long): LiveData<List<ConnectedToNote>> {
+        return runBlocking {
+            withContext(Dispatchers.IO) {
+                repository.getConnectedToNoteByNoteId(noteId)
             }
         }
     }

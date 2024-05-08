@@ -2,19 +2,13 @@ package com.example.androidapp.navigation.navigablescreen
 
 import android.content.Context
 import android.net.Uri
-import android.widget.Toast
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.material3.Button
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.platform.LocalContext
 import androidx.documentfile.provider.DocumentFile
-import com.example.androidapp.R
-import com.example.androidapp.database.MyDatabaseConnection
 import com.example.androidapp.database.databaseName
 import com.example.androidapp.database.model.DayEntity
 import com.example.androidapp.database.model.EventEntity
@@ -122,7 +116,7 @@ class FilePicker(
                 jsonObject.getString(notes),
                 object : TypeToken<List<Note>>() {}.type
             ).forEach {
-                it.noteId = null
+                it.id = null
                 mDayViewModel.addNewNote(it)
             }
 
