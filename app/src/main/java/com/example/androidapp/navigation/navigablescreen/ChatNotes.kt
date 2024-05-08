@@ -21,6 +21,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.AttachFile
@@ -29,12 +30,14 @@ import androidx.compose.material.icons.filled.Mic
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.PhotoCamera
 import androidx.compose.material.icons.filled.Send
+import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
@@ -42,6 +45,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableLongStateOf
@@ -52,12 +56,17 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.navigation.compose.DialogHost
 import com.example.androidapp.Dialog
+import com.example.androidapp.R
 import com.example.androidapp.TextEditorDialog
 import com.example.androidapp.animations.AnimatedIconButton
 import com.example.androidapp.database.model.ConnectedToNote
@@ -169,10 +178,9 @@ class ChatNotes(
 
     @Composable
     fun ShowChat(onShowCamera: () -> Unit) {
-        val context = LocalContext.current
         var title by remember {
             mutableStateOf(
-                mDayViewModel.getNoteById(noteForeignId)!!.getNoteTitleIfSet(context)
+                mDayViewModel.getNoteById(noteForeignId)!!.noteTitle
             )
         }
 
@@ -199,10 +207,16 @@ class ChatNotes(
             upPress()
         }
 
+        LaunchedEffect(title) {
+            // Launch a coroutine whenever newTitle changes
+            mDayViewModel.changeNoteTitle(noteForeignId, title)
+        }
+
         Scaffold(
             topBar = {
                 CustomTopAppBar(
                     title = title,
+                    onTitleChanged = { title = it }, // Funkcja zwrotna dla zmiany tytułu
                     onNavigationClick = upPress,
                     onDelete = { isDeleteDialogForNoteOpen = true }
                 )
@@ -325,11 +339,14 @@ fun MessageRow(
                 }
 
                 MimeTypeEnum.IMAGE -> {
+                    //val showDialog = remember { mutableStateOf(false) }
                     Image(
                         painter = imagePainter(imagePath = connectedToNote.contentOrPath),
                         contentDescription = "Note Image",
                         contentScale = ContentScale.Crop,
-                        modifier = messageModifier
+                        modifier = messageModifier/*.clickable {
+                            // Open the image in full screen or perform any other action here
+                        }*/
                     )
                 }
 
@@ -433,14 +450,31 @@ fun MessageCreationRow(
 @Composable
 fun CustomTopAppBar(
     title: String,
+    onTitleChanged: (String) -> Unit,
     onNavigationClick: () -> Unit,
     onDelete: () -> Unit
 ) {
     var showMenu by remember { mutableStateOf(false) }
+    var textFieldValue by remember { mutableStateOf(TextFieldValue(text = title)) }
 
     TopAppBar(
         title = {
-            Text(text = title, maxLines = 1, overflow = TextOverflow.Ellipsis)
+            BasicTextField(
+                value = textFieldValue,
+                onValueChange = {
+                    textFieldValue = it
+                    onTitleChanged(it.text)
+                },
+                textStyle = LocalTextStyle.current,
+                singleLine = true,
+                modifier = Modifier.fillMaxWidth(),
+                decorationBox = { innerTextField ->
+                    if (textFieldValue.text.isBlank()) {
+                        Text(stringResource(id = R.string.title), color = Color.Gray)
+                    }
+                    innerTextField()
+                }
+            )
         },
         navigationIcon = {
             IconButton(onClick = onNavigationClick) {
@@ -468,6 +502,7 @@ fun CustomTopAppBar(
         }
     )
 }
+
 
 @Composable
 fun DeleteDialog(
