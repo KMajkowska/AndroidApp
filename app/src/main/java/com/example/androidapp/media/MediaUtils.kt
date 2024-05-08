@@ -3,9 +3,7 @@ package com.example.androidapp.media
 import android.content.Context
 import android.net.Uri
 import android.webkit.MimeTypeMap
-import androidx.core.net.toUri
 import java.io.File
-import java.io.FileOutputStream
 import java.util.UUID
 
 

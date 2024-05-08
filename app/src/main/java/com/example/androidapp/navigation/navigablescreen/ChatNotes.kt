@@ -1,13 +1,11 @@
 package com.example.androidapp.navigation.navigablescreen
 
 import android.util.Log
-import android.view.MotionEvent
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.camera.core.ImageCapture
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -32,6 +30,8 @@ import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.PhotoCamera
 import androidx.compose.material.icons.filled.Send
 import androidx.compose.material3.Card
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -51,15 +51,14 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
-import androidx.compose.ui.input.pointer.pointerInteropFilter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.example.androidapp.Dialog
+import com.example.androidapp.TextEditorDialog
 import com.example.androidapp.animations.AnimatedIconButton
 import com.example.androidapp.database.model.ConnectedToNote
 import com.example.androidapp.database.viewmodel.DayViewModel
@@ -73,6 +72,9 @@ import com.example.androidapp.media.imagePainter
 import com.example.androidapp.media.mediaPicker
 import com.example.androidapp.media.takePicture
 
+const val DEFAULT_LONG_VALUE = -1L
+
+// TODO: translate this screen
 class ChatNotes(
     private val noteForeignId: Long,
     private val mDayViewModel: DayViewModel,
@@ -94,11 +96,9 @@ class ChatNotes(
 
     @Composable
     override fun View() {
-        if (noteForeignId < 0) {
+        if (noteForeignId == DEFAULT_LONG_VALUE) {
             return
         }
-
-        val note = mDayViewModel.getNoteById(noteForeignId) ?: return
 
         var showCamera by remember { mutableStateOf(false) }
 
@@ -106,9 +106,8 @@ class ChatNotes(
             ConfiguredCameraPreview {
                 showCamera = false
             }
-
         } else {
-            ShowChat(title = note.getNoteTitleIfSet(LocalContext.current)) {
+            ShowChat {
                 showCamera = true
             }
         }
@@ -127,8 +126,9 @@ class ChatNotes(
             cameraReady.value = true
         }
 
-        if (!cameraReady.value || imageCapture.value == null)
+        if (!cameraReady.value || imageCapture.value == null) {
             return
+        }
 
         Box(
             modifier = Modifier
@@ -168,7 +168,16 @@ class ChatNotes(
     }
 
     @Composable
-    fun ShowChat(title: String, onShowCamera: () -> Unit) {
+    fun ShowChat(onShowCamera: () -> Unit) {
+        val context = LocalContext.current
+        var title by remember {
+            mutableStateOf(
+                mDayViewModel.getNoteById(noteForeignId)!!.getNoteTitleIfSet(context)
+            )
+        }
+
+        var isDeleteDialogForNoteOpen by remember { mutableStateOf(false) }
+
         val visualMediaPicker = mediaPicker(context = LocalContext.current) { path, mimeType ->
             if (path != null && mimeType != null) {
                 addToDatabase(
@@ -178,12 +187,24 @@ class ChatNotes(
             }
         }
 
+        DeleteDialog(
+            isShown = isDeleteDialogForNoteOpen,
+            onDismissDelete = { isDeleteDialogForNoteOpen = false }
+        ) {
+            if (noteForeignId != DEFAULT_LONG_VALUE) {
+                mDayViewModel.deleteNoteEntity(mDayViewModel.getNoteById(noteForeignId)!!)
+            }
+
+            isDeleteDialogForNoteOpen = false
+            upPress()
+        }
+
         Scaffold(
             topBar = {
                 CustomTopAppBar(
                     title = title,
                     onNavigationClick = upPress,
-                    onOverflowClick = { /* TODO: overflow menu click */ }
+                    onDelete = { isDeleteDialogForNoteOpen = true }
                 )
             },
             bottomBar = {
@@ -221,10 +242,9 @@ class ChatNotes(
 
     @Composable
     fun ChatContent(paddingValues: PaddingValues) {
-        val defaultLongValue = -1L
 
         var isDeleteDialogShown by remember { mutableStateOf(false) }
-        var currentItemToDelete by remember { mutableLongStateOf(defaultLongValue) }
+        var currentItemToDelete by remember { mutableLongStateOf(DEFAULT_LONG_VALUE) }
 
         val connectedToDays = mDayViewModel
             .getConnectedToNoteByNoteId(noteForeignId)
@@ -233,25 +253,29 @@ class ChatNotes(
 
         val stableConnectedToDays = remember(connectedToDays) { connectedToDays }
 
-        DeleteConnectedToNoteDialog(
+        DeleteDialog(
             isShown = isDeleteDialogShown,
-            onConfirmDelete = {
-                if (currentItemToDelete != defaultLongValue) {
-                    mDayViewModel.deleteConnectedToNoteById(currentItemToDelete)
-                }
+            onDismissDelete = {
+                isDeleteDialogShown = false
+                currentItemToDelete = DEFAULT_LONG_VALUE
+            }
+        ) {
+            if (currentItemToDelete != DEFAULT_LONG_VALUE) {
+                mDayViewModel.deleteConnectedToNoteById(currentItemToDelete)
+            }
 
-                isDeleteDialogShown = false
-                currentItemToDelete = defaultLongValue
-            }, onDismissDelete = {
-                isDeleteDialogShown = false
-                currentItemToDelete = defaultLongValue
-            })
+            isDeleteDialogShown = false
+            currentItemToDelete = DEFAULT_LONG_VALUE
+        }
 
         LazyColumn(
             modifier = Modifier.padding(paddingValues),
             reverseLayout = true
         ) {
-            items(items = stableConnectedToDays, key = { it.id!! }) { connectedToNote ->
+            items(
+                items = stableConnectedToDays,
+                key = { it.id!! }
+            ) { connectedToNote ->
 
                 val deleteDialog = {
                     currentItemToDelete = connectedToNote.id!!
@@ -389,7 +413,7 @@ fun MessageCreationRow(
                 modifier = Modifier
                     .weight(1f)
                     .padding(end = 8.dp),
-                placeholder = { Text("Type a message") },
+                placeholder = { Text("Aa") },
                 singleLine = true
             )
 
@@ -410,8 +434,10 @@ fun MessageCreationRow(
 fun CustomTopAppBar(
     title: String,
     onNavigationClick: () -> Unit,
-    onOverflowClick: () -> Unit
+    onDelete: () -> Unit
 ) {
+    var showMenu by remember { mutableStateOf(false) }
+
     TopAppBar(
         title = {
             Text(text = title, maxLines = 1, overflow = TextOverflow.Ellipsis)
@@ -422,22 +448,36 @@ fun CustomTopAppBar(
             }
         },
         actions = {
-            IconButton(onClick = onOverflowClick) {
+            IconButton(onClick = { showMenu = !showMenu }) {
                 Icon(Icons.Default.MoreVert, contentDescription = "More")
+            }
+
+            DropdownMenu(
+                expanded = showMenu,
+                onDismissRequest = { showMenu = false }
+            ) {
+
+                DropdownMenuItem(
+                    text = { Text("Delete") },
+                    onClick = {
+                        onDelete()
+                        showMenu = false
+                    }
+                )
             }
         }
     )
 }
 
 @Composable
-fun DeleteConnectedToNoteDialog(
+fun DeleteDialog(
     isShown: Boolean,
-    onConfirmDelete: () -> Unit,
-    onDismissDelete: () -> Unit
+    onDismissDelete: () -> Unit,
+    onConfirmDelete: () -> Unit
 ) {
     Dialog(
         isShown = isShown,
-        title = "Delete Confirmation",
+        title = "Delete confirmation",
         text = "Are you sure you want to delete this item?",
         onConfirm = onConfirmDelete,
         onDismiss = onDismissDelete
