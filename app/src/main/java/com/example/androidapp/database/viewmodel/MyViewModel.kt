@@ -189,6 +189,11 @@ class DayViewModel(
         }
     }
 
+    suspend fun changeNoteTitle(noteId: Long, newTitle: String) {
+        viewModelScope.launch(Dispatchers.IO) {
+            repository.changeNoteTitle(noteId, newTitle)
+        }
+    }
     fun getConnectedToNoteByNoteId(noteId: Long): LiveData<List<ConnectedToNote>> {
         return runBlocking {
             withContext(Dispatchers.IO) {
