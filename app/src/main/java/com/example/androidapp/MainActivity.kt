@@ -1,7 +1,9 @@
 package com.example.androidapp
 
+import android.Manifest
 import android.content.pm.PackageManager
 import android.os.Bundle
+import android.os.Handler
 import android.view.WindowManager
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -10,9 +12,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
-import android.Manifest
+import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 
 const val REQUEST_CODE_PERMISSIONS = 101
+const val DELAY = 1250L
 
 val REQUIRED_PERMISSIONS = arrayOf(
     Manifest.permission.RECORD_AUDIO,
@@ -21,14 +24,20 @@ val REQUIRED_PERMISSIONS = arrayOf(
 
 class MainActivity : ComponentActivity() {
 
+    private var keepSplashScreen = true
+
     override fun onCreate(savedInstanceState: Bundle?) {
         enableEdgeToEdge()
-        super.onCreate(savedInstanceState)
-        window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
 
-        setContent {
-            UniqrnApp()
-        }
+        val splashScreen = installSplashScreen()
+
+        super.onCreate(savedInstanceState)
+        window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE)
+
+        setContent { UniqrnApp() }
+
+        splashScreen.setKeepOnScreenCondition { keepSplashScreen }
+        Handler().postDelayed({ keepSplashScreen = false }, DELAY)
 
         if (!allPermissionsGranted()) {
             ActivityCompat.requestPermissions(
