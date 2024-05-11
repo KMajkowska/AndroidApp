@@ -67,6 +67,7 @@ import coil.compose.AsyncImage
 import coil.compose.rememberAsyncImagePainter
 import com.example.androidapp.R
 import com.example.androidapp.TestTags
+import com.example.androidapp.buttonsEffects.bounceClick
 import com.example.androidapp.buttonsEffects.shakeClickEffect
 import com.example.androidapp.database.model.Note
 import com.example.androidapp.database.viewmodel.DayViewModel
@@ -144,7 +145,8 @@ class AllNotes(
                             onClick = {
                                 onSettingsClick()
                                 sendSound.start()
-                            }
+                            },
+                            modifier = Modifier.bounceClick()
                         ) {
                             Icon(
                                 imageVector = Icons.Filled.Settings,
