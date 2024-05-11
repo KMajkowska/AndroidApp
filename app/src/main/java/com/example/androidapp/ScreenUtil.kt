@@ -1,8 +1,15 @@
 package com.example.androidapp
 
+import androidx.compose.animation.core.LinearEasing
+import androidx.compose.animation.core.RepeatMode
+import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -32,14 +39,15 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.androidapp.settings.SettingsRepository
@@ -63,8 +71,53 @@ val RAINBOW_BACKGROUND = listOf(
     Pink
 )
 
+val DARK_MODE_BACKGROUND = listOf(
+    DarkerPurple,
+    Purple
+)
+
+val LIGHT_MODE_BACKGROUND = listOf(
+    darkerBlue,
+    Blue
+)
+
+const val ANIMATION_DURATION = 15000
+
 @Composable
-fun AddBackgroundToComposables(vararg composables: @Composable () -> Unit) {
+fun animatedBackground(isUniqrnTheme: Boolean, isDarkTheme: Boolean): Brush {
+    val configuration = LocalConfiguration.current
+
+    val density = LocalDensity.current;
+    val screenHeightPx = with(density) { configuration.screenHeightDp.dp.roundToPx() }
+
+    val infiniteTransition = rememberInfiniteTransition(label = "InfiniteTransitionForBackground")
+    val animatedOffset = infiniteTransition.animateFloat(
+        initialValue = 0f,
+        targetValue = 2f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(durationMillis = ANIMATION_DURATION, easing = LinearEasing),
+            repeatMode = RepeatMode.Reverse
+        ), label = "animatedOffset"
+    )
+
+    val gradientColors =
+        if (isUniqrnTheme) {
+            RAINBOW_BACKGROUND
+        } else if (isDarkTheme) {
+            DARK_MODE_BACKGROUND
+        } else {
+            LIGHT_MODE_BACKGROUND
+        }
+
+    return Brush.verticalGradient(
+        colors = gradientColors,
+        startY = animatedOffset.value * 1000 - screenHeightPx / 2,
+        endY = animatedOffset.value * 1000 + screenHeightPx / 2
+    )
+}
+
+@Composable
+fun AddBackgroundToComposables(padding: PaddingValues, vararg composables: @Composable () -> Unit) {
     val mSettingsViewModel: SettingsViewModel = viewModel(
         factory = SettingsViewModelFactory(SettingsRepository(LocalContext.current))
     )
@@ -75,39 +128,13 @@ fun AddBackgroundToComposables(vararg composables: @Composable () -> Unit) {
         modifier = Modifier
             .fillMaxSize()
             .background(
-                brush = if (isUniqrnTheme) {
-                    Brush.verticalGradient(
-                        colors = RAINBOW_BACKGROUND,
-                        startY = 0.0f,
-                        endY = Float.POSITIVE_INFINITY
-                    )
-                } else {
-                    if (isDarkTheme) {
-                        Brush.verticalGradient(
-                            colors = listOf(
-                                DarkerPurple,
-                                Purple
-                            ),
-                            startY = 0.0f,
-                            endY = Float.POSITIVE_INFINITY
-                        )
-                    } else {
-                        Brush.verticalGradient(
-                            colors = listOf(
-                                darkerBlue,
-                                Blue
-                            ),
-                            startY = 0.0f,
-                            endY = Float.POSITIVE_INFINITY
-                        )
-                    }
-                }
+                brush = animatedBackground(isUniqrnTheme, isDarkTheme)
             )
     ) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(4.dp)
+                .padding(padding)
         ) {
             composables.forEach { composable ->
                 Card(
@@ -117,15 +144,9 @@ fun AddBackgroundToComposables(vararg composables: @Composable () -> Unit) {
                     ),
                     modifier = Modifier
                         .fillMaxSize()
-                        .weight(1f)
                         .padding(4.dp)
                 ) {
-                    Box(
-                        modifier = Modifier
-                            .fillMaxSize()
-                    ) {
-                        composable()
-                    }
+                    composable()
                 }
             }
         }

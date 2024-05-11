@@ -2,7 +2,6 @@ package com.example.androidapp.navigation.navigablescreen
 
 import android.annotation.SuppressLint
 import android.content.Context
-import android.media.MediaPlayer
 import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
@@ -30,7 +29,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CalendarMonth
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Settings
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -65,7 +63,6 @@ import androidx.compose.ui.zIndex
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.AsyncImage
 import coil.compose.rememberAsyncImagePainter
-import com.example.androidapp.R
 import com.example.androidapp.TestTags
 import com.example.androidapp.buttonsEffects.bounceClick
 import com.example.androidapp.buttonsEffects.shakeClickEffect
@@ -78,6 +75,7 @@ import com.example.androidapp.settings.NoteSortOptionEnum
 import com.example.androidapp.settings.SettingsRepository
 import com.example.androidapp.settings.SettingsViewModel
 import com.example.androidapp.settings.SettingsViewModelFactory
+import com.example.androidapp.sounds.ClickSoundManager
 import java.time.LocalDate
 
 class AllNotes(
@@ -89,13 +87,10 @@ class AllNotes(
    ) : NavigableScreen() {
 
     @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
-    @OptIn(ExperimentalMaterial3Api::class)
     @Composable
     override fun View() {
         var notes = mDayViewModel.allNotes.observeAsState(initial = listOf()).value
         val context = LocalContext.current
-        val sendSound = MediaPlayer.create(context, R.raw.click)
-        var isSoundPlaying by remember { mutableStateOf(false) }
 
         val mSettingsViewModel: SettingsViewModel = viewModel(
             factory = SettingsViewModelFactory(SettingsRepository(LocalContext.current))
@@ -144,7 +139,7 @@ class AllNotes(
                         IconButton(
                             onClick = {
                                 onSettingsClick()
-                                sendSound.start()
+                                ClickSoundManager.playClickSound()
                             },
                             modifier = Modifier.bounceClick()
                         ) {
@@ -170,11 +165,7 @@ class AllNotes(
                                         context = LocalContext.current,
                                         onNoteClicked = {
                                             selectedNote -> onNoteClick(selectedNote.id!!)
-                                            if (!isSoundPlaying) {
-                                                isSoundPlaying = true
-                                                sendSound.start()
-                                                sendSound.setOnCompletionListener { isSoundPlaying = false }
-                                            }
+                                            ClickSoundManager.playClickSound()
                                         }
                                     )
                                     Spacer(modifier = Modifier.height(8.dp))

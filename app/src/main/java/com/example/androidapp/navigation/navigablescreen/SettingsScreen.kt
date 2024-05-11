@@ -1,7 +1,6 @@
 package com.example.androidapp.navigation.navigablescreen
 
 
-import android.media.MediaPlayer
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
@@ -40,6 +39,7 @@ import com.example.androidapp.navigation.ScreenRoutes
 import com.example.androidapp.settings.LanguageEnum
 import com.example.androidapp.settings.NoteSortOptionEnum
 import com.example.androidapp.settings.SettingsViewModel
+import com.example.androidapp.sounds.ClickSoundManager
 
 val languages = LanguageEnum.entries.toTypedArray()
 val sortOptions = NoteSortOptionEnum.entries.toTypedArray()
@@ -59,7 +59,6 @@ class SettingsScreen(
         val selectedSortOption by settingsViewModel.selectedSortOption.observeAsState(NoteSortOptionEnum.ASCENDING)
 
         val context = LocalContext.current
-        val sendSound: MediaPlayer = MediaPlayer.create(context, R.raw.click)
 
         Scaffold(
             topBar = {
@@ -68,7 +67,7 @@ class SettingsScreen(
                     actions = {
                         IconButton(onClick = upPress) {
                             Icon(Icons.Filled.ArrowBackIosNew, contentDescription = "back")
-                            sendSound.start()
+                            ClickSoundManager.playClickSound()
                         }
                     },
                 )
@@ -150,8 +149,6 @@ fun BackupImportDialog(navigateTo: (String) -> Unit) {
     val showDialog = remember { mutableStateOf(false) }
     val showConfirmationDialog = remember { mutableStateOf(false) }
     val isBackup = remember { mutableStateOf(true) }
-    val context = LocalContext.current
-    val sendSound: MediaPlayer = MediaPlayer.create(context, R.raw.click)
 
     val onBackup = {
         isBackup.value = true
@@ -175,14 +172,14 @@ fun BackupImportDialog(navigateTo: (String) -> Unit) {
             text = { Text(stringResource(id = R.string.backup_or_import)) },
             confirmButton = {
                 TextButton(onClick = {
-                    onBackup
-                    sendSound.start()
+                    onBackup()
+                    ClickSoundManager.playClickSound()
                 }) { Text(stringResource(id = R.string.backup)) }
             },
             dismissButton = {
                 TextButton(onClick = {
-                    onImport
-                    sendSound.start()
+                    onImport()
+                    ClickSoundManager.playClickSound()
                 }) { Text(stringResource(id = R.string.import_string)) }
             }
         )
@@ -195,14 +192,14 @@ fun BackupImportDialog(navigateTo: (String) -> Unit) {
             text = { Text(stringResource(id = R.string.continue_confirmation)) },
             confirmButton = {
                 TextButton(onClick = {
-                    confirmAction
-                    sendSound.start()
+                    confirmAction()
+                    ClickSoundManager.playClickSound()
                 }) { Text(stringResource(id = R.string.yes)) }
             },
             dismissButton = {
                 TextButton(onClick = {
                     showConfirmationDialog.value = false
-                    sendSound.start()
+                    ClickSoundManager.playClickSound()
                 }) { Text(stringResource(id = R.string.no)) }
             }
         )
@@ -210,7 +207,7 @@ fun BackupImportDialog(navigateTo: (String) -> Unit) {
 
     Button(onClick = {
         showDialog.value = true
-        sendSound.start()
+        ClickSoundManager.playClickSound()
     }) {
         Text(
             "${stringResource(id = R.string.backup)}/${stringResource(id = R.string.import_string)} ${

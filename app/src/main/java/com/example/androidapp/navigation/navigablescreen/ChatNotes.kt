@@ -1,6 +1,5 @@
 package com.example.androidapp.navigation.navigablescreen
 
-import android.media.MediaPlayer
 import android.util.Log
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
@@ -31,7 +30,6 @@ import androidx.compose.material.icons.filled.Mic
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.PhotoCamera
 import androidx.compose.material.icons.filled.Send
-import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
@@ -57,15 +55,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.TextFieldValue
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import androidx.navigation.compose.DialogHost
 import com.example.androidapp.Dialog
 import com.example.androidapp.R
 import com.example.androidapp.animations.AnimatedIconButton
@@ -81,6 +76,7 @@ import com.example.androidapp.media.getPrivateStorageFileFromFilePath
 import com.example.androidapp.media.imagePainter
 import com.example.androidapp.media.mediaPicker
 import com.example.androidapp.media.takePicture
+import com.example.androidapp.sounds.ClickSoundManager
 
 const val DEFAULT_LONG_VALUE = -1L
 
@@ -131,7 +127,6 @@ class ChatNotes(
         val imageCapture = remember { mutableStateOf<ImageCapture?>(null) }
         val cameraReady = remember { mutableStateOf(false) }
 
-        val sendSound: MediaPlayer = MediaPlayer.create(context, R.raw.click)
         cameraPreview(Modifier.fillMaxSize()).let { capture ->
             imageCapture.value = capture
             cameraReady.value = true
@@ -166,7 +161,7 @@ class ChatNotes(
                             Log.e("Error", exception.localizedMessage ?: "Unknown error")
                         }
                     )
-                    sendSound.start()
+                    ClickSoundManager.playClickSound()
                 },
             ) {
                 Icon(
@@ -186,8 +181,6 @@ class ChatNotes(
                 mDayViewModel.getNoteById(noteForeignId)!!.noteTitle
             )
         }
-        val context = LocalContext.current
-        val sendSound = MediaPlayer.create(context, R.raw.click)
 
         var isDeleteDialogForNoteOpen by remember { mutableStateOf(false) }
 
@@ -234,7 +227,7 @@ class ChatNotes(
                                 mediaType = ActivityResultContracts.PickVisualMedia.ImageAndVideo
                             )
                         )
-                        sendSound.start()
+                        ClickSoundManager.playClickSound()
                     },
                     audioRecorder = audioRecorder,
                     onAudioRecorderFinished = { path ->
@@ -253,7 +246,7 @@ class ChatNotes(
                             mimeTypeString = MimeTypeEnum.TEXT.toString(),
                             contentOrPath = content
                         )
-                        sendSound.start()
+                        ClickSoundManager.playClickSound()
                     }
                 )
             }
@@ -397,7 +390,6 @@ fun MessageCreationRow(
 ) {
     val context = LocalContext.current
     var text by remember { mutableStateOf("") }
-    val sendSound = MediaPlayer.create(context, R.raw.click)
 
     Surface(
         modifier = modifier
@@ -421,7 +413,7 @@ fun MessageCreationRow(
                     }
                 },
                 onActionUp = { onAudioRecorderFinished(audioRecorder.stopRecording())
-                sendSound.start()
+                ClickSoundManager.playClickSound()
                 }
             ) {
                 Icon(Icons.Default.Mic, contentDescription = "Record")
@@ -429,12 +421,12 @@ fun MessageCreationRow(
 
             IconButton(onClick = onAttachmentClick) {
                 Icon(Icons.Default.AttachFile, contentDescription = "Attach")
-                sendSound.start()
+                ClickSoundManager.playClickSound()
             }
 
             IconButton(onClick = onCameraClick) {
                 Icon(Icons.Default.CameraAlt, contentDescription = "Camera")
-                sendSound.start()
+                ClickSoundManager.playClickSound()
             }
 
             TextField(
@@ -451,7 +443,7 @@ fun MessageCreationRow(
                 if (text.isNotBlank()) {
                     onSendClick(text)
                     text = ""
-                    sendSound.start()
+                    ClickSoundManager.playClickSound()
                 }
             },
                 modifier = Modifier.bounceClick()
@@ -469,9 +461,6 @@ fun CustomTopAppBar(
     onNavigationClick: () -> Unit,
     onDelete: () -> Unit
 ) {
-
-    val context = LocalContext.current
-    val sendSound = MediaPlayer.create(context, R.raw.click)
     var showMenu by remember { mutableStateOf(false) }
     var textFieldValue by remember { mutableStateOf(TextFieldValue(text = title)) }
 
@@ -497,13 +486,13 @@ fun CustomTopAppBar(
         navigationIcon = {
             IconButton(onClick = onNavigationClick) {
                 Icon(Icons.Default.ArrowBack, contentDescription = "Back")
-                sendSound.start()
+                ClickSoundManager.playClickSound()
             }
         },
         actions = {
             IconButton(onClick = { showMenu = !showMenu }) {
                 Icon(Icons.Default.MoreVert, contentDescription = "More")
-                sendSound.start()
+                ClickSoundManager.playClickSound()
             }
 
             DropdownMenu(

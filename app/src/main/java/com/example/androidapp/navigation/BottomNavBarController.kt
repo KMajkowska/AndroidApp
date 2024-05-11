@@ -6,7 +6,9 @@ import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AddAlarm
 import androidx.compose.material.icons.filled.AddCircle
@@ -25,6 +27,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.unit.dp
 import androidx.lifecycle.Lifecycle
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavDestination
@@ -67,7 +70,8 @@ fun CustomBottomNavigation(
 
     Scaffold(bottomBar = {
         NavigationBar(
-            containerColor = MaterialTheme.colorScheme.primary
+            containerColor = MaterialTheme.colorScheme.primary,
+            modifier = Modifier.height(80.dp)
         ) {
             tabs.forEach { tab ->
                 NavigationBarItem(
@@ -75,13 +79,15 @@ fun CustomBottomNavigation(
                         Icon(
                             imageVector = tab.icon,
                             contentDescription = stringResource(id = tab.title),
-                            tint = if (tab == currentSection) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onPrimaryContainer
+                            tint = if (tab == currentSection) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onPrimaryContainer,
+                            modifier = Modifier.size(24.dp)
                         )
                     },
                     label = {
                         Text(
                             text = stringResource(id = tab.title),
-                            color = if (tab == currentSection) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onPrimaryContainer
+                            color = if (tab == currentSection) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onPrimaryContainer,
+                            style = MaterialTheme.typography.labelLarge
                         )
                     },
                     selected = tab == currentSection,
@@ -96,7 +102,7 @@ fun CustomBottomNavigation(
                             }
                         }
                         .background(
-                            MaterialTheme.colorScheme.primary// Set the background color for the selected item)
+                            MaterialTheme.colorScheme.primary
                         ))
             }
         }

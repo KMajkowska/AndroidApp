@@ -1,7 +1,6 @@
 package com.example.androidapp.navigation.navigablescreen
 
 import android.annotation.SuppressLint
-import android.media.MediaPlayer
 import android.os.Build
 import android.view.ContextThemeWrapper
 import android.view.ViewGroup
@@ -33,9 +32,7 @@ import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.ArrowDownward
 import androidx.compose.material.icons.filled.ArrowForward
 import androidx.compose.material.icons.filled.ArrowUpward
-import androidx.compose.material.icons.filled.LocalFlorist
 import androidx.compose.material.icons.filled.QuestionMark
-import androidx.compose.material.icons.filled.WbSunny
 import androidx.compose.material.icons.outlined.Eco
 import androidx.compose.material.icons.outlined.LocalFlorist
 import androidx.compose.material.icons.outlined.WbSunny
@@ -74,6 +71,7 @@ import com.example.androidapp.database.viewmodel.DayViewModel
 import com.example.androidapp.settings.SettingsRepository
 import com.example.androidapp.settings.SettingsViewModel
 import com.example.androidapp.settings.SettingsViewModelFactory
+import com.example.androidapp.sounds.ClickSoundManager
 import java.time.LocalDate
 import java.time.Month
 import java.time.Year
@@ -96,8 +94,6 @@ class CalendarScreen(
     override fun View() {
         var dayEntity by remember { mutableStateOf(mDayViewModel.getDayByDate(localDate)) }
         var selectedNote by remember { mutableStateOf(mDayViewModel.getNoteByDate(localDate)) }
-        val context = LocalContext.current
-        val sendSound = MediaPlayer.create(context, R.raw.click)
 
         val allDayEntitiesWithRelatedSortedByDate =
             mDayViewModel.allDayEntitiesWithRelatedSortedByDate.observeAsState(initial = listOf()).value
@@ -130,7 +126,7 @@ class CalendarScreen(
                     IconButton(
                         onClick = {
                             isCalendarExpanded.value = !isCalendarExpanded.value
-                            sendSound.start()
+                            ClickSoundManager.playClickSound()
                         },
                         modifier = Modifier
                             .size(24.dp)
@@ -436,8 +432,6 @@ class CalendarScreen(
         currentMonth:YearMonth,
         onMonthChanged: (YearMonth) -> Unit
     ) {
-        val context = LocalContext.current
-        val sendSound = MediaPlayer.create(context, R.raw.click)
         Row(
             modifier = Modifier
                 .fillMaxWidth()
@@ -447,7 +441,7 @@ class CalendarScreen(
             Button(
                 onClick = {
                     onMonthChanged(currentMonth.minusMonths(1))
-                    sendSound.start()
+                    ClickSoundManager.playClickSound()
                 }
             ) {
                 Icon(
@@ -464,7 +458,7 @@ class CalendarScreen(
             Button(
                 onClick = {
                     onMonthChanged(currentMonth.plusMonths(1))
-                    sendSound.start()
+                    ClickSoundManager.playClickSound()
                 }
             ) {
                 Icon(

@@ -13,6 +13,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
+import com.example.androidapp.sounds.ClickSoundManager
 
 const val REQUEST_CODE_PERMISSIONS = 101
 const val DELAY = 1250L
@@ -25,14 +26,16 @@ val REQUIRED_PERMISSIONS = arrayOf(
 class MainActivity : ComponentActivity() {
 
     private var keepSplashScreen = true
+    private lateinit var soundManager: ClickSoundManager
 
     override fun onCreate(savedInstanceState: Bundle?) {
         enableEdgeToEdge()
-
         val splashScreen = installSplashScreen()
 
         super.onCreate(savedInstanceState)
+
         window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE)
+        ClickSoundManager.initialize(this)
 
         setContent { UniqrnApp() }
 
@@ -62,6 +65,11 @@ class MainActivity : ComponentActivity() {
                 // Permissions not granted. You can notify the user and close the app or disable certain features.
             }
         }
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        soundManager.releaseMediaPlayer()
     }
 
 

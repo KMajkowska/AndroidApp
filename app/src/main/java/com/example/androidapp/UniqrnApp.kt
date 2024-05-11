@@ -1,10 +1,12 @@
 package com.example.androidapp
 
 import android.app.Application
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavGraphBuilder
@@ -35,6 +37,7 @@ import com.example.androidapp.ui.theme.LanguageAwareScreen
 import java.time.LocalDate
 
 var defaultPicture = R.drawable.pen
+
 @Composable
 fun UniqrnApp() {
     val navController = rememberNavHostController()
@@ -48,12 +51,12 @@ fun UniqrnApp() {
     val isUniqrnTheme by mSettingsViewModel.isUniqrnModeEnabled.observeAsState(true)
     val areNotificationsEnabled by mSettingsViewModel.areNotificationsEnabled.observeAsState(true)
 
-    defaultPicture = if (isUniqrnTheme){
-         R.drawable.uniqrn_app
-    }
-    else {
-        R.drawable.pen
-    }
+    defaultPicture =
+        if (isUniqrnTheme) {
+            R.drawable.uniqrn_app
+        } else {
+            R.drawable.pen
+        }
     val notificationHelper = NotificationHelper(LocalContext.current, areNotificationsEnabled)
     val mDayViewModel: DayViewModel = viewModel(
         factory = DayViewModelFactory(
@@ -131,6 +134,13 @@ private fun NavGraphBuilder.unqirnNavGraph(
     onSettingsClick: () -> Unit,
     upPress: () -> Unit
 ) {
+    val fullScreenPaddingValues = PaddingValues(
+        top = 32.dp,
+        bottom = 32.dp,
+        start = 4.dp,
+        end = 4.dp
+    )
+
     val localDateConverter = LocalDateConverter()
     val tabs = listOf(NavItem.ALL_NOTES, NavItem.CALENDAR, NavItem.DAYS)
 
@@ -148,7 +158,7 @@ private fun NavGraphBuilder.unqirnNavGraph(
             AllNotes(
                 mDayViewModel,
                 LocalDate.now(),
-                {onSettingsClick()},
+                { onSettingsClick() },
                 { noteId -> onNoteSelected(noteId, backStackEntry) }
             ) { date -> onDaySelected(date, backStackEntry) }, onNavigateToRoute
         )
@@ -194,11 +204,11 @@ private fun NavGraphBuilder.unqirnNavGraph(
     composable(
         route = ScreenRoutes.SETTINGS
     ) { _ ->
-            SettingsScreen(
-                onNavigateToRoute,
-                mSettingsViewModel,
-                upPress
-            ).ViewWithBackground()
+        SettingsScreen(
+            onNavigateToRoute,
+            mSettingsViewModel,
+            upPress
+        ).ViewWithBackground(fullScreenPaddingValues)
     }
 
     composable(route = ScreenRoutes.IMPORT_PICKER) { _ ->
@@ -231,6 +241,6 @@ private fun NavGraphBuilder.unqirnNavGraph(
             noteForeignId = noteForeignId,
             mDayViewModel = mDayViewModel,
             upPress = upPress
-        ).ViewWithBackground()
+        ).ViewWithBackground(fullScreenPaddingValues)
     }
 }

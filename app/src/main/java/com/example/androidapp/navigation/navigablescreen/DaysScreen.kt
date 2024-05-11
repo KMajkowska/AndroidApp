@@ -1,6 +1,5 @@
 package com.example.androidapp.navigation.navigablescreen
 
-import android.media.MediaPlayer
 import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.background
@@ -61,9 +60,10 @@ import com.example.androidapp.database.model.Note
 import com.example.androidapp.database.model.TodoEntity
 import com.example.androidapp.database.viewmodel.DayViewModel
 import com.example.androidapp.settings.EventCategories
+import com.example.androidapp.sounds.ClickSoundManager
 import java.time.LocalDate
 
- class DaysScreen(
+class DaysScreen(
     private val mDayViewModel: DayViewModel,
     private val localDate: LocalDate,
     private val onNoteClick: (Long) -> Unit
@@ -171,7 +171,6 @@ import java.time.LocalDate
         var isEditing by remember { mutableStateOf(false) }
         val todoList = mDayViewModel.getTodosByDayId(dayId).observeAsState(initial = listOf()).value
         val context = LocalContext.current
-        val sendSound = MediaPlayer.create(context, R.raw.click)
         Box(
             modifier = Modifier
                 .fillMaxSize()
@@ -205,7 +204,7 @@ import java.time.LocalDate
                 } else {
                     IconButton(onClick = {
                         isEditing = true
-                        sendSound.start()
+                        ClickSoundManager.playClickSound()
                     }) {
                         Icon(imageVector = Icons.Default.Add, contentDescription = "Add new todo")
                     }
@@ -243,7 +242,7 @@ import java.time.LocalDate
                         IconButton(
                             onClick = {
                                 mDayViewModel.deleteTodoEntity(todo)
-                                sendSound.start()
+                                ClickSoundManager.playClickSound()
                             }
                         ) {
                             Icon(Icons.Default.Delete, contentDescription = "Delete")
@@ -269,7 +268,6 @@ import java.time.LocalDate
         var isEditing by remember { mutableStateOf(false) }
         var isDropdownExpanded by remember { mutableStateOf(false) }
         val context = LocalContext.current
-        val sendSound = MediaPlayer.create(context, R.raw.click)
 
         Box(
             modifier = Modifier
@@ -356,7 +354,7 @@ import java.time.LocalDate
                 } else {
                     IconButton(onClick = {
                         isEditing = true
-                        sendSound.start()
+                        ClickSoundManager.playClickSound()
                     }) {
                         Icon(
                             imageVector = Icons.Default.Add,
@@ -396,7 +394,7 @@ import java.time.LocalDate
                         IconButton(
                             onClick = {
                                 mDayViewModel.deleteEventEntity(event)
-                                sendSound.start()
+                                ClickSoundManager.playClickSound()
                             }
                         ) {
                             Icon(Icons.Default.Delete, contentDescription = "Delete")
