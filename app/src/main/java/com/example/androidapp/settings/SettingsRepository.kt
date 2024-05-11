@@ -62,15 +62,4 @@ class SettingsRepository(private val context: Context) {
             preferences[PreferencesKeys.SELECTED_SORT_OPTION] = selectedSortOption.toString()
         }
     }
-
-    val selectedSoundOption: Flow<SoundOptions> = context.dataStore.data
-        .map { preferences ->
-            SoundOptions.valueOf((preferences[PreferencesKeys.SELECTED_SOUND_OPTION] ?: SoundOptions.NONE).toString())
-        }
-
-    suspend fun setSelectedSound(sound: SoundOptions) {
-        context.dataStore.edit { preferences ->
-            preferences[PreferencesKeys.SELECTED_SOUND_OPTION] = sound.toString()
-        }
-    }
 }

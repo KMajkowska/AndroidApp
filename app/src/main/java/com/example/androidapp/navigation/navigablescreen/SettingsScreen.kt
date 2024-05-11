@@ -1,6 +1,7 @@
 package com.example.androidapp.navigation.navigablescreen
 
 
+import android.media.MediaPlayer
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
@@ -9,7 +10,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.ArrowBackIosNew
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
@@ -17,7 +17,6 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -41,11 +40,9 @@ import com.example.androidapp.navigation.ScreenRoutes
 import com.example.androidapp.settings.LanguageEnum
 import com.example.androidapp.settings.NoteSortOptionEnum
 import com.example.androidapp.settings.SettingsViewModel
-import com.example.androidapp.settings.SoundOptions
 
 val languages = LanguageEnum.entries.toTypedArray()
 val sortOptions = NoteSortOptionEnum.entries.toTypedArray()
-val soundOptions = SoundOptions.entries.toTypedArray()
 
 class SettingsScreen(
     private val navigateToFilePicker: (String) -> Unit,
@@ -60,9 +57,10 @@ class SettingsScreen(
         val isDarkModeEnabled by settingsViewModel.isDarkTheme.observeAsState(false)
         val unicornModeEnabled by settingsViewModel.isUniqrnModeEnabled.observeAsState(false)
         val selectedSortOption by settingsViewModel.selectedSortOption.observeAsState(NoteSortOptionEnum.ASCENDING)
-        val selectedSoundOption by settingsViewModel.selectedSoundOption.observeAsState(SoundOptions.NONE)
 
         val context = LocalContext.current
+        val sendSound: MediaPlayer = MediaPlayer.create(context, R.raw.click)
+
         Scaffold(
             topBar = {
                 TopAppBar(
@@ -70,6 +68,7 @@ class SettingsScreen(
                     actions = {
                         IconButton(onClick = upPress) {
                             Icon(Icons.Filled.ArrowBackIosNew, contentDescription = "back")
+                            sendSound.start()
                         }
                     },
                 )
@@ -129,15 +128,6 @@ class SettingsScreen(
                     HorizontalDivider()
                     BackupImportDialog(navigateToFilePicker)
 
-                    HorizontalDivider()
-                    DropDown(
-                        dropdownName = stringResource(id = R.string.sound),
-                        allOptions = soundOptions,
-                        valueFromOptionGetterFunction = { soundOption -> context.resources.getString(soundOption.resourceId)},
-                        selectedValueModifier = selectedSoundOption
-                    ) { soundOption ->
-                        settingsViewModel.setSelectedSound(soundOption)
-                    }
 
                     HorizontalDivider()
                     val image = painterResource(R.drawable.uniqrn_app)
@@ -160,6 +150,8 @@ fun BackupImportDialog(navigateTo: (String) -> Unit) {
     val showDialog = remember { mutableStateOf(false) }
     val showConfirmationDialog = remember { mutableStateOf(false) }
     val isBackup = remember { mutableStateOf(true) }
+    val context = LocalContext.current
+    val sendSound: MediaPlayer = MediaPlayer.create(context, R.raw.click)
 
     val onBackup = {
         isBackup.value = true
@@ -182,10 +174,16 @@ fun BackupImportDialog(navigateTo: (String) -> Unit) {
             title = { Text(stringResource(id = R.string.choose_action)) },
             text = { Text(stringResource(id = R.string.backup_or_import)) },
             confirmButton = {
-                TextButton(onClick = onBackup) { Text(stringResource(id = R.string.backup)) }
+                TextButton(onClick = {
+                    onBackup
+                    sendSound.start()
+                }) { Text(stringResource(id = R.string.backup)) }
             },
             dismissButton = {
-                TextButton(onClick = onImport) { Text(stringResource(id = R.string.import_string)) }
+                TextButton(onClick = {
+                    onImport
+                    sendSound.start()
+                }) { Text(stringResource(id = R.string.import_string)) }
             }
         )
     }
@@ -196,17 +194,24 @@ fun BackupImportDialog(navigateTo: (String) -> Unit) {
             title = { Text(stringResource(id = R.string.confirmation)) },
             text = { Text(stringResource(id = R.string.continue_confirmation)) },
             confirmButton = {
-                TextButton(onClick = confirmAction) { Text(stringResource(id = R.string.yes)) }
+                TextButton(onClick = {
+                    confirmAction
+                    sendSound.start()
+                }) { Text(stringResource(id = R.string.yes)) }
             },
             dismissButton = {
                 TextButton(onClick = {
                     showConfirmationDialog.value = false
+                    sendSound.start()
                 }) { Text(stringResource(id = R.string.no)) }
             }
         )
     }
 
-    Button(onClick = { showDialog.value = true }) {
+    Button(onClick = {
+        showDialog.value = true
+        sendSound.start()
+    }) {
         Text(
             "${stringResource(id = R.string.backup)}/${stringResource(id = R.string.import_string)} ${
                 stringResource(

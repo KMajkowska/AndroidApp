@@ -1,5 +1,6 @@
 package com.example.androidapp.navigation.navigablescreen
 
+import android.media.MediaPlayer
 import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.background
@@ -47,7 +48,6 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.androidapp.HorizontalDivider
@@ -176,7 +176,8 @@ class DaysScreen(
     ) {
         var isEditing by remember { mutableStateOf(false) }
         val todoList = mDayViewModel.getTodosByDayId(dayId).observeAsState(initial = listOf()).value
-
+        val context = LocalContext.current
+        val sendSound = MediaPlayer.create(context, R.raw.click)
         Box(
             modifier = Modifier
                 .fillMaxSize()
@@ -210,6 +211,7 @@ class DaysScreen(
                 } else {
                     IconButton(onClick = {
                         isEditing = true
+                        sendSound.start()
                     }) {
                         Icon(imageVector = Icons.Default.Add, contentDescription = "Add new todo")
                     }
@@ -245,7 +247,10 @@ class DaysScreen(
                             )
                         }
                         IconButton(
-                            onClick = { mDayViewModel.deleteTodoEntity(todo) }
+                            onClick = {
+                                mDayViewModel.deleteTodoEntity(todo)
+                                sendSound.start()
+                            }
                         ) {
                             Icon(Icons.Default.Delete, contentDescription = "Delete")
                             hasDayEntityBeenChanged.value = true
@@ -270,6 +275,7 @@ class DaysScreen(
         var isEditing by remember { mutableStateOf(false) }
         var isDropdownExpanded by remember { mutableStateOf(false) }
         val context = LocalContext.current
+        val sendSound = MediaPlayer.create(context, R.raw.click)
 
         Box(
             modifier = Modifier
@@ -356,6 +362,7 @@ class DaysScreen(
                 } else {
                     IconButton(onClick = {
                         isEditing = true
+                        sendSound.start()
                     }) {
                         Icon(
                             imageVector = Icons.Default.Add,
@@ -393,7 +400,10 @@ class DaysScreen(
                         }
 
                         IconButton(
-                            onClick = { mDayViewModel.deleteEventEntity(event) }
+                            onClick = {
+                                mDayViewModel.deleteEventEntity(event)
+                                sendSound.start()
+                            }
                         ) {
                             Icon(Icons.Default.Delete, contentDescription = "Delete")
                             hasDayEntityBeenChanged.value = true

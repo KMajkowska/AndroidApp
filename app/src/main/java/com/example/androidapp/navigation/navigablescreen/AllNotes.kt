@@ -2,8 +2,8 @@ package com.example.androidapp.navigation.navigablescreen
 
 import android.annotation.SuppressLint
 import android.content.Context
+import android.media.MediaPlayer
 import android.net.Uri
-import androidx.compose.material.*
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
@@ -15,7 +15,6 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -31,7 +30,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CalendarMonth
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Settings
-import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
@@ -40,7 +38,6 @@ import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
@@ -52,7 +49,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
 import androidx.compose.ui.input.nestedscroll.NestedScrollSource
 import androidx.compose.ui.input.nestedscroll.nestedScroll
@@ -60,8 +56,6 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
@@ -73,16 +67,16 @@ import coil.compose.AsyncImage
 import coil.compose.rememberAsyncImagePainter
 import com.example.androidapp.R
 import com.example.androidapp.TestTags
+import com.example.androidapp.buttonsEffects.shakeClickEffect
 import com.example.androidapp.database.model.Note
 import com.example.androidapp.database.viewmodel.DayViewModel
 import com.example.androidapp.defaultPicture
 import com.example.androidapp.media.getPrivateStorageFileFromFilePath
+import com.example.androidapp.media.saveMediaToInternalStorage
 import com.example.androidapp.settings.NoteSortOptionEnum
 import com.example.androidapp.settings.SettingsRepository
 import com.example.androidapp.settings.SettingsViewModel
 import com.example.androidapp.settings.SettingsViewModelFactory
-import com.example.androidapp.media.saveMediaToInternalStorage
-import java.io.File
 import java.time.LocalDate
 
 class AllNotes(
@@ -98,6 +92,9 @@ class AllNotes(
     @Composable
     override fun View() {
         var notes = mDayViewModel.allNotes.observeAsState(initial = listOf()).value
+        val context = LocalContext.current
+        val sendSound = MediaPlayer.create(context, R.raw.click)
+        var isSoundPlaying by remember { mutableStateOf(false) }
 
         val mSettingsViewModel: SettingsViewModel = viewModel(
             factory = SettingsViewModelFactory(SettingsRepository(LocalContext.current))
@@ -144,7 +141,10 @@ class AllNotes(
                         )
 
                         IconButton(
-                            onClick = { onSettingsClick() }
+                            onClick = {
+                                onSettingsClick()
+                                sendSound.start()
+                            }
                         ) {
                             Icon(
                                 imageVector = Icons.Filled.Settings,
@@ -166,7 +166,14 @@ class AllNotes(
                                     NoteItem(
                                         note = note,
                                         context = LocalContext.current,
-                                        onNoteClicked = { selectedNote -> onNoteClick(selectedNote.id!!) }
+                                        onNoteClicked = {
+                                            selectedNote -> onNoteClick(selectedNote.id!!)
+                                            if (!isSoundPlaying) {
+                                                isSoundPlaying = true
+                                                sendSound.start()
+                                                sendSound.setOnCompletionListener { isSoundPlaying = false }
+                                            }
+                                        }
                                     )
                                     Spacer(modifier = Modifier.height(8.dp))
                                 }
@@ -194,6 +201,7 @@ class AllNotes(
                             shape = CircleShape,
                             modifier = Modifier
                                 .size(56.dp)
+                                .shakeClickEffect()
                         ) {
                             Icon(
                                 imageVector = Icons.Default.Edit,

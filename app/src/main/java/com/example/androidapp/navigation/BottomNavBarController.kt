@@ -85,7 +85,9 @@ fun CustomBottomNavigation(
                         )
                     },
                     selected = tab == currentSection,
-                    onClick = { navigateToRoute(tab.route) },
+                    onClick = {
+                        navigateToRoute(tab.route)
+                    },
                     modifier = Modifier
                         .weight(1f)
                         .pointerInput(Unit) {

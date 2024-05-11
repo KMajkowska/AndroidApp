@@ -1,13 +1,12 @@
 package com.example.androidapp.navigation.navigablescreen
 
+import android.media.MediaPlayer
 import android.util.Log
-import android.view.MotionEvent
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.camera.core.ImageCapture
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -51,16 +50,16 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
-import androidx.compose.ui.input.pointer.pointerInteropFilter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.example.androidapp.Dialog
+import com.example.androidapp.R
 import com.example.androidapp.animations.AnimatedIconButton
+import com.example.androidapp.buttonsEffects.bounceClick
 import com.example.androidapp.database.model.ConnectedToNote
 import com.example.androidapp.database.viewmodel.DayViewModel
 import com.example.androidapp.media.AudioPlayer
@@ -122,6 +121,7 @@ class ChatNotes(
         val imageCapture = remember { mutableStateOf<ImageCapture?>(null) }
         val cameraReady = remember { mutableStateOf(false) }
 
+        val sendSound: MediaPlayer = MediaPlayer.create(context, R.raw.click)
         cameraPreview(Modifier.fillMaxSize()).let { capture ->
             imageCapture.value = capture
             cameraReady.value = true
@@ -155,6 +155,7 @@ class ChatNotes(
                             Log.e("Error", exception.localizedMessage ?: "Unknown error")
                         }
                     )
+                    sendSound.start()
                 },
             ) {
                 Icon(
@@ -169,6 +170,9 @@ class ChatNotes(
 
     @Composable
     fun ShowChat(title: String, onShowCamera: () -> Unit) {
+        val context = LocalContext.current
+        val sendSound: MediaPlayer = MediaPlayer.create(context, R.raw.click)
+
         val visualMediaPicker = mediaPicker(context = LocalContext.current) { path, mimeType ->
             if (path != null && mimeType != null) {
                 addToDatabase(
@@ -211,6 +215,7 @@ class ChatNotes(
                             mimeTypeString = MimeTypeEnum.TEXT.toString(),
                             contentOrPath = content
                         )
+                        sendSound.start()
                     }
                 )
             }
@@ -348,6 +353,7 @@ fun MessageCreationRow(
 ) {
     val context = LocalContext.current
     var text by remember { mutableStateOf("") }
+    val sendSound = MediaPlayer.create(context, R.raw.click)
 
     Surface(
         modifier = modifier
@@ -370,17 +376,21 @@ fun MessageCreationRow(
                         )
                     }
                 },
-                onActionUp = { onAudioRecorderFinished(audioRecorder.stopRecording()) }
+                onActionUp = { onAudioRecorderFinished(audioRecorder.stopRecording())
+                sendSound.start()
+                }
             ) {
                 Icon(Icons.Default.Mic, contentDescription = "Record")
             }
 
             IconButton(onClick = onAttachmentClick) {
                 Icon(Icons.Default.AttachFile, contentDescription = "Attach")
+                sendSound.start()
             }
 
             IconButton(onClick = onCameraClick) {
                 Icon(Icons.Default.CameraAlt, contentDescription = "Camera")
+                sendSound.start()
             }
 
             TextField(
@@ -397,14 +407,16 @@ fun MessageCreationRow(
                 if (text.isNotBlank()) {
                     onSendClick(text)
                     text = ""
+                    sendSound.start()
                 }
-            }) {
+            },
+                modifier = Modifier.bounceClick()
+            ) {
                 Icon(Icons.Default.Send, contentDescription = "Send")
             }
         }
     }
 }
-
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CustomTopAppBar(
@@ -412,6 +424,9 @@ fun CustomTopAppBar(
     onNavigationClick: () -> Unit,
     onOverflowClick: () -> Unit
 ) {
+    val context = LocalContext.current
+    val sendSound = MediaPlayer.create(context, R.raw.click)
+
     TopAppBar(
         title = {
             Text(text = title, maxLines = 1, overflow = TextOverflow.Ellipsis)
@@ -419,11 +434,13 @@ fun CustomTopAppBar(
         navigationIcon = {
             IconButton(onClick = onNavigationClick) {
                 Icon(Icons.Default.ArrowBack, contentDescription = "Back")
+                sendSound.start()
             }
         },
         actions = {
             IconButton(onClick = onOverflowClick) {
                 Icon(Icons.Default.MoreVert, contentDescription = "More")
+                sendSound.start()
             }
         }
     )
