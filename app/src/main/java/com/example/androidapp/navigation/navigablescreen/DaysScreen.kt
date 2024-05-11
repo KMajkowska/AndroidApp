@@ -63,28 +63,22 @@ import com.example.androidapp.database.viewmodel.DayViewModel
 import com.example.androidapp.settings.EventCategories
 import java.time.LocalDate
 
-class DaysScreen(
+ class DaysScreen(
     private val mDayViewModel: DayViewModel,
     private val localDate: LocalDate,
     private val onNoteClick: (Long) -> Unit
 ) : NavigableScreen() {
 
-    @Composable
-    override fun View() {
-        TODO("Not yet implemented")
-    }
+     @RequiresApi(Build.VERSION_CODES.S)
+     @Composable
+     override fun View() {
+         var dayEntity by remember { mutableStateOf(mDayViewModel.getDayByDate(localDate)) }
+         var selectedNote by remember { mutableStateOf(mDayViewModel.getNoteByDate(localDate)) }
 
-    @RequiresApi(Build.VERSION_CODES.S)
-    @Composable
-    override fun ViewWithBackground() {
-        val dayEntity by remember { mutableStateOf(mDayViewModel.getDayByDate(localDate)) }
-        val selectedNote by remember { mutableStateOf(mDayViewModel.getNoteByDate(localDate)) }
-
-        Surface(modifier = Modifier.testTag(TestTags.DAYS_SCREEN_VIEW)) {
-            DayDataView(dayEntity, selectedNote)
-        }
-    }
-
+         Surface(modifier = Modifier.testTag(TestTags.DAYS_SCREEN_VIEW)) {
+             DayDataView(dayEntity, selectedNote)
+         }
+     }
     @RequiresApi(Build.VERSION_CODES.S)
     @Composable
     fun DayDataView(dayEntity: DayEntity, selectedNote: Note?) {

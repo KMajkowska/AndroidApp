@@ -22,6 +22,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.AttachFile
@@ -30,10 +31,14 @@ import androidx.compose.material.icons.filled.Mic
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.PhotoCamera
 import androidx.compose.material.icons.filled.Send
+import androidx.compose.material3.Button
 import androidx.compose.material3.Card
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
@@ -41,6 +46,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableLongStateOf
@@ -51,11 +57,15 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.navigation.compose.DialogHost
 import com.example.androidapp.Dialog
 import com.example.androidapp.R
 import com.example.androidapp.animations.AnimatedIconButton
@@ -72,6 +82,9 @@ import com.example.androidapp.media.imagePainter
 import com.example.androidapp.media.mediaPicker
 import com.example.androidapp.media.takePicture
 
+const val DEFAULT_LONG_VALUE = -1L
+
+// TODO: translate this screen
 class ChatNotes(
     private val noteForeignId: Long,
     private val mDayViewModel: DayViewModel,
@@ -93,11 +106,9 @@ class ChatNotes(
 
     @Composable
     override fun View() {
-        if (noteForeignId < 0) {
+        if (noteForeignId == DEFAULT_LONG_VALUE) {
             return
         }
-
-        val note = mDayViewModel.getNoteById(noteForeignId) ?: return
 
         var showCamera by remember { mutableStateOf(false) }
 
@@ -105,9 +116,8 @@ class ChatNotes(
             ConfiguredCameraPreview {
                 showCamera = false
             }
-
         } else {
-            ShowChat(title = note.getNoteTitleIfSet(LocalContext.current)) {
+            ShowChat {
                 showCamera = true
             }
         }
@@ -127,8 +137,9 @@ class ChatNotes(
             cameraReady.value = true
         }
 
-        if (!cameraReady.value || imageCapture.value == null)
+        if (!cameraReady.value || imageCapture.value == null) {
             return
+        }
 
         Box(
             modifier = Modifier
@@ -169,9 +180,16 @@ class ChatNotes(
     }
 
     @Composable
-    fun ShowChat(title: String, onShowCamera: () -> Unit) {
+    fun ShowChat(onShowCamera: () -> Unit) {
+        var title by remember {
+            mutableStateOf(
+                mDayViewModel.getNoteById(noteForeignId)!!.noteTitle
+            )
+        }
         val context = LocalContext.current
-        val sendSound: MediaPlayer = MediaPlayer.create(context, R.raw.click)
+        val sendSound = MediaPlayer.create(context, R.raw.click)
+
+        var isDeleteDialogForNoteOpen by remember { mutableStateOf(false) }
 
         val visualMediaPicker = mediaPicker(context = LocalContext.current) { path, mimeType ->
             if (path != null && mimeType != null) {
@@ -182,12 +200,30 @@ class ChatNotes(
             }
         }
 
+        DeleteDialog(
+            isShown = isDeleteDialogForNoteOpen,
+            onDismissDelete = { isDeleteDialogForNoteOpen = false }
+        ) {
+            if (noteForeignId != DEFAULT_LONG_VALUE) {
+                mDayViewModel.deleteNoteEntity(mDayViewModel.getNoteById(noteForeignId)!!)
+            }
+
+            isDeleteDialogForNoteOpen = false
+            upPress()
+        }
+
+        LaunchedEffect(title) {
+            // Launch a coroutine whenever newTitle changes
+            mDayViewModel.changeNoteTitle(noteForeignId, title)
+        }
+
         Scaffold(
             topBar = {
                 CustomTopAppBar(
                     title = title,
+                    onTitleChanged = { title = it }, // Funkcja zwrotna dla zmiany tytułu
                     onNavigationClick = upPress,
-                    onOverflowClick = { /* TODO: overflow menu click */ }
+                    onDelete = { isDeleteDialogForNoteOpen = true }
                 )
             },
             bottomBar = {
@@ -198,6 +234,7 @@ class ChatNotes(
                                 mediaType = ActivityResultContracts.PickVisualMedia.ImageAndVideo
                             )
                         )
+                        sendSound.start()
                     },
                     audioRecorder = audioRecorder,
                     onAudioRecorderFinished = { path ->
@@ -209,7 +246,8 @@ class ChatNotes(
                             contentOrPath = path
                         )
                     },
-                    onCameraClick = onShowCamera,
+                    onCameraClick = onShowCamera
+                    ,
                     onSendClick = { content ->
                         addToDatabase(
                             mimeTypeString = MimeTypeEnum.TEXT.toString(),
@@ -226,10 +264,9 @@ class ChatNotes(
 
     @Composable
     fun ChatContent(paddingValues: PaddingValues) {
-        val defaultLongValue = -1L
 
         var isDeleteDialogShown by remember { mutableStateOf(false) }
-        var currentItemToDelete by remember { mutableLongStateOf(defaultLongValue) }
+        var currentItemToDelete by remember { mutableLongStateOf(DEFAULT_LONG_VALUE) }
 
         val connectedToDays = mDayViewModel
             .getConnectedToNoteByNoteId(noteForeignId)
@@ -238,25 +275,29 @@ class ChatNotes(
 
         val stableConnectedToDays = remember(connectedToDays) { connectedToDays }
 
-        DeleteConnectedToNoteDialog(
+        DeleteDialog(
             isShown = isDeleteDialogShown,
-            onConfirmDelete = {
-                if (currentItemToDelete != defaultLongValue) {
-                    mDayViewModel.deleteConnectedToNoteById(currentItemToDelete)
-                }
+            onDismissDelete = {
+                isDeleteDialogShown = false
+                currentItemToDelete = DEFAULT_LONG_VALUE
+            }
+        ) {
+            if (currentItemToDelete != DEFAULT_LONG_VALUE) {
+                mDayViewModel.deleteConnectedToNoteById(currentItemToDelete)
+            }
 
-                isDeleteDialogShown = false
-                currentItemToDelete = defaultLongValue
-            }, onDismissDelete = {
-                isDeleteDialogShown = false
-                currentItemToDelete = defaultLongValue
-            })
+            isDeleteDialogShown = false
+            currentItemToDelete = DEFAULT_LONG_VALUE
+        }
 
         LazyColumn(
             modifier = Modifier.padding(paddingValues),
             reverseLayout = true
         ) {
-            items(items = stableConnectedToDays, key = { it.id!! }) { connectedToNote ->
+            items(
+                items = stableConnectedToDays,
+                key = { it.id!! }
+            ) { connectedToNote ->
 
                 val deleteDialog = {
                     currentItemToDelete = connectedToNote.id!!
@@ -306,11 +347,14 @@ fun MessageRow(
                 }
 
                 MimeTypeEnum.IMAGE -> {
+                    //val showDialog = remember { mutableStateOf(false) }
                     Image(
                         painter = imagePainter(imagePath = connectedToNote.contentOrPath),
                         contentDescription = "Note Image",
                         contentScale = ContentScale.Crop,
-                        modifier = messageModifier
+                        modifier = messageModifier/*.clickable {
+                            // Open the image in full screen or perform any other action here
+                        }*/
                     )
                 }
 
@@ -399,7 +443,7 @@ fun MessageCreationRow(
                 modifier = Modifier
                     .weight(1f)
                     .padding(end = 8.dp),
-                placeholder = { Text("Type a message") },
+                placeholder = { Text("Aa") },
                 singleLine = true
             )
 
@@ -421,15 +465,34 @@ fun MessageCreationRow(
 @Composable
 fun CustomTopAppBar(
     title: String,
+    onTitleChanged: (String) -> Unit,
     onNavigationClick: () -> Unit,
-    onOverflowClick: () -> Unit
+    onDelete: () -> Unit
 ) {
+
     val context = LocalContext.current
     val sendSound = MediaPlayer.create(context, R.raw.click)
+    var showMenu by remember { mutableStateOf(false) }
+    var textFieldValue by remember { mutableStateOf(TextFieldValue(text = title)) }
 
     TopAppBar(
         title = {
-            Text(text = title, maxLines = 1, overflow = TextOverflow.Ellipsis)
+            BasicTextField(
+                value = textFieldValue,
+                onValueChange = {
+                    textFieldValue = it
+                    onTitleChanged(it.text)
+                },
+                textStyle = LocalTextStyle.current,
+                singleLine = true,
+                modifier = Modifier.fillMaxWidth(),
+                decorationBox = { innerTextField ->
+                    if (textFieldValue.text.isBlank()) {
+                        Text(stringResource(id = R.string.title), color = Color.Gray)
+                    }
+                    innerTextField()
+                }
+            )
         },
         navigationIcon = {
             IconButton(onClick = onNavigationClick) {
@@ -438,23 +501,38 @@ fun CustomTopAppBar(
             }
         },
         actions = {
-            IconButton(onClick = onOverflowClick) {
+            IconButton(onClick = { showMenu = !showMenu }) {
                 Icon(Icons.Default.MoreVert, contentDescription = "More")
                 sendSound.start()
+            }
+
+            DropdownMenu(
+                expanded = showMenu,
+                onDismissRequest = { showMenu = false }
+            ) {
+
+                DropdownMenuItem(
+                    text = { Text("Delete") },
+                    onClick = {
+                        onDelete()
+                        showMenu = false
+                    }
+                )
             }
         }
     )
 }
 
+
 @Composable
-fun DeleteConnectedToNoteDialog(
+fun DeleteDialog(
     isShown: Boolean,
-    onConfirmDelete: () -> Unit,
-    onDismissDelete: () -> Unit
+    onDismissDelete: () -> Unit,
+    onConfirmDelete: () -> Unit
 ) {
     Dialog(
         isShown = isShown,
-        title = "Delete Confirmation",
+        title = "Delete confirmation",
         text = "Are you sure you want to delete this item?",
         onConfirm = onConfirmDelete,
         onDismiss = onDismissDelete

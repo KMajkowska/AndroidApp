@@ -28,7 +28,7 @@ const val databaseName = "uniqrn_db"
         Note::class,
         ConnectedToNote::class
     ],
-    version = 1,
+    version = 2,
     exportSchema = false
 )
 @TypeConverters(LocalDateConverter::class, ColorConverter::class)
@@ -56,6 +56,8 @@ abstract class MyDatabaseConnection : RoomDatabase() {
                 context.applicationContext,
                 MyDatabaseConnection::class.java,
                 databaseName
-            ).build()
+            )
+                .fallbackToDestructiveMigration()
+                .build()
     }
 }

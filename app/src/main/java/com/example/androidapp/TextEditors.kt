@@ -1,5 +1,6 @@
 package com.example.androidapp
 
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -8,13 +9,16 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentSize
+import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
@@ -37,6 +41,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 
+// TODO: translate
 @Composable
 fun TextPreview(data: String, placeholder: String, onEditClick: () -> Unit) {
     Column(
@@ -45,14 +50,16 @@ fun TextPreview(data: String, placeholder: String, onEditClick: () -> Unit) {
             .padding(8.dp)
             .clickable { onEditClick() }
     ) {
-        if (data.isBlank()){
+        if (data.isBlank()) {
             Text(
-                text=placeholder,
-                style = TextStyle(fontSize = 16.sp, color = MaterialTheme.colorScheme.onSecondaryContainer),
+                text = placeholder,
+                style = TextStyle(
+                    fontSize = 16.sp,
+                    color = MaterialTheme.colorScheme.onSecondaryContainer
+                ),
                 modifier = Modifier.wrapContentSize()
             )
-        }
-        else {
+        } else {
 
             Text(
                 text = data,
@@ -135,70 +142,59 @@ fun InlineTextEditor(
         TextField(
             value = tempText,
             onValueChange = { tempText = it },
-            modifier = Modifier.fillMaxSize()
+            modifier = Modifier
+                .fillMaxSize()
                 .testTag(TestTags.INLINE_TEXT_EDITOR_FIELD)
                 .focusRequester(focusRequester)
         )
     }
 }
-@OptIn(ExperimentalComposeUiApi::class)
+
 @Composable
-fun DialogTextEditor(
-    data: String,
-    hasDayEntityBeenChanged: MutableState<Boolean>,
-    onCloseEditor: (possiblyChangedData: String) -> Unit
+fun TextEditorDialog(
+    showDialogTextEditor: Boolean,
+    onDismiss: () -> Unit,
+    onSave: (text: String) -> Unit
 ) {
-    val keyboardController = LocalSoftwareKeyboardController.current
-    var tempText by remember { mutableStateOf(data) }
-    var showDialog by remember { mutableStateOf(false) }
-    if (showDialog) {
+    var textState by remember { mutableStateOf("") }
 
-        Dialog(
-            onDismissRequest = {
-            },
-        ) {
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(16.dp)
+    if (showDialogTextEditor) {
+        Dialog(onDismissRequest = onDismiss) {
+            Surface(
+                shape = MaterialTheme.shapes.medium,
             ) {
-                TextField(
-                    value = tempText,
-                    onValueChange = {
-                        tempText = it
-                    },
-                    label = {
-                        Text("Content")
-                    },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(8.dp)
-                )
+                Column(modifier = Modifier.padding(24.dp)) { // Increased padding
+                    Text("Edit Text", style = MaterialTheme.typography.bodyLarge) // Larger text style
 
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween
-                ) {
+                    BasicTextField(
+                        value = textState,
+                        onValueChange = { textState = it },
+                        modifier = Modifier
+                            .padding(top = 20.dp)
+                            .border(2.dp, MaterialTheme.colorScheme.onSecondaryContainer , MaterialTheme.shapes.small)
+                    )
 
-                    Button(
-                        onClick = {
-                            keyboardController?.hide()
-                            onCloseEditor(data)
-                            showDialog = false
+                    Row(modifier = Modifier.padding(top = 24.dp)) {
+                        Button(
+                            onClick = onDismiss,
+                            modifier = Modifier
+                                .padding(end = 8.dp)
+                                .size(width = 100.dp, height = 48.dp)
+                        ) {
+                            Text("Cancel", style = MaterialTheme.typography.headlineMedium)
                         }
-                    ) {
-                        Icon(imageVector = Icons.Default.Close, contentDescription = "Cancel")
-                    }
 
-                    Button(
-                        onClick = {
-                            hasDayEntityBeenChanged.value = true
-                            keyboardController?.hide()
-                            onCloseEditor(tempText)
-                            showDialog = false
+                        Button(
+                            onClick = {
+                                if (textState.isNotBlank()) {
+                                    onSave(textState)
+                                }
+                            },
+                            modifier = Modifier
+                                .size(width = 100.dp, height = 48.dp)
+                        ) {
+                            Text("Save", style = MaterialTheme.typography.bodyLarge)
                         }
-                    ) {
-                        Icon(imageVector = Icons.Default.Check, contentDescription = "Save")
                     }
                 }
             }

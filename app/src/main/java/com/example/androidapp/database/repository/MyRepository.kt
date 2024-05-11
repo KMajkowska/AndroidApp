@@ -84,6 +84,10 @@ class MyRepository(
         return noteDao.getNoteById(noteId)
     }
 
+    suspend fun changeNoteTitle(noteId: Long, newTitle: String) {
+        noteDao.changeNoteTitle(noteId, newTitle)
+    }
+
     fun getNoteByDate(date: LocalDate): Note? {
         return noteDao.getNoteByDate(date)
     }
@@ -119,4 +123,6 @@ class MyRepository(
     suspend fun deleteEventEntity(event: EventEntity) {
         eventDao.deleteEventEntity(event)
     }
+
+
 }

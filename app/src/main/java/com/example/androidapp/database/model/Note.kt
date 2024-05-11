@@ -2,12 +2,10 @@ package com.example.androidapp.database.model
 
 
 import android.content.Context
-import androidx.compose.ui.res.stringResource
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 import com.example.androidapp.R
 import com.google.gson.annotations.Expose
-
 import java.time.LocalDate
 
 @Entity(tableName = "notes")
