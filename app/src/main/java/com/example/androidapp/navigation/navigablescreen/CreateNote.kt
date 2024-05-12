@@ -1,4 +1,3 @@
-
 package com.example.androidapp.navigation.navigablescreen
 
 import android.annotation.SuppressLint
@@ -304,19 +303,11 @@ class CreateNote(
                                 .verticalScroll(state = rememberScrollState(), enabled = true)
                                 .testTag(TestTags.NOTE_CONTENT_FIELD)
                         )
-
-
                     }
-
                 }
-
-
             }
-
-
         }
     }
-
 }
 
 @Composable
@@ -361,5 +352,4 @@ fun CloseNotePopUp(
         },
         shape = MaterialTheme.shapes.medium
     )
-
 }

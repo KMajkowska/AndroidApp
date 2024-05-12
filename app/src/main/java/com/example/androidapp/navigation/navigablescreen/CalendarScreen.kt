@@ -93,7 +93,6 @@ class CalendarScreen(
     @Composable
     override fun View() {
         var dayEntity by remember { mutableStateOf(mDayViewModel.getDayByDate(localDate)) }
-        var selectedNote by remember { mutableStateOf(mDayViewModel.getNoteByDate(localDate)) }
 
         val allDayEntitiesWithRelatedSortedByDate =
             mDayViewModel.allDayEntitiesWithRelatedSortedByDate.observeAsState(initial = listOf()).value
@@ -107,7 +106,7 @@ class CalendarScreen(
 
         var currentYearMonth by remember { mutableStateOf(YearMonth.now()) }
         val lazyListState = rememberLazyListState()
-        var isCalendarExpanded = mutableStateOf(false)
+        val isCalendarExpanded = mutableStateOf(false)
         val currentMonthYear = remember { mutableStateOf(YearMonth.now()) }
         val monthYearText = currentMonthYear.value.format(DateTimeFormatter.ofPattern("MMMM yyyy"))
 
@@ -219,7 +218,7 @@ class CalendarScreen(
                             }.timeInMillis
 
                             // Initially select the current date in the calendar
-                            calendarView.setDate(chosenDateInMillis)
+                            calendarView.date = chosenDateInMillis
                         }
                     )
                 }
@@ -273,16 +272,16 @@ class CalendarScreen(
         onDaySelected: (LocalDate) -> Unit
     ) {
         var isMonthExpanded by remember { mutableStateOf(true) }
-
         val gradientColors = remember { generateGradientColors(objects) }
         val colors = remember { generateColors(objects)}
+
         val seasonColor = gradientColors.getValue(yearMonth)
         val color = colors.getValue(yearMonth)
+
         Column(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(10.dp)
-                //.background(MaterialTheme.colorScheme.primaryContainer),
                 .background(seasonColor),
         ) {
 
@@ -321,7 +320,6 @@ class CalendarScreen(
                     color = MaterialTheme.colorScheme.onPrimaryContainer,
 
                     )
-
             }
 
             if (isMonthExpanded) {

@@ -65,4 +65,10 @@
     <string name="CCDD">Chipi chipi</string>
     <string name="BS">Baby Shark</string>
     <string name="NONE">Nic</string>
+    <string name="delete_confirmation">Zatwierdzenie usunięcia</string>
+    <string name="are_you_sure_you_want_to_delete">Czy na pewno chcesz usunąć ten element?</string>
+    <string name="delete">Usuń</string>
+    <string name="cancel">Anuluj</string>
+    <string name="save">Zapisz</string>
+    <string name="edit_text">Edytuj tekst</string>
 </resources>

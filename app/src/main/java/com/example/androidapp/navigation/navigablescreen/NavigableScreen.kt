@@ -15,5 +15,4 @@ abstract class NavigableScreen : ComponentActivity() {
 
     @Composable
     protected abstract fun View()
-
 }

@@ -36,7 +36,19 @@ import com.example.androidapp.ui.theme.AndroidAppTheme
 import com.example.androidapp.ui.theme.LanguageAwareScreen
 import java.time.LocalDate
 
+const val NOTE_ID_QUERY_STRING_PARAM = "noteId"
+const val LOCAL_DATE_QUERY_STRING_PARAM = "localDate"
+
+val tabs = listOf(NavItem.ALL_NOTES, NavItem.CALENDAR, NavItem.DAYS)
+val fullScreenPaddingValues = PaddingValues(
+    top = 32.dp,
+    bottom = 32.dp,
+    start = 4.dp,
+    end = 4.dp
+)
+
 var defaultPicture = R.drawable.pen
+
 
 @Composable
 fun UniqrnApp() {
@@ -71,7 +83,7 @@ fun UniqrnApp() {
                 navController = navController.navController,
                 startDestination = ScreenRoutes.ALL_NOTES
             ) {
-                unqirnNavGraph(
+                uniqrnNavGraph(
                     onDaySelected = navController::navigateToDayDetail,
                     onNoteSelected = navController::navigateToDayChatNotes,
                     upPress = navController::upPress,
@@ -111,7 +123,7 @@ fun UniqrnAppSettings(
                 navController = navController.navController,
                 startDestination = ScreenRoutes.ALL_NOTES
             ) {
-                unqirnNavGraph(
+                uniqrnNavGraph(
                     onDaySelected = navController::navigateToDayDetail,
                     upPress = navController::upPress,
                     onNavigateToRoute = navController::navigateToBottomBarRoute,
@@ -125,7 +137,7 @@ fun UniqrnAppSettings(
     }
 }
 
-private fun NavGraphBuilder.unqirnNavGraph(
+private fun NavGraphBuilder.uniqrnNavGraph(
     mSettingsViewModel: SettingsViewModel,
     mDayViewModel: DayViewModel,
     onDaySelected: (LocalDate, NavBackStackEntry) -> Unit,
@@ -134,18 +146,7 @@ private fun NavGraphBuilder.unqirnNavGraph(
     onSettingsClick: () -> Unit,
     upPress: () -> Unit
 ) {
-    val fullScreenPaddingValues = PaddingValues(
-        top = 32.dp,
-        bottom = 32.dp,
-        start = 4.dp,
-        end = 4.dp
-    )
-
     val localDateConverter = LocalDateConverter()
-    val tabs = listOf(NavItem.ALL_NOTES, NavItem.CALENDAR, NavItem.DAYS)
-
-    val noteId = "noteId"
-    val localDate = "localDate"
 
     fun getDateFromStringOrNow(dateString: String?, default: LocalDate?): LocalDate? {
         return if (dateString == null) default else localDateConverter.toLocalDate(dateString)
@@ -160,7 +161,8 @@ private fun NavGraphBuilder.unqirnNavGraph(
                 LocalDate.now(),
                 { onSettingsClick() },
                 { noteId -> onNoteSelected(noteId, backStackEntry) }
-            ) { date -> onDaySelected(date, backStackEntry) }, onNavigateToRoute
+            ) { date -> onDaySelected(date, backStackEntry) },
+            onNavigateToRoute
         )
     }
 
@@ -177,8 +179,8 @@ private fun NavGraphBuilder.unqirnNavGraph(
     }
 
     composable(
-        route = "${ScreenRoutes.DAYS}?$localDate={$localDate}",
-        arguments = listOf(navArgument(localDate) {
+        route = "${ScreenRoutes.DAYS}?$LOCAL_DATE_QUERY_STRING_PARAM={$LOCAL_DATE_QUERY_STRING_PARAM}",
+        arguments = listOf(navArgument(LOCAL_DATE_QUERY_STRING_PARAM) {
             nullable = true
             defaultValue = null
             type = NavType.StringType
@@ -190,7 +192,10 @@ private fun NavGraphBuilder.unqirnNavGraph(
             ScreenRoutes.DAYS,
             DaysScreen(
                 mDayViewModel,
-                getDateFromStringOrNow(arguments.getString(localDate), LocalDate.now())!!
+                getDateFromStringOrNow(
+                    arguments.getString(LOCAL_DATE_QUERY_STRING_PARAM),
+                    LocalDate.now()
+                )!!
             ) { noteId ->
                 onNoteSelected(
                     noteId,
@@ -228,15 +233,15 @@ private fun NavGraphBuilder.unqirnNavGraph(
     }
 
     composable(
-        route = "${ScreenRoutes.CHAT_NOTES}?$noteId={$noteId}",
+        route = "${ScreenRoutes.CHAT_NOTES}?$NOTE_ID_QUERY_STRING_PARAM={$NOTE_ID_QUERY_STRING_PARAM}",
         arguments = listOf(
-            navArgument(noteId) {
+            navArgument(NOTE_ID_QUERY_STRING_PARAM) {
                 defaultValue = -1
                 type = NavType.LongType
             }
         )) { backStackEntry ->
         val arguments = requireNotNull(backStackEntry.arguments)
-        val noteForeignId = arguments.getLong(noteId, -1)
+        val noteForeignId = arguments.getLong(NOTE_ID_QUERY_STRING_PARAM, -1)
         ChatNotes(
             noteForeignId = noteForeignId,
             mDayViewModel = mDayViewModel,

@@ -85,7 +85,7 @@ class DaysScreen(
         val hasDayEntityBeenChanged = remember { mutableStateOf(false) }
         var hasNoteBeenChanged by remember { mutableStateOf(false) }
         var currentDayTitle by remember { mutableStateOf(dayEntity.dayTitle) }
-        var hasDayTitleChanged = remember { mutableStateOf(false) }
+        val hasDayTitleChanged = remember { mutableStateOf(false) }
 
         val context = LocalContext.current
 
@@ -108,7 +108,6 @@ class DaysScreen(
             }
         }
 
-        //add placeholder here to name a day
         LazyColumn(
             modifier = Modifier
                 .fillMaxSize()
@@ -170,7 +169,7 @@ class DaysScreen(
     ) {
         var isEditing by remember { mutableStateOf(false) }
         val todoList = mDayViewModel.getTodosByDayId(dayId).observeAsState(initial = listOf()).value
-        val context = LocalContext.current
+
         Box(
             modifier = Modifier
                 .fillMaxSize()
@@ -261,8 +260,7 @@ class DaysScreen(
         dayId: Long,
         hasDayEntityBeenChanged: MutableState<Boolean>
     ) {
-        val eventList =
-            mDayViewModel.getEventsByDayId(dayId).observeAsState(initial = listOf()).value
+        val eventList = mDayViewModel.getEventsByDayId(dayId).observeAsState(initial = listOf()).value
         val setUpCategory = stringResource(id = R.string.event_category_general)
         val newEventCategory = remember { mutableStateOf(setUpCategory) }
         var isEditing by remember { mutableStateOf(false) }
@@ -410,7 +408,6 @@ class DaysScreen(
 @Composable
 fun getCategoryIcon(category: String): ImageVector {
     return when (category) {
-
         stringResource(EventCategories.GENERAL.resourceId) -> Icons.Default.CalendarMonth
         stringResource(EventCategories.PARTY.resourceId) -> Icons.Default.Celebration
         stringResource(EventCategories.SPORT.resourceId) -> Icons.Default.SportsBasketball

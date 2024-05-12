@@ -32,7 +32,7 @@
     <string name="event_category_sport">Sport</string>
     <string name="event_category_food">Food</string>
     <string name="event_category_entertainment">Entertainment</string>
-    <string name="no_note">No availible notes - click to add</string>
+    <string name="no_note">No available notes - click to add</string>
     <string name="empty_title">&lt; No title was specified &gt;</string>
     <string name="days">Days</string>
     <string name="chat_notes">Chat notes</string>
@@ -65,4 +65,10 @@
     <string name="CCDD">Chipi chipi</string>
     <string name="BS">Baby Shark</string>
     <string name="NONE">NONE</string>
+    <string name="delete_confirmation">Delete confirmation</string>
+    <string name="are_you_sure_you_want_to_delete">Are you sure you want to delete this item?</string>
+    <string name="delete">Delete</string>
+    <string name="cancel">Cancel</string>
+    <string name="save">Save</string>
+    <string name="edit_text">Edit text</string>
 </resources>

@@ -39,7 +39,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -54,6 +53,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
@@ -63,6 +63,7 @@ import androidx.compose.ui.zIndex
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.AsyncImage
 import coil.compose.rememberAsyncImagePainter
+import com.example.androidapp.R
 import com.example.androidapp.TestTags
 import com.example.androidapp.buttonsEffects.bounceClick
 import com.example.androidapp.buttonsEffects.shakeClickEffect
@@ -84,36 +85,36 @@ class AllNotes(
     private val onSettingsClick: () -> Unit,
     private val onNoteClick: (Long) -> Unit,
     private val onCalendarClick: (LocalDate) -> Unit,
-   ) : NavigableScreen() {
+) : NavigableScreen() {
 
     @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
     @Composable
     override fun View() {
         var notes = mDayViewModel.allNotes.observeAsState(initial = listOf()).value
-        val context = LocalContext.current
 
         val mSettingsViewModel: SettingsViewModel = viewModel(
             factory = SettingsViewModelFactory(SettingsRepository(LocalContext.current))
         )
+
         val sortOption by mSettingsViewModel.selectedSortOption.observeAsState(NoteSortOptionEnum.ASCENDING)
 
-        if (sortOption == NoteSortOptionEnum.DESCENDING)
+        if (sortOption == NoteSortOptionEnum.DESCENDING) {
             notes = notes.reversed()
+        }
 
         var isVisible by remember { mutableStateOf(true) }
-        var fabOffsetY by remember { mutableIntStateOf(0) }
 
         val nestedScrollConnection = remember {
             object : NestedScrollConnection {
                 override fun onPreScroll(available: Offset, source: NestedScrollSource): Offset {
-                    // Hide FAB
                     if (available.y < -1) {
                         isVisible = false
                     }
-                    // Show FAB
+
                     if (available.y > 1) {
                         isVisible = true
                     }
+
                     return Offset.Zero
                 }
             }
@@ -131,9 +132,11 @@ class AllNotes(
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Text(
-                            text = "All Notes",
+                            text = stringResource(id = R.string.all_notes),
                             fontSize = 24.sp,
-                            modifier = Modifier.weight(1f).padding(start = 8.dp)
+                            modifier = Modifier
+                                .weight(1f)
+                                .padding(start = 8.dp)
                         )
 
                         IconButton(
@@ -158,13 +161,13 @@ class AllNotes(
                             .testTag(TestTags.ALL_NOTES_VIEW),
                     ) {
                         item {
-                            if(notes.isNotEmpty()) {
+                            if (notes.isNotEmpty()) {
                                 for (note in notes) {
                                     NoteItem(
                                         note = note,
                                         context = LocalContext.current,
-                                        onNoteClicked = {
-                                            selectedNote -> onNoteClick(selectedNote.id!!)
+                                        onNoteClicked = { selectedNote ->
+                                            onNoteClick(selectedNote.id!!)
                                             ClickSoundManager.playClickSound()
                                         }
                                     )
@@ -231,10 +234,7 @@ class AllNotes(
                 .background(MaterialTheme.colorScheme.surface)
                 .clickable { onNoteClicked(note) }
         ) {
-            Row(
-                modifier = Modifier
-                    .padding(10.dp)
-            ) {
+            Row(modifier = Modifier.padding(10.dp)) {
                 if (photoUri != null) {
                     AsyncImage(
                         model = photoUri,
@@ -251,16 +251,15 @@ class AllNotes(
                                 )
                             }
                     )
-                }
-                else {
-                   var painter = painterResource(id = defaultPicture)
-            if (note.noteImageUri != null) {
-                val file = getPrivateStorageFileFromFilePath(context, note.noteImageUri!!)
-                if (file.exists()) {
-                    val imageUri = Uri.fromFile(file)
-                    painter = rememberAsyncImagePainter(model = imageUri)
-                }
-            }
+                } else {
+                    var painter = painterResource(id = defaultPicture)
+                    if (note.noteImageUri != null) {
+                        val file = getPrivateStorageFileFromFilePath(context, note.noteImageUri!!)
+                        if (file.exists()) {
+                            val imageUri = Uri.fromFile(file)
+                            painter = rememberAsyncImagePainter(model = imageUri)
+                        }
+                    }
                     Image(
                         painter = painter,
                         contentDescription = "Note Image",
@@ -300,8 +299,8 @@ class AllNotes(
                             color = MaterialTheme.colorScheme.onBackground,
                             fontSize = 16.sp
                         ),
-                        maxLines = 1,  // Limit to one line
-                        overflow = TextOverflow.Ellipsis,  // Indicate that the text might be truncated
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
                         modifier = Modifier
                             .testTag(TestTags.DISPLAYED_NOTE_CONTENT)
                     )
@@ -322,7 +321,6 @@ class AllNotes(
                         )
                         if (note.noteDate != null) {
                             IconButton(
-                                //redirect to days screen with a specific date
                                 onClick = {
                                     note.noteDate?.let { date ->
                                         onCalendarClick(date)
@@ -341,7 +339,6 @@ class AllNotes(
                     }
                 }
             }
-
         }
     }
 }

@@ -1,18 +1,19 @@
 package com.example.androidapp.notifications
 
-import android.annotation.SuppressLint
-import android.app.*
+import android.app.AlarmManager
+import android.app.NotificationChannel
+import android.app.NotificationManager
+import android.app.PendingIntent
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
-import android.util.Log
 import androidx.core.app.NotificationCompat
 import com.example.androidapp.R
 import com.example.androidapp.database.model.DayWithTodosAndEvents
 import java.time.LocalDateTime
 import java.time.ZoneId
 import java.time.ZonedDateTime
-import java.util.*
+import java.util.Objects
 
 class NotificationHelper(
     private val context: Context,

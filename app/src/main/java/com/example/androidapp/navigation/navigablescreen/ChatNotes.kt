@@ -80,7 +80,6 @@ import com.example.androidapp.sounds.ClickSoundManager
 
 const val DEFAULT_LONG_VALUE = -1L
 
-// TODO: translate this screen
 class ChatNotes(
     private val noteForeignId: Long,
     private val mDayViewModel: DayViewModel,
@@ -109,20 +108,14 @@ class ChatNotes(
         var showCamera by remember { mutableStateOf(false) }
 
         if (showCamera) {
-            ConfiguredCameraPreview {
-                showCamera = false
-            }
+            ConfiguredCameraPreview { showCamera = false }
         } else {
-            ShowChat {
-                showCamera = true
-            }
+            ShowChat { showCamera = true }
         }
     }
 
     @Composable
-    fun ConfiguredCameraPreview(
-        onTakePicture: () -> Unit
-    ) {
+    fun ConfiguredCameraPreview(onTakePicture: () -> Unit) {
         val context = LocalContext.current
         val imageCapture = remember { mutableStateOf<ImageCapture?>(null) }
         val cameraReady = remember { mutableStateOf(false) }
@@ -206,7 +199,6 @@ class ChatNotes(
         }
 
         LaunchedEffect(title) {
-            // Launch a coroutine whenever newTitle changes
             mDayViewModel.changeNoteTitle(noteForeignId, title)
         }
 
@@ -214,7 +206,7 @@ class ChatNotes(
             topBar = {
                 CustomTopAppBar(
                     title = title,
-                    onTitleChanged = { title = it }, // Funkcja zwrotna dla zmiany tytułu
+                    onTitleChanged = { title = it },
                     onNavigationClick = upPress,
                     onDelete = { isDeleteDialogForNoteOpen = true }
                 )
@@ -501,7 +493,7 @@ fun CustomTopAppBar(
             ) {
 
                 DropdownMenuItem(
-                    text = { Text("Delete") },
+                    text = { Text(stringResource(id = R.string.delete)) },
                     onClick = {
                         onDelete()
                         showMenu = false
@@ -521,8 +513,8 @@ fun DeleteDialog(
 ) {
     Dialog(
         isShown = isShown,
-        title = "Delete confirmation",
-        text = "Are you sure you want to delete this item?",
+        title = stringResource(id = R.string.delete_confirmation),
+        text = stringResource(id = R.string.are_you_sure_you_want_to_delete),
         onConfirm = onConfirmDelete,
         onDismiss = onDismissDelete
     )

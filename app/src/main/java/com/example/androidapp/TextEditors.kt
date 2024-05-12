@@ -34,14 +34,12 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.font.FontStyle
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 
-// TODO: translate
 @Composable
 fun TextPreview(data: String, placeholder: String, onEditClick: () -> Unit) {
     Column(
@@ -79,13 +77,9 @@ fun TextEditorWithPreview(
     var isEditing by remember { mutableStateOf(false) }
 
     if (isEditing) {
-        textEditor(data) {
-            isEditing = false
-        }
+        textEditor(data) { isEditing = false }
     } else {
-        TextPreview(data = data, placeholder = placeholder) {
-            isEditing = true
-        }
+        TextPreview(data = data, placeholder = placeholder) { isEditing = true }
     }
 }
 
@@ -163,15 +157,19 @@ fun TextEditorDialog(
             Surface(
                 shape = MaterialTheme.shapes.medium,
             ) {
-                Column(modifier = Modifier.padding(24.dp)) { // Increased padding
-                    Text("Edit Text", style = MaterialTheme.typography.bodyLarge) // Larger text style
+                Column(modifier = Modifier.padding(24.dp)) {
+                    Text(stringResource(id = R.string.edit_text), style = MaterialTheme.typography.bodyLarge)
 
                     BasicTextField(
                         value = textState,
                         onValueChange = { textState = it },
                         modifier = Modifier
                             .padding(top = 20.dp)
-                            .border(2.dp, MaterialTheme.colorScheme.onSecondaryContainer , MaterialTheme.shapes.small)
+                            .border(
+                                2.dp,
+                                MaterialTheme.colorScheme.onSecondaryContainer,
+                                MaterialTheme.shapes.small
+                            )
                     )
 
                     Row(modifier = Modifier.padding(top = 24.dp)) {
@@ -181,7 +179,7 @@ fun TextEditorDialog(
                                 .padding(end = 8.dp)
                                 .size(width = 100.dp, height = 48.dp)
                         ) {
-                            Text("Cancel", style = MaterialTheme.typography.headlineMedium)
+                            Text(stringResource(id = R.string.cancel), style = MaterialTheme.typography.headlineMedium)
                         }
 
                         Button(
@@ -193,7 +191,7 @@ fun TextEditorDialog(
                             modifier = Modifier
                                 .size(width = 100.dp, height = 48.dp)
                         ) {
-                            Text("Save", style = MaterialTheme.typography.bodyLarge)
+                            Text(stringResource(id = R.string.save), style = MaterialTheme.typography.bodyLarge)
                         }
                     }
                 }

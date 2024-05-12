@@ -34,6 +34,8 @@ import androidx.navigation.NavDestination
 import androidx.navigation.NavGraph
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
+import com.example.androidapp.LOCAL_DATE_QUERY_STRING_PARAM
+import com.example.androidapp.NOTE_ID_QUERY_STRING_PARAM
 import com.example.androidapp.R
 import com.example.androidapp.database.converter.LocalDateConverter
 import com.example.androidapp.navigation.navigablescreen.NavigableScreen
@@ -129,6 +131,8 @@ fun rememberNavHostController(
 
 @Stable
 class BottomNavBarController(val navController: NavHostController) {
+    private val localDateConverter = LocalDateConverter()
+
     private val currentRoute: String?
         get() = navController.currentDestination?.route
 
@@ -136,17 +140,16 @@ class BottomNavBarController(val navController: NavHostController) {
         navController.navigateUp()
     }
 
-    private val localDateConverter = LocalDateConverter()
-
     fun navigateToBottomBarRoute(route: String) {
-        if (route != currentRoute)
+        if (route != currentRoute) {
             navController.navigate(route)
+        }
     }
 
     fun navigateToDayDetail(localDate: LocalDate, from: NavBackStackEntry) {
         if (from.lifecycleIsResumed())
             navController.navigate(
-                "${ScreenRoutes.DAYS}?localDate=${
+                "${ScreenRoutes.DAYS}?$LOCAL_DATE_QUERY_STRING_PARAM=${
                     localDateConverter.fromLocalDate(
                         localDate
                     )
@@ -155,10 +158,9 @@ class BottomNavBarController(val navController: NavHostController) {
     }
 
     fun navigateToDayChatNotes(noteId: Long, from: NavBackStackEntry) {
-        if (from.lifecycleIsResumed())
-            navController.navigate(
-                "${ScreenRoutes.CHAT_NOTES}?noteId=$noteId"
-            )
+        if (from.lifecycleIsResumed()) {
+            navController.navigate("${ScreenRoutes.CHAT_NOTES}?$NOTE_ID_QUERY_STRING_PARAM=$noteId")
+        }
     }
 
     fun navigateToSettings() {

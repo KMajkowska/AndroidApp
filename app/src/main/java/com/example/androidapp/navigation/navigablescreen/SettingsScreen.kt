@@ -56,7 +56,9 @@ class SettingsScreen(
         val notificationsEnabled by settingsViewModel.areNotificationsEnabled.observeAsState(false)
         val isDarkModeEnabled by settingsViewModel.isDarkTheme.observeAsState(false)
         val unicornModeEnabled by settingsViewModel.isUniqrnModeEnabled.observeAsState(false)
-        val selectedSortOption by settingsViewModel.selectedSortOption.observeAsState(NoteSortOptionEnum.ASCENDING)
+        val selectedSortOption by settingsViewModel.selectedSortOption.observeAsState(
+            NoteSortOptionEnum.ASCENDING
+        )
 
         val context = LocalContext.current
 
@@ -72,8 +74,8 @@ class SettingsScreen(
                     },
                 )
             }
-        ) {
-            paddingValues -> LazyColumn(
+        ) { paddingValues ->
+            LazyColumn(
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(paddingValues)
@@ -84,7 +86,7 @@ class SettingsScreen(
                     DropDown(
                         dropdownName = stringResource(id = R.string.language),
                         allOptions = languages,
-                        valueFromOptionGetterFunction = { language -> language.toString()},
+                        valueFromOptionGetterFunction = { language -> language.toString() },
                         selectedValueModifier = selectedLanguage
                     ) { newLanguage ->
                         settingsViewModel.setSelectedLanguage(newLanguage)
@@ -110,7 +112,11 @@ class SettingsScreen(
                     DropDown(
                         dropdownName = stringResource(id = R.string.sort_option),
                         allOptions = sortOptions,
-                        valueFromOptionGetterFunction = { sortOption -> context.resources.getString(sortOption.resourceId)},
+                        valueFromOptionGetterFunction = { sortOption ->
+                            context.resources.getString(
+                                sortOption.resourceId
+                            )
+                        },
                         selectedValueModifier = selectedSortOption
                     ) { sortOption ->
                         settingsViewModel.setSeletectedSortOption(sortOption)
@@ -226,9 +232,10 @@ fun MyToggle(toggleOption: Boolean, text: String, onToggle: (Boolean) -> Unit) {
         modifier = Modifier
             .fillMaxWidth()
     ) {
-        Row( modifier = Modifier
-            .fillMaxWidth()
-            .padding(end = 24.dp)
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(end = 24.dp)
         ) {
             Text(
                 text = text,

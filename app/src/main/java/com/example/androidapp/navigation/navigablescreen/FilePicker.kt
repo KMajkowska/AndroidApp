@@ -10,6 +10,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.platform.LocalContext
 import androidx.documentfile.provider.DocumentFile
 import com.example.androidapp.database.databaseName
+import com.example.androidapp.database.model.ConnectedToNote
 import com.example.androidapp.database.model.DayEntity
 import com.example.androidapp.database.model.EventEntity
 import com.example.androidapp.database.model.Note
@@ -20,19 +21,19 @@ import com.google.gson.reflect.TypeToken
 import org.json.JSONObject
 import java.io.IOException
 
+const val DAYS = "days"
+const val EVENTS = "events"
+const val NOTES = "notes"
+const val TODOS = "todos"
+const val CONNECTED_TO_NOTE = "connectedToNote"
+
 class FilePicker(
     private val mDayViewModel: DayViewModel,
     private val upPress: () -> Unit,
-    private val isExport: Boolean,
-
+    private val isExport: Boolean
     ) : NavigableScreen() {
 
     private val gson = Gson()
-
-    private val days = "days"
-    private val events = "events"
-    private val notes = "notes"
-    private val todos = "todos"
 
     @Composable
     override fun View() {
@@ -60,19 +61,17 @@ class FilePicker(
             }
         }
 
-        BackHandler {
-            upPress()
-        }
-
+        BackHandler { upPress() }
     }
 
     private fun performBackup(context: Context, directoryUri: Uri) {
         val jsonObject = JSONObject()
 
-        jsonObject.put(days, gson.toJson(mDayViewModel.allDayEntitiesSortedByDate.value ?: listOf<DayEntity>()))
-        jsonObject.put(events, gson.toJson(mDayViewModel.allEventEntities.value ?: listOf<EventEntity>()))
-        jsonObject.put(notes, gson.toJson(mDayViewModel.allNotes.value ?: listOf<Note>()))
-        jsonObject.put(todos, gson.toJson(mDayViewModel.allTodoEntities.value ?: listOf<TodoEntity>()))
+        jsonObject.put(DAYS, gson.toJson(mDayViewModel.allDayEntitiesSortedByDate.value ?: listOf<DayEntity>()))
+        jsonObject.put(EVENTS, gson.toJson(mDayViewModel.allEventEntities.value ?: listOf<EventEntity>()))
+        jsonObject.put(NOTES, gson.toJson(mDayViewModel.allNotes.value ?: listOf<Note>()))
+        jsonObject.put(TODOS, gson.toJson(mDayViewModel.allTodoEntities.value ?: listOf<TodoEntity>()))
+        jsonObject.put(CONNECTED_TO_NOTE, gson.toJson(mDayViewModel.allConnectedToNote.value ?: listOf<ConnectedToNote>()))
 
         val documentFile = DocumentFile.fromTreeUri(context, directoryUri)
         val resolver = context.contentResolver
@@ -96,7 +95,7 @@ class FilePicker(
             val jsonObject = JSONObject(readTextFromUri(context, fileUri))
 
             gson.fromJson<List<DayEntity>>(
-                jsonObject.getString(days),
+                jsonObject.getString(DAYS),
                 object : TypeToken<List<DayEntity>>() {}.type
             ).forEach {
                 it.dayId = null
@@ -105,7 +104,7 @@ class FilePicker(
             }
 
             gson.fromJson<List<EventEntity>>(
-                jsonObject.getString(events),
+                jsonObject.getString(EVENTS),
                 object : TypeToken<List<EventEntity>>() {}.type
             ).forEach {
                 it.eventId = null
@@ -113,7 +112,7 @@ class FilePicker(
             }
 
             gson.fromJson<List<Note>>(
-                jsonObject.getString(notes),
+                jsonObject.getString(NOTES),
                 object : TypeToken<List<Note>>() {}.type
             ).forEach {
                 it.id = null
@@ -121,11 +120,20 @@ class FilePicker(
             }
 
             gson.fromJson<List<TodoEntity>>(
-                jsonObject.getString(todos),
+                jsonObject.getString(TODOS),
                 object : TypeToken<List<TodoEntity>>() {}.type
             ).forEach {
                 it.todoId = null
                 mDayViewModel.saveTodoEntity(it)
+            }
+
+            // if it is a file path then it may not exist! How to fix this?
+            gson.fromJson<List<ConnectedToNote>>(
+                jsonObject.getString(CONNECTED_TO_NOTE),
+                object : TypeToken<List<ConnectedToNote>>() {}.type
+            ).forEach {
+                it.id = null
+                mDayViewModel.addConnectedToNoteText(it)
             }
 
         } catch (e: Exception) {
