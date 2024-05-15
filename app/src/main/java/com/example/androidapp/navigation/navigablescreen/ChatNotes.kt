@@ -223,13 +223,12 @@ class ChatNotes(
                     },
                     audioRecorder = audioRecorder,
                     onAudioRecorderFinished = { path ->
-                        if (path == null)
-                            return@MessageCreationRow
-
-                        addToDatabase(
-                            mimeTypeString = MimeTypeEnum.SOUND.toString(),
-                            contentOrPath = path
-                        )
+                        if (path != null) {
+                            addToDatabase(
+                                mimeTypeString = MimeTypeEnum.SOUND.toString(),
+                                contentOrPath = path
+                            )
+                        }
                     },
                     onCameraClick = onShowCamera
                     ,
@@ -464,7 +463,7 @@ fun CustomTopAppBar(
                     textFieldValue = it
                     onTitleChanged(it.text)
                 },
-                textStyle = LocalTextStyle.current,
+                textStyle = LocalTextStyle.current.copy(color = MaterialTheme.colorScheme.onBackground),
                 singleLine = true,
                 modifier = Modifier.fillMaxWidth(),
                 decorationBox = { innerTextField ->
