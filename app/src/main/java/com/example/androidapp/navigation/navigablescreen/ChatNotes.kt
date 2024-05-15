@@ -115,54 +115,63 @@ class ChatNotes(
     }
 
     @Composable
-    fun ConfiguredCameraPreview(onTakePicture: () -> Unit) {
+    fun ConfiguredCameraPreview(
+        onTakePicture: () -> Unit
+    ) {
         val context = LocalContext.current
         val imageCapture = remember { mutableStateOf<ImageCapture?>(null) }
         val cameraReady = remember { mutableStateOf(false) }
 
-        cameraPreview(Modifier.fillMaxSize()).let { capture ->
-            imageCapture.value = capture
-            cameraReady.value = true
-        }
 
-        if (!cameraReady.value || imageCapture.value == null) {
-            return
-        }
 
         Box(
             modifier = Modifier
-                .fillMaxSize()
-                .padding(69.dp), // nice
+                .fillMaxSize(),
             contentAlignment = Alignment.BottomCenter
         ) {
-            IconButton(
+            cameraPreview(Modifier.fillMaxSize()).let { capture ->
+                imageCapture.value = capture
+                cameraReady.value = true
+            }
+
+            if (!cameraReady.value || imageCapture.value == null) {
+                return
+            }
+
+            Box(
                 modifier = Modifier
-                    .size(56.dp)
-                    .background(
-                        MaterialTheme.colorScheme.primary,
-                        CircleShape
-                    ),
-                onClick = {
-                    takePicture(
-                        context = context,
-                        imageCapture = imageCapture.value!!,
-                        onImageSaved = { path ->
-                            addToDatabase(MimeTypeEnum.IMAGE.toString(), path)
-                            onTakePicture()
-                        },
-                        onError = { exception ->
-                            Log.e("Error", exception.localizedMessage ?: "Unknown error")
-                        }
-                    )
-                    ClickSoundManager.playClickSound()
-                },
+                    .fillMaxSize()
+                    .padding(69.dp), // nice
+                contentAlignment = Alignment.BottomCenter
             ) {
-                Icon(
-                    imageVector = Icons.Default.PhotoCamera,
-                    tint = Color.White,
-                    contentDescription = "TakeAPicture",
-                    modifier = Modifier.fillMaxSize(0.5f)
-                )
+                IconButton(
+                    modifier = Modifier
+                        .size(56.dp)
+                        .background(
+                            MaterialTheme.colorScheme.primary,
+                            CircleShape
+                        ),
+                    onClick = {
+                        takePicture(
+                            context = context,
+                            imageCapture = imageCapture.value!!,
+                            onImageSaved = { path ->
+                                addToDatabase(MimeTypeEnum.IMAGE.toString(), path)
+                                onTakePicture()
+                            },
+                            onError = { exception ->
+                                Log.e("Error", exception.localizedMessage ?: "Unknown error")
+                            }
+                        )
+                    },
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.PhotoCamera,
+                        tint = Color.White,
+                        contentDescription = "TakeAPicture",
+                        modifier = Modifier.fillMaxSize(0.5f)
+                    )
+                }
             }
         }
     }
@@ -230,8 +239,7 @@ class ChatNotes(
                             )
                         }
                     },
-                    onCameraClick = onShowCamera
-                    ,
+                    onCameraClick = onShowCamera,
                     onSendClick = { content ->
                         addToDatabase(
                             mimeTypeString = MimeTypeEnum.TEXT.toString(),
@@ -403,8 +411,9 @@ fun MessageCreationRow(
                         )
                     }
                 },
-                onActionUp = { onAudioRecorderFinished(audioRecorder.stopRecording())
-                ClickSoundManager.playClickSound()
+                onActionUp = {
+                    onAudioRecorderFinished(audioRecorder.stopRecording())
+                    ClickSoundManager.playClickSound()
                 }
             ) {
                 Icon(Icons.Default.Mic, contentDescription = "Record")
@@ -430,13 +439,14 @@ fun MessageCreationRow(
                 singleLine = true
             )
 
-            IconButton(onClick = {
-                if (text.isNotBlank()) {
-                    onSendClick(text)
-                    text = ""
-                    ClickSoundManager.playClickSound()
-                }
-            },
+            IconButton(
+                onClick = {
+                    if (text.isNotBlank()) {
+                        onSendClick(text)
+                        text = ""
+                        ClickSoundManager.playClickSound()
+                    }
+                },
                 modifier = Modifier.bounceClick()
             ) {
                 Icon(Icons.Default.Send, contentDescription = "Send")
@@ -444,6 +454,7 @@ fun MessageCreationRow(
         }
     }
 }
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CustomTopAppBar(
