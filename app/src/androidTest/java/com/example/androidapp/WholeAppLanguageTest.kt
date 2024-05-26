@@ -3,13 +3,16 @@ package com.example.androidapp
 import androidx.activity.compose.setContent
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
+import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import androidx.test.rule.GrantPermissionRule
 import com.example.androidapp.settings.LanguageEnum
 import com.example.androidapp.settings.SettingsRepository
 import com.example.androidapp.settings.SettingsViewModel
 import io.mockk.mockk
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.setMain
 import org.junit.Before
 import org.junit.Rule
@@ -18,11 +21,18 @@ import org.junit.Test
 class WholeAppLanguageTest {
 
     @get:Rule
+    val permissionRule: GrantPermissionRule = GrantPermissionRule.grant(
+        android.Manifest.permission.RECORD_AUDIO,
+        android.Manifest.permission.CAMERA
+    )
+
+    @get:Rule
     val composeTestRuleWholeApp = createAndroidComposeRule<MainActivity>()
 
     private lateinit var viewModel: SettingsViewModel
     private lateinit var repository: SettingsRepository
 
+    @OptIn(ExperimentalCoroutinesApi::class)
     @Before
     fun setup() {
         Dispatchers.setMain(Dispatchers.Unconfined)
@@ -37,8 +47,9 @@ class WholeAppLanguageTest {
     fun testEnglishWholeAppLanguage(){
         viewModel.setSelectedLanguage(LanguageEnum.ENGLISH)
         composeTestRuleWholeApp.activity.setContent {
-            UniqrnAppSettings(viewModel, LanguageEnum.ENGLISH)
+            UniqrnAppCustomSettings(viewModel, LanguageEnum.ENGLISH)
         }
+        // days
         composeTestRuleWholeApp
             .onNodeWithText("Days")
             .performClick()
@@ -57,11 +68,21 @@ class WholeAppLanguageTest {
         composeTestRuleWholeApp
             .onNodeWithText("Calendar")
             .assertIsDisplayed()
+
+        // go back to all notes to go to settings
         composeTestRuleWholeApp
-            .onNodeWithText("Settings")
+            .onNodeWithText("All notes")
             .assertIsDisplayed()
         composeTestRuleWholeApp
-            .onNodeWithText("Settings")
+            .onNodeWithText("All notes")
+            .performClick()
+
+        // settings
+        composeTestRuleWholeApp
+            .onNodeWithTag(TestTags.SETTINGS_SCREEN_NAVIGATE_BUTTON)
+            .assertIsDisplayed()
+        composeTestRuleWholeApp
+            .onNodeWithTag(TestTags.SETTINGS_SCREEN_NAVIGATE_BUTTON)
             .performClick()
         composeTestRuleWholeApp
             .onNodeWithText("Language")
@@ -77,7 +98,7 @@ class WholeAppLanguageTest {
     @Test
     fun testPolishWholeAppLanguage(){
         composeTestRuleWholeApp.activity.setContent {
-            UniqrnAppSettings(viewModel, LanguageEnum.POLSKI)
+            UniqrnAppCustomSettings(viewModel, LanguageEnum.POLSKI)
         }
         composeTestRuleWholeApp
             .onNodeWithText("Dni")
@@ -97,11 +118,20 @@ class WholeAppLanguageTest {
         composeTestRuleWholeApp
             .onNodeWithText("Kalendarz")
             .assertIsDisplayed()
+
+        // go back to all notes to go to settings
         composeTestRuleWholeApp
-            .onNodeWithText("Ustawienia")
+            .onNodeWithText("Notatki")
             .assertIsDisplayed()
         composeTestRuleWholeApp
-            .onNodeWithText("Ustawienia")
+            .onNodeWithText("Notatki")
+            .performClick()
+
+        composeTestRuleWholeApp
+            .onNodeWithTag(TestTags.SETTINGS_SCREEN_NAVIGATE_BUTTON)
+            .assertIsDisplayed()
+        composeTestRuleWholeApp
+            .onNodeWithTag(TestTags.SETTINGS_SCREEN_NAVIGATE_BUTTON)
             .performClick()
         composeTestRuleWholeApp
             .onNodeWithText("Język")

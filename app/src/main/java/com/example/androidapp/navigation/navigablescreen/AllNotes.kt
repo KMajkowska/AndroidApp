@@ -145,6 +145,7 @@ class AllNotes(
                                 ClickSoundManager.playClickSound()
                             },
                             modifier = Modifier.bounceClick()
+                                .testTag(TestTags.SETTINGS_SCREEN_NAVIGATE_BUTTON)
                         ) {
                             Icon(
                                 imageVector = Icons.Filled.Settings,

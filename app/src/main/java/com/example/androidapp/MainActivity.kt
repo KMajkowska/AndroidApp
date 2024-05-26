@@ -26,7 +26,6 @@ val REQUIRED_PERMISSIONS = arrayOf(
 class MainActivity : ComponentActivity() {
 
     private var keepSplashScreen = true
-    private lateinit var soundManager: ClickSoundManager
 
     override fun onCreate(savedInstanceState: Bundle?) {
         enableEdgeToEdge()
@@ -35,12 +34,13 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
 
         window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE)
-        ClickSoundManager.initialize(this)
+        lifecycle.addObserver(ClickSoundManager)
 
         setContent { UniqrnApp() }
 
         splashScreen.setKeepOnScreenCondition { keepSplashScreen }
         Handler().postDelayed({ keepSplashScreen = false }, DELAY)
+
 
         if (!allPermissionsGranted()) {
             ActivityCompat.requestPermissions(
@@ -66,12 +66,6 @@ class MainActivity : ComponentActivity() {
             }
         }
     }
-
-    override fun onDestroy() {
-        super.onDestroy()
-        soundManager.releaseMediaPlayer()
-    }
-
 
     private fun allPermissionsGranted() = REQUIRED_PERMISSIONS.all {
         ContextCompat.checkSelfPermission(baseContext, it) == PackageManager.PERMISSION_GRANTED

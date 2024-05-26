@@ -122,8 +122,6 @@ class ChatNotes(
         val imageCapture = remember { mutableStateOf<ImageCapture?>(null) }
         val cameraReady = remember { mutableStateOf(false) }
 
-
-
         Box(
             modifier = Modifier
                 .fillMaxSize(),

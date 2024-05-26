@@ -52,13 +52,24 @@ var defaultPicture = R.drawable.pen
 
 @Composable
 fun UniqrnApp() {
-    val navController = rememberNavHostController()
-
     val mSettingsViewModel: SettingsViewModel = viewModel(
         factory = SettingsViewModelFactory(SettingsRepository(LocalContext.current))
     )
 
-    val selectedLanguage by mSettingsViewModel.selectedLanguage.observeAsState(LanguageEnum.ENGLISH)
+    return UniqrnAppCustomSettings(
+        mSettingsViewModel = mSettingsViewModel,
+        setting = LanguageEnum.ENGLISH
+    )
+}
+
+@Composable
+fun UniqrnAppCustomSettings(
+    mSettingsViewModel: SettingsViewModel,
+    setting: LanguageEnum
+) {
+    val navController = rememberNavHostController()
+
+    val selectedLanguage by mSettingsViewModel.selectedLanguage.observeAsState(setting)
     val isDarkTheme by mSettingsViewModel.isDarkTheme.observeAsState(true)
     val isUniqrnTheme by mSettingsViewModel.isUniqrnModeEnabled.observeAsState(true)
     val areNotificationsEnabled by mSettingsViewModel.areNotificationsEnabled.observeAsState(true)
@@ -91,46 +102,6 @@ fun UniqrnApp() {
                     mDayViewModel = mDayViewModel,
                     mSettingsViewModel = mSettingsViewModel,
                     onSettingsClick = navController::navigateToSettings,
-                )
-            }
-        }
-    }
-}
-
-@Composable
-fun UniqrnAppSettings(
-    mSettingsViewModel: SettingsViewModel,
-    setting: LanguageEnum
-) {
-    val navController = rememberNavHostController()
-
-    val selectedLanguage by mSettingsViewModel.selectedLanguage.observeAsState(setting)
-    val isDarkTheme by mSettingsViewModel.isDarkTheme.observeAsState(true)
-    val isUniqrnTheme by mSettingsViewModel.isUniqrnModeEnabled.observeAsState(true)
-    val areNotificationsEnabled by mSettingsViewModel.areNotificationsEnabled.observeAsState(true)
-
-    val notificationHelper = NotificationHelper(LocalContext.current, areNotificationsEnabled)
-    val mDayViewModel: DayViewModel = viewModel(
-        factory = DayViewModelFactory(
-            LocalContext.current.applicationContext as Application,
-            notificationHelper
-        )
-    )
-
-    AndroidAppTheme(isDarkTheme, isUniqrnTheme) {
-        LanguageAwareScreen(selectedLanguage.code) {
-            NavHost(
-                navController = navController.navController,
-                startDestination = ScreenRoutes.ALL_NOTES
-            ) {
-                uniqrnNavGraph(
-                    onDaySelected = navController::navigateToDayDetail,
-                    upPress = navController::upPress,
-                    onNavigateToRoute = navController::navigateToBottomBarRoute,
-                    onNoteSelected = navController::navigateToDayChatNotes,
-                    mDayViewModel = mDayViewModel,
-                    mSettingsViewModel = mSettingsViewModel,
-                    onSettingsClick = navController::navigateToSettings
                 )
             }
         }
