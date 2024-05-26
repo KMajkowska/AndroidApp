@@ -133,7 +133,7 @@ class FilePicker(
                 object : TypeToken<List<ConnectedToNote>>() {}.type
             ).forEach {
                 it.id = null
-                mDayViewModel.addConnectedToNoteText(it)
+                mDayViewModel.addConnectedToNote(it)
             }
 
         } catch (e: Exception) {

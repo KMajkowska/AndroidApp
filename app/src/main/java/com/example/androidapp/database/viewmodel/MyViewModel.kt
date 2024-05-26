@@ -55,7 +55,7 @@ class DayViewModel(
         }
     }
 
-    fun addConnectedToNoteText(connectedToNote: ConnectedToNote) {
+    fun addConnectedToNote(connectedToNote: ConnectedToNote) {
         viewModelScope.launch(Dispatchers.IO) {
             repository.addNewConnectedToNote(connectedToNote)
         }

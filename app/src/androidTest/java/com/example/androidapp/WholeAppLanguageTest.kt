@@ -45,7 +45,6 @@ class WholeAppLanguageTest {
 
     @Test
     fun testEnglishWholeAppLanguage(){
-        viewModel.setSelectedLanguage(LanguageEnum.ENGLISH)
         composeTestRuleWholeApp.activity.setContent {
             UniqrnAppCustomSettings(viewModel, LanguageEnum.ENGLISH)
         }

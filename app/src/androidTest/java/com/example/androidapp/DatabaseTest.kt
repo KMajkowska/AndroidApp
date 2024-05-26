@@ -1,37 +1,39 @@
 package com.example.androidapp
 
 import android.app.Application
-import androidx.room.Room.inMemoryDatabaseBuilder
-import androidx.test.ext.junit.runners.AndroidJUnit4
-import com.example.androidapp.database.MyDatabaseConnection
-import com.example.androidapp.database.model.DayEntity
-import com.example.androidapp.database.viewmodel.DayViewModel
-import com.example.androidapp.notifications.NotificationHelper
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.test.*
-import org.junit.After
-import org.junit.Before
-import org.junit.Rule
-import org.junit.Test
-import org.junit.runner.RunWith
-import java.time.LocalDate
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.Observer
 import androidx.lifecycle.viewModelScope
+import androidx.room.Room.inMemoryDatabaseBuilder
 import androidx.test.core.app.ApplicationProvider
+import androidx.test.ext.junit.runners.AndroidJUnit4
+import com.example.androidapp.database.MyDatabaseConnection
+import com.example.androidapp.database.model.ConnectedToNote
+import com.example.androidapp.database.model.DayEntity
 import com.example.androidapp.database.model.EventEntity
 import com.example.androidapp.database.model.Note
 import com.example.androidapp.database.model.TodoEntity
+import com.example.androidapp.database.viewmodel.DayViewModel
+import com.example.androidapp.media.MimeTypeEnum
+import com.example.androidapp.notifications.NotificationHelper
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.test.runTest
+import kotlinx.coroutines.test.setMain
+import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotEquals
 import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
+import org.junit.Before
+import org.junit.Rule
+import org.junit.Test
+import org.junit.runner.RunWith
+import java.time.LocalDate
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
 
@@ -128,7 +130,7 @@ class DayViewModelTest {
         assertNotNull(savedDayEntity.dayId)
 
         dayViewModel.deleteDayEntity(savedDayEntity)
-        delay(1000)
+        waitForCoroutinesToFinish()
         assertNull(dayViewModel.getInnerDayByDate(testDate))
     }
 
@@ -320,4 +322,29 @@ class DayViewModelTest {
         assertEquals(eventsAfterDelete[0], events[0])
     }
     /*-------------------- end::to do entity tests --------------------*/
+
+    /*-------------------- begin::connected to note entity tests --------------------*/
+    @Test
+    fun testDeleteConnectedToNoteEntity() = runBlocking {
+        val connectedToNote = ConnectedToNote(noteForeignId = 0, contentOrPath = "0", mimeType = MimeTypeEnum.IMAGE.toString())
+
+        dayViewModel.addConnectedToNote(connectedToNote)
+        val savedConnectedToNotes = dayViewModel.getConnectedToNoteByNoteId(0).getOrAwaitValue()
+
+        assertEquals(savedConnectedToNotes.size, 1)
+
+        val savedConnectedToNote = savedConnectedToNotes[0]
+        assertNotNull(savedConnectedToNote)
+
+        assertEquals(connectedToNote.noteForeignId, savedConnectedToNote.noteForeignId)
+        assertEquals(connectedToNote.mimeType, savedConnectedToNote.mimeType)
+        assertEquals(connectedToNote.contentOrPath, savedConnectedToNote.contentOrPath)
+
+        dayViewModel.deleteConnectedToNote(savedConnectedToNote)
+        waitForCoroutinesToFinish()
+        assertTrue(dayViewModel.getConnectedToNoteByNoteId(0).getOrAwaitValue().isEmpty())
+        assertTrue(dayViewModel.allConnectedToNote.getOrAwaitValue().isEmpty())
+    }
+
+    /*-------------------- end::connected to note entity tests --------------------*/
 }

@@ -8,6 +8,7 @@ import com.example.androidapp.settings.SettingsViewModel
 import io.mockk.coVerify
 import io.mockk.mockk
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.setMain
@@ -16,8 +17,9 @@ import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 
+@OptIn(ExperimentalCoroutinesApi::class)
 @RunWith(AndroidJUnit4 ::class)
-class ViewModelTest {
+class SettingsViewModelTests {
     private lateinit var viewModel: SettingsViewModel
     private lateinit var repository: SettingsRepository
 

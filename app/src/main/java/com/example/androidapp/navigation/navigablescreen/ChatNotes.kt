@@ -89,7 +89,7 @@ class ChatNotes(
     private val audioRecorder: AudioRecorder = AudioRecorder()
 
     private fun addToDatabase(mimeTypeString: String, contentOrPath: String) {
-        mDayViewModel.addConnectedToNoteText(
+        mDayViewModel.addConnectedToNote(
             ConnectedToNote(
                 id = null,
                 contentOrPath = contentOrPath,
