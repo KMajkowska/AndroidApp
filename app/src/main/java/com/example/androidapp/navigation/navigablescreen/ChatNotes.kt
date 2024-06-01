@@ -58,11 +58,13 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import com.example.androidapp.Dialog
 import com.example.androidapp.R
+import com.example.androidapp.TestTags
 import com.example.androidapp.animations.AnimatedIconButton
 import com.example.androidapp.buttonsEffects.bounceClick
 import com.example.androidapp.database.model.ConnectedToNote
@@ -210,6 +212,7 @@ class ChatNotes(
         }
 
         Scaffold(
+            modifier = Modifier.testTag(TestTags.NOTE_EDITOR_VIEW),
             topBar = {
                 CustomTopAppBar(
                     title = title,
@@ -432,7 +435,8 @@ fun MessageCreationRow(
                 onValueChange = { text = it },
                 modifier = Modifier
                     .weight(1f)
-                    .padding(end = 8.dp),
+                    .padding(end = 8.dp)
+                    .testTag(TestTags.NOTE_CONTENT_FIELD),
                 placeholder = { Text("Aa") },
                 singleLine = true
             )
@@ -445,9 +449,11 @@ fun MessageCreationRow(
                         ClickSoundManager.playClickSound()
                     }
                 },
-                modifier = Modifier.bounceClick()
+                modifier = Modifier
+                    .bounceClick()
+                    .testTag(TestTags.SAVE_MESSAGE_BUTTON)
             ) {
-                Icon(Icons.Default.Send, contentDescription = "Send")
+                Icon(Icons.Default.Send, contentDescription = "Save")
             }
         }
     }
@@ -474,7 +480,9 @@ fun CustomTopAppBar(
                 },
                 textStyle = LocalTextStyle.current.copy(color = MaterialTheme.colorScheme.onBackground),
                 singleLine = true,
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .testTag(TestTags.NOTE_TITLE_FIELD),
                 decorationBox = { innerTextField ->
                     if (textFieldValue.text.isBlank()) {
                         Text(stringResource(id = R.string.title), color = Color.Gray)
@@ -484,7 +492,10 @@ fun CustomTopAppBar(
             )
         },
         navigationIcon = {
-            IconButton(onClick = onNavigationClick) {
+            IconButton(
+                onClick = onNavigationClick,
+                modifier = Modifier.testTag(TestTags.BACK_FROM_CHAT_NOTES)
+            ) {
                 Icon(Icons.Default.ArrowBack, contentDescription = "Back")
                 ClickSoundManager.playClickSound()
             }

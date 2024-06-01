@@ -64,7 +64,7 @@ class FilePicker(
         BackHandler { upPress() }
     }
 
-    private fun performBackup(context: Context, directoryUri: Uri) {
+    fun performBackup(context: Context, directoryUri: Uri) {
         val jsonObject = JSONObject()
 
         jsonObject.put(DAYS, gson.toJson(mDayViewModel.allDayEntitiesSortedByDate.value ?: listOf<DayEntity>()))
@@ -90,7 +90,7 @@ class FilePicker(
         }
     }
 
-    private fun importDatabaseFromJson(context: Context, fileUri: Uri) {
+    fun importDatabaseFromJson(context: Context, fileUri: Uri) {
         try {
             val jsonObject = JSONObject(readTextFromUri(context, fileUri))
 
@@ -141,7 +141,7 @@ class FilePicker(
         }
     }
 
-    private fun readTextFromUri(context: Context, uri: Uri): String {
+    fun readTextFromUri(context: Context, uri: Uri): String {
         return context.contentResolver.openInputStream(uri)?.use { inputStream ->
             val reader = inputStream.bufferedReader()
             val stringBuilder = StringBuilder()

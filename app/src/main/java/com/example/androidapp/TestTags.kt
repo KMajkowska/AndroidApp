@@ -13,4 +13,6 @@ object TestTags {
     const val DISPLAYED_NOTE_CONTENT = "displayed note content"
     const val DAY_IN_CALENDAR = "day in calendar"
     const val SETTINGS_SCREEN_NAVIGATE_BUTTON = "settings navigate"
+    const val BACK_FROM_CHAT_NOTES = "back from chat notes"
+    const val SAVE_MESSAGE_BUTTON = "save message button"
 }

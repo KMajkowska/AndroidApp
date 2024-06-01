@@ -42,7 +42,6 @@ class WholeAppLanguageTest {
         viewModel = SettingsViewModel(repository)
     }
 
-
     @Test
     fun testEnglishWholeAppLanguage(){
         composeTestRuleWholeApp.activity.setContent {

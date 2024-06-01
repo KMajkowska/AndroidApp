@@ -110,7 +110,11 @@ class CalendarScreen(
         val currentMonthYear = remember { mutableStateOf(YearMonth.now()) }
         val monthYearText = currentMonthYear.value.format(DateTimeFormatter.ofPattern("MMMM yyyy"))
 
-        Surface(modifier = Modifier.fillMaxSize()) {
+        Surface(
+            modifier = Modifier
+                .fillMaxSize()
+                .testTag(TestTags.CALENDAR_VIEW)
+        ) {
             Column(modifier = Modifier.fillMaxSize()) {
                 Row(
                     modifier = Modifier

@@ -65,7 +65,7 @@
         <receiver android:name=".notifications.NotificationHelper$AlarmReceiver" />
         <activity
             android:name=".navigation.navigablescreen.ChatNotes"
-            android:windowSoftInputMode="adjustResize"></activity>
+            android:windowSoftInputMode="adjustResize" />
     </application>
 
 </manifest>

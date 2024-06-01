@@ -345,6 +345,5 @@ class DayViewModelTest {
         assertTrue(dayViewModel.getConnectedToNoteByNoteId(0).getOrAwaitValue().isEmpty())
         assertTrue(dayViewModel.allConnectedToNote.getOrAwaitValue().isEmpty())
     }
-
     /*-------------------- end::connected to note entity tests --------------------*/
 }
