@@ -141,7 +141,7 @@ class FilePicker(
         }
     }
 
-    fun readTextFromUri(context: Context, uri: Uri): String {
+    private fun readTextFromUri(context: Context, uri: Uri): String {
         return context.contentResolver.openInputStream(uri)?.use { inputStream ->
             val reader = inputStream.bufferedReader()
             val stringBuilder = StringBuilder()

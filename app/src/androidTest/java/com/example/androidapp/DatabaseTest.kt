@@ -2,8 +2,6 @@ package com.example.androidapp
 
 import android.app.Application
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.Observer
 import androidx.lifecycle.viewModelScope
 import androidx.room.Room.inMemoryDatabaseBuilder
 import androidx.test.core.app.ApplicationProvider
@@ -34,8 +32,6 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import java.time.LocalDate
-import java.util.concurrent.CountDownLatch
-import java.util.concurrent.TimeUnit
 
 @OptIn(ExperimentalCoroutinesApi::class)
 @RunWith(AndroidJUnit4::class)
@@ -79,21 +75,6 @@ class DayViewModelTest {
 
         dayViewModel.saveDayEntity(dayEntity)
         return@runBlocking dayViewModel.getDayByDate(testDate)
-    }
-
-    fun <T> LiveData<T>.getOrAwaitValue(): T {
-        var data: T? = null
-        val latch = CountDownLatch(1)
-        val observer = object : Observer<T> {
-            override fun onChanged(value: T) {
-                data = value
-                latch.countDown()
-                this@getOrAwaitValue.removeObserver(this)            }
-        }
-        this.observeForever(observer)
-        latch.await(2, TimeUnit.SECONDS)
-
-        return data ?: throw IllegalStateException("LiveData value was null")
     }
 
     private fun waitForCoroutinesToFinish() = runBlocking {
