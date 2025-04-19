@@ -53,13 +53,11 @@ class NotesEndToEndTest {
             .performTextInput("TEST CONTENT 1")
 
         composeTestRule
-            .onNodeWithContentDescription("Save")
-            .assertHasClickAction()
-            //.performClick()
+            .onNodeWithContentDescription("Send")
+            .performClick()
 
         composeTestRule
             .onNodeWithTag(TestTags.BACK_FROM_CHAT_NOTES)
-            .assertExists()
             .assertHasClickAction()
             .performClick()
 
